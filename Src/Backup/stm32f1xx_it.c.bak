@@ -37,13 +37,34 @@
 
 /* USER CODE BEGIN 0 */
 
+#include "DMA_USART.h"
+#include "can.h"
+#include "nextion_functions.h"
+
+
+extern ADC_HandleTypeDef hadc1;
+extern UART_HandleTypeDef huart3;
+extern BMS_struct *BMS;
+
+uint16_t len = 0;
+uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];	/* Local DMA buffer for circular DMA */
+uint8_t uart_message[DMA_RX_BUFFER_SIZE];
+
+//extern int16_t ADC_BUF[5];
+uint16_t balance_timer, coulomb_counter_timer;
+
+
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
+extern ADC_HandleTypeDef hadc1;
 extern CAN_HandleTypeDef hcan;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
+extern DMA_HandleTypeDef hdma_usart3_rx;
+extern UART_HandleTypeDef huart3;
 
 /******************************************************************************/
 /*            Cortex-M3 Processor Interruption and Exception Handlers         */ 
@@ -73,6 +94,9 @@ void HardFault_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+
+		NVIC_SystemReset();
+
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
   /* USER CODE BEGIN HardFault_IRQn 1 */
@@ -206,7 +230,38 @@ void DMA1_Channel1_IRQHandler(void)
   HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
 
+
   /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
+* @brief This function handles DMA1 channel3 global interrupt.
+*/
+void DMA1_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
+
+	USART_IrqHandler(&huart3, &hdma_usart3_rx);
+
+  /* USER CODE END DMA1_Channel3_IRQn 1 */
+}
+
+/**
+* @brief This function handles ADC1 and ADC2 global interrupts.
+*/
+void ADC1_2_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC1_2_IRQn 0 */
+
+  /* USER CODE END ADC1_2_IRQn 0 */
+  HAL_ADC_IRQHandler(&hadc1);
+  /* USER CODE BEGIN ADC1_2_IRQn 1 */
+
+  /* USER CODE END ADC1_2_IRQn 1 */
 }
 
 /**
@@ -233,6 +288,7 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
   /* USER CODE END USB_LP_CAN1_RX0_IRQn 0 */
   HAL_CAN_IRQHandler(&hcan);
   /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 1 */
+	//CAN_Receive_IT();
 
   /* USER CODE END USB_LP_CAN1_RX0_IRQn 1 */
 }
@@ -247,7 +303,7 @@ void EXTI9_5_IRQHandler(void)
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
-
+  NVIC_SystemReset();
   /* USER CODE END EXTI9_5_IRQn 1 */
 }
 
@@ -262,6 +318,8 @@ void TIM3_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
 
+
+
   /* USER CODE END TIM3_IRQn 1 */
 }
 
@@ -272,11 +330,60 @@ void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
 
+
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
   /* USER CODE BEGIN TIM4_IRQn 1 */
 
+
+
+
+	if(coulomb_counter_timer >= 10){
+
+		if ((BMS->current[0] + BMS->current[2] + BMS->current[3]) > 30 ||(BMS->current[0] + BMS->current[2] + BMS->current[3]) < - 30){
+				BMS->charge += (int32_t)(((float)(BMS->current[0] + BMS->current[2] + BMS->current[3])/10));
+		}
+		coulomb_counter_timer = 0;
+	}
+	coulomb_counter_timer++;
+
+
+//
+//	if (BMS->mode & BMS_BALANCING) {
+//
+//		if(balance_timer == 5000){
+//			for (int i = 0; i < N_OF_PACKS; ++i) {
+//				LTC_set_balance_flag(BMS->config, BMS->sensor[i]);
+//			}
+//			BMS->discharging = TRUE;
+//		}else if(balance_timer >= 60000){
+//			for (int i = 0; i < N_OF_PACKS; ++i) {
+//				LTC_reset_balance_flag(BMS->config, BMS->sensor[i]);
+//			}
+//			BMS->discharging = FALSE;
+//			balance_timer = 0;
+//		}
+//		balance_timer++;
+//	}
+
   /* USER CODE END TIM4_IRQn 1 */
+}
+
+/**
+* @brief This function handles USART3 global interrupt.
+*/
+void USART3_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART3_IRQn 0 */
+
+  /* USER CODE END USART3_IRQn 0 */
+  HAL_UART_IRQHandler(&huart3);
+  /* USER CODE BEGIN USART3_IRQn 1 */
+	USART_IrqHandler(&huart3, &hdma_usart3_rx);
+
+	uart3MessageReceived(BMS);
+
+  /* USER CODE END USART3_IRQn 1 */
 }
 
 /**
@@ -289,6 +396,8 @@ void EXTI15_10_IRQHandler(void)
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
+
+  NVIC_SystemReset();
 
   /* USER CODE END EXTI15_10_IRQn 1 */
 }

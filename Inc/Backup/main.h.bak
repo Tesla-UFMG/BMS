@@ -74,10 +74,8 @@
 #define ISOSPI_MOSI_GPIO_Port GPIOA
 #define GLV_SAMPLE_Pin GPIO_PIN_1
 #define GLV_SAMPLE_GPIO_Port GPIOB
-#define md_CLK_Pin GPIO_PIN_10
-#define md_CLK_GPIO_Port GPIOB
-#define md_serial_Pin GPIO_PIN_11
-#define md_serial_GPIO_Port GPIOB
+#define ERR_LED_RED_Pin GPIO_PIN_13
+#define ERR_LED_RED_GPIO_Port GPIOB
 #define MODE_SELECT_Pin GPIO_PIN_8
 #define MODE_SELECT_GPIO_Port GPIOA
 #define MODE_SELECT_EXTI_IRQn EXTI9_5_IRQn
@@ -88,16 +86,10 @@
 #define AIR_ENABLE_GPIO_Port GPIOB
 #define CHARGE_ENABLE_Pin GPIO_PIN_4
 #define CHARGE_ENABLE_GPIO_Port GPIOB
-#define AIR_AUX_MINUS_Pin GPIO_PIN_5
-#define AIR_AUX_MINUS_GPIO_Port GPIOB
-#define AIR_AUX_PLUS_Pin GPIO_PIN_6
+#define AIR_AUX_PLUS_Pin GPIO_PIN_8
 #define AIR_AUX_PLUS_GPIO_Port GPIOB
-#define ERR_LED_RED_Pin GPIO_PIN_7
-#define ERR_LED_RED_GPIO_Port GPIOB
-#define ERR_LED_BLUE_Pin GPIO_PIN_8
-#define ERR_LED_BLUE_GPIO_Port GPIOB
-#define ERR_LED_GREEN_Pin GPIO_PIN_9
-#define ERR_LED_GREEN_GPIO_Port GPIOB
+#define AIR_AUX_MINUS_Pin GPIO_PIN_9
+#define AIR_AUX_MINUS_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */
 /**

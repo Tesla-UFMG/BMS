@@ -28,13 +28,13 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: BMS_teste.elf
+all: BMS_2019.elf
 
 # Tool invocations
-BMS_teste.elf: $(OBJS) $(USER_OBJS) ../STM32F103C8Tx_FLASH.ld
+BMS_2019.elf: $(OBJS) $(USER_OBJS) ../STM32F103C8Tx_FLASH.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -T"../STM32F103C8Tx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "BMS_teste.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
+	arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -specs=nosys.specs -specs=nano.specs -T"../STM32F103C8Tx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "BMS_2019.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
@@ -46,8 +46,8 @@ clean:
 
 post-build:
 	-@echo 'Generating hex and Printing size information:'
-	arm-none-eabi-objcopy -O ihex "BMS_teste.elf" "BMS_teste.hex"
-	arm-none-eabi-size "BMS_teste.elf"
+	arm-none-eabi-objcopy -O ihex "BMS_2019.elf" "BMS_2019.hex"
+	arm-none-eabi-size "BMS_2019.elf"
 	-@echo ' '
 
 .PHONY: all clean dependents
