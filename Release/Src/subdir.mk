@@ -6,7 +6,7 @@
 C_SRCS += \
 ../Src/BMS.c \
 ../Src/DHAB_s125.c \
-../Src/LED.c \
+../Src/DMA_USART.c \
 ../Src/LTC6804.c \
 ../Src/adc.c \
 ../Src/can.c \
@@ -16,6 +16,8 @@ C_SRCS += \
 ../Src/flash.c \
 ../Src/gpio.c \
 ../Src/main.c \
+../Src/nextion.c \
+../Src/nextion_functions.c \
 ../Src/spi.c \
 ../Src/stm32f1xx_hal_msp.c \
 ../Src/stm32f1xx_it.c \
@@ -26,7 +28,7 @@ C_SRCS += \
 OBJS += \
 ./Src/BMS.o \
 ./Src/DHAB_s125.o \
-./Src/LED.o \
+./Src/DMA_USART.o \
 ./Src/LTC6804.o \
 ./Src/adc.o \
 ./Src/can.o \
@@ -36,6 +38,8 @@ OBJS += \
 ./Src/flash.o \
 ./Src/gpio.o \
 ./Src/main.o \
+./Src/nextion.o \
+./Src/nextion_functions.o \
 ./Src/spi.o \
 ./Src/stm32f1xx_hal_msp.o \
 ./Src/stm32f1xx_it.o \
@@ -46,7 +50,7 @@ OBJS += \
 C_DEPS += \
 ./Src/BMS.d \
 ./Src/DHAB_s125.d \
-./Src/LED.d \
+./Src/DMA_USART.d \
 ./Src/LTC6804.d \
 ./Src/adc.d \
 ./Src/can.d \
@@ -56,6 +60,8 @@ C_DEPS += \
 ./Src/flash.d \
 ./Src/gpio.d \
 ./Src/main.d \
+./Src/nextion.d \
+./Src/nextion_functions.d \
 ./Src/spi.d \
 ./Src/stm32f1xx_hal_msp.d \
 ./Src/stm32f1xx_it.d \
@@ -69,7 +75,7 @@ Src/%.o: ../Src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)
-	arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb -mfloat-abi=soft '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32F103xB -I"C:/Users/Rodolfo Lessa/Desktop/BMS_rep_of/BMS_teste/Inc" -I"C:/Users/Rodolfo Lessa/Desktop/BMS_rep_of/BMS_teste/Drivers/STM32F1xx_HAL_Driver/Inc" -I"C:/Users/Rodolfo Lessa/Desktop/BMS_rep_of/BMS_teste/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Rodolfo Lessa/Desktop/BMS_rep_of/BMS_teste/Drivers/CMSIS/Device/ST/STM32F1xx/Include" -I"C:/Users/Rodolfo Lessa/Desktop/BMS_rep_of/BMS_teste/Drivers/CMSIS/Include"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	arm-none-eabi-gcc -mcpu=cortex-m3 -mthumb -mfloat-abi=soft '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32F103xB -I"C:/Users/hngui/Documents/GitHub/BMS_2019/Inc" -I"C:/Users/hngui/Documents/GitHub/BMS_2019/Drivers/STM32F1xx_HAL_Driver/Inc" -I"C:/Users/hngui/Documents/GitHub/BMS_2019/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy" -I"C:/Users/hngui/Documents/GitHub/BMS_2019/Drivers/CMSIS/Device/ST/STM32F1xx/Include" -I"C:/Users/hngui/Documents/GitHub/BMS_2019/Drivers/CMSIS/Include"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
