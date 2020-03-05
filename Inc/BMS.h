@@ -9,30 +9,41 @@
 #ifndef BMS_H
 #define BMS_H
 
-#include "LTC6804.h"
+#include <LTC6804.h>
 #include "DHAB_s125.h"
 #include "defines.h"
+
+uint8_t NextError[5];
 
 typedef struct BMS_struct {
 
 	//GENERAL
-	uint16_t error_flag;
+	uint16_t error;
 	uint8_t communication_mode;
-	uint8_t opperation_mode;
+	uint8_t mode;
+	uint8_t discharging;
 	uint8_t opperating_packs;
 	uint8_t status;
 
-	//VOLTAGE | TEMPERATURE
-	LTC6804 *sensor_v[N_OF_PACKS];
-	uint16_t lowest_cell;  //of the bank
-	uint16_t GLV_voltage;
-	uint16_t v_bank;
+	LTC_sensor *sensor[N_OF_PACKS];
+	LTC_config *config;
+
+	uint16_t v_GLV;
+	uint16_t v_TS;
+	uint16_t v_min;  	//of the bank
+	uint16_t v_max; 	//of the bank
+	uint16_t v_delta;   //of the bank
+	uint16_t t_max;		//of the bank
 
 	//CURRENT
 	float current[4];
+	float c_adc[4];
 
 	//CHARGE_PERCENTAGE
 	int32_t charge;
+	float charge_percent;
+	int32_t charge_max;
+	int32_t charge_min;
 
 	//AIR
 	uint8_t AIR;

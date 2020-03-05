@@ -63,6 +63,11 @@ void MX_CAN_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+void CAN_Config_Filter(void);
+void CAN_Config_Frames(void);
+void CAN_Receive_IT(void);
+void CAN_Transmit(uint8_t *vet, uint32_t id);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
