@@ -303,7 +303,7 @@ void EXTI9_5_IRQHandler(void)
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
-  NVIC_SystemReset();
+//  NVIC_SystemReset();
   /* USER CODE END EXTI9_5_IRQn 1 */
 }
 
@@ -317,8 +317,6 @@ void TIM3_IRQHandler(void)
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
-
-
 
   /* USER CODE END TIM3_IRQn 1 */
 }
@@ -336,8 +334,6 @@ void TIM4_IRQHandler(void)
   /* USER CODE BEGIN TIM4_IRQn 1 */
 
 
-
-
 	if(coulomb_counter_timer >= 10){
 
 		if ((BMS->current[0] + BMS->current[2] + BMS->current[3]) > 30 ||(BMS->current[0] + BMS->current[2] + BMS->current[3]) < - 30){
@@ -347,24 +343,6 @@ void TIM4_IRQHandler(void)
 	}
 	coulomb_counter_timer++;
 
-
-//
-//	if (BMS->mode & BMS_BALANCING) {
-//
-//		if(balance_timer == 5000){
-//			for (int i = 0; i < N_OF_PACKS; ++i) {
-//				LTC_set_balance_flag(BMS->config, BMS->sensor[i]);
-//			}
-//			BMS->discharging = TRUE;
-//		}else if(balance_timer >= 60000){
-//			for (int i = 0; i < N_OF_PACKS; ++i) {
-//				LTC_reset_balance_flag(BMS->config, BMS->sensor[i]);
-//			}
-//			BMS->discharging = FALSE;
-//			balance_timer = 0;
-//		}
-//		balance_timer++;
-//	}
 
   /* USER CODE END TIM4_IRQn 1 */
 }

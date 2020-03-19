@@ -168,25 +168,14 @@ int main(void)
 	HAL_TIM_Base_Start_IT(&htim3);
 	HAL_TIM_Base_Start_IT(&htim4);
 
-
-
 	BMS = (BMS_struct*) calloc(1, sizeof(BMS_struct));
 	BMS_init(BMS);
 
-//	DWT_Delay_us(1000000);
-//
-//	for(uint8_t i = 0; i < 4; i++){
-//		CURRENT_ZERO[i] = ((float)ADC_BUF[i] * (float)CURRENT_GAIN[i]);
-//	}
-	//			for (int i = 0; i < N_OF_PACKS; ++i) {
-	//				LTC_balance_test(BMS->config, BMS->sensor[i]);
-	//			}
+	DWT_Delay_us(50000);
+
+	HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, 1);
 
 	NexPageShow(1);
-
-
-
-	DWT_Delay_us(100000);
 
   /* USER CODE END 2 */
 
@@ -199,10 +188,6 @@ int main(void)
 		BMS_error(BMS);
 		BMS_can(BMS);
 		nexLoop(BMS);
-
-		HAL_GPIO_TogglePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin);
-
-		DWT_Delay_us(1000000);
 
   /* USER CODE END WHILE */
 
