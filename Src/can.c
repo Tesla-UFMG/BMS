@@ -121,7 +121,7 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* canHandle)
 
 /* USER CODE BEGIN 1 */
 
-static void initRxMes(CanRxMsgTypeDef *RxMessage)
+static void initRxMes(CAN_RxHeaderTypeDef *RxMessage)
 {
   uint8_t i = 0;
 
@@ -142,28 +142,28 @@ void CAN_Config_Filter(void){
 	uint32_t filter_id = 0x00000000;
   uint32_t filter_mask = 0xFFFFFF10;
 	//uint32_t filter_mask = 0xFFFFFF00;  //256
-	CAN_FilterConfTypeDef filter;
+	CAN_FilterTypeDef filter;
 
   filter.FilterIdHigh = ((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF; // STID[10:0] & EXTID[17:13]
   filter.FilterIdLow = (filter_id >> (11 - 3)) & 0xFFF8; // EXID[12:5] & 3 Reserved bits
   filter.FilterMaskIdHigh = ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF;
   filter.FilterMaskIdLow = (filter_mask >> (11 - 3)) & 0xFFF8;
   filter.FilterFIFOAssignment = 0;
-  filter.FilterNumber = 0;
+  filter.FilterBank = 0;
   filter.FilterMode = CAN_FILTERMODE_IDMASK;
   filter.FilterScale = CAN_FILTERSCALE_32BIT;
   filter.FilterActivation = ENABLE;
-  filter.BankNumber = 14;
+  filter.SlaveStartFilterBank = 14;
 
 	if (HAL_CAN_ConfigFilter(&hcan, &filter) != HAL_OK)  // RETORNA O STATUS DA FUNCAO
 	{
-	  _Error_Handler(__FILE__, __LINE__);
+	  Error_Handler();
 	}
 }
 
 void CAN_Config_Frames(void){
-	static CanTxMsgTypeDef        TxMessage; // Struct de definicao da estrutura da mensagem CAN Tx
-	static CanRxMsgTypeDef        RxMessage;
+	static CAN_TxHeaderTypeDef        TxMessage; // Struct de definicao da estrutura da mensagem CAN Tx
+	static CAN_RxHeaderTypeDef        RxMessage;
 
 	initRxMes(&RxMessage);
 
@@ -182,7 +182,7 @@ void CAN_Config_Frames(void){
 
 /*Start the Reception process and enable reception interrupt*/
 void CAN_Receive_IT(void){
-	if (HAL_CAN_Receive_IT(&hcan, CAN_FIFO0) != HAL_OK)
+	if (HAL_CAN_Receive_IT(&hcan, CAN_RX_FIFO0) != HAL_OK)
 	{
 	  /* Reception Error */
 	  Error_Handler();
@@ -222,14 +222,14 @@ void HAL_CAN_ErrorCallback(CAN_HandleTypeDef * hcan)
 {
 	/* For CAN Rx frames received in FIFO number 0 */
   __HAL_CAN_CLEAR_FLAG(hcan, CAN_FLAG_FOV0);
-  HAL_CAN_Receive_IT(hcan, CAN_FIFO0);
-  __HAL_CAN_FIFO_RELEASE(hcan, CAN_FIFO0);
+  HAL_CAN_Receive_IT(hcan, CAN_RX_FIFO0);
+  __HAL_CAN_FIFO_RELEASE(hcan, CAN_RX_FIFO0);
 
 	/* For CAN Rx frames received in FIFO number 1 */
   //__HAL_CAN_CLEAR_FLAG(hcan, CAN_FLAG_FOV1);
   //__HAL_CAN_Receive_IT(hcan, CAN_FIFO1);
 	__HAL_CAN_RESET_HANDLE_STATE(hcan);
-	__HAL_CAN_ENABLE_IT(hcan, CAN_IT_EWG | CAN_IT_EPV | CAN_IT_BOF | CAN_IT_LEC | CAN_IT_ERR | CAN_IT_FMP0| CAN_IT_FOV0| CAN_IT_FMP1| CAN_IT_FOV1| CAN_IT_TME);
+	__HAL_CAN_ENABLE_IT(hcan, CAN_IT_ERROR_WARNING | CAN_IT_ERROR_PASSIVE | CAN_IT_BUSOFF | CAN_IT_LAST_ERROR_CODE | CAN_IT_ERROR | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO0_OVERRUN | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_RX_FIFO1_OVERRUN | CAN_IT_TX_MAILBOX_EMPTY);
 	__HAL_UNLOCK(hcan);
 }
 

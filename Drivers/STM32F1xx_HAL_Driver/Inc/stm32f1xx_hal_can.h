@@ -166,6 +166,9 @@ typedef struct
   uint32_t DLC;      /*!< Specifies the length of the frame that will be transmitted.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 8. */
 
+  uint8_t Data[8];   /*!< Contains the data to be transmitted.
+                            This parameter must be a number between Min_Data = 0 and Max_Data = 0xFF */
+
   FunctionalState TransmitGlobalTime; /*!< Specifies whether the timestamp counter value captured on start
                           of frame transmission, is sent in DATA6 and DATA7 replacing pData[6] and pData[7].
                           @note: Time Triggered Communication Mode must be enabled.
@@ -194,6 +197,12 @@ typedef struct
   uint32_t DLC;      /*!< Specifies the length of the frame that will be transmitted.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 8. */
 
+  uint8_t Data[8];      /*!< Contains the data to be received.
+                               This parameter must be a number between Min_Data = 0 and Max_Data = 0xFF */
+
+  uint32_t FMI;         /*!< Specifies the index of the filter the message stored in the mailbox passes through.
+                               This parameter must be a number between Min_Data = 0 and Max_Data = 0xFF */
+
   uint32_t Timestamp; /*!< Specifies the timestamp counter value captured on start of frame reception.
                           @note: Time Triggered Communication Mode must be enabled.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 0xFFFF. */
@@ -212,7 +221,13 @@ typedef struct __CAN_HandleTypeDef
 
   CAN_InitTypeDef             Init;                      /*!< CAN required parameters */
 
+  CAN_TxHeaderTypeDef*		  pTxMsg;					 /*!< Pointer to transmit structure  */
+
+  CAN_RxHeaderTypeDef*        pRxMsg;     				 /*!< Pointer to reception structure for RX FIFO0 msg */
+
   __IO HAL_CAN_StateTypeDef   State;                     /*!< CAN communication state */
+
+  HAL_LockTypeDef             Lock;       				 /*!< CAN locking object             */
 
   __IO uint32_t               ErrorCode;                 /*!< CAN Error code.
                                                               This parameter can be a value of @ref CAN_Error_Code */
