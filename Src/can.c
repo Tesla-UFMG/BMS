@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "can.h"
 
+
 /* USER CODE BEGIN 0 */
 
 uint8_t* idRx;
@@ -182,7 +183,7 @@ void CAN_Config_Frames(void){
 
 /*Start the Reception process and enable reception interrupt*/
 void CAN_Receive_IT(void){
-	if (HAL_CAN_Receive_IT(&hcan, CAN_RX_FIFO0) != HAL_OK)
+	if (HAL_CAN_Receive_IT(&hcan, CAN_FIFO0) != HAL_OK)
 	{
 	  /* Reception Error */
 	  Error_Handler();
