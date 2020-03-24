@@ -51,7 +51,15 @@ typedef enum
   HAL_CAN_STATE_LISTENING         = 0x02U,  /*!< CAN receive process is ongoing      */
   HAL_CAN_STATE_SLEEP_PENDING     = 0x03U,  /*!< CAN sleep request is pending        */
   HAL_CAN_STATE_SLEEP_ACTIVE      = 0x04U,  /*!< CAN sleep mode is active            */
-  HAL_CAN_STATE_ERROR             = 0x05U   /*!< CAN error state                     */
+  HAL_CAN_STATE_ERROR             = 0x05U,   /*!< CAN error state                     */
+  HAL_CAN_STATE_BUSY_RX0_RX1      = 0x62U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_RX0          = 0x22U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_RX1          = 0x32U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_TX_RX0_RX1   = 0x72U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_TX_RX0       = 0x42U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_TX_RX1       = 0x52U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_TX           = 0x12U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_TIMEOUT           = 0x03U  /*!< CAN in Timeout state                */
 
 } HAL_CAN_StateTypeDef;
 
@@ -454,6 +462,14 @@ typedef  void (*pCAN_CallbackTypeDef)(CAN_HandleTypeDef *hcan); /*!< pointer to 
   * @}
   */
 
+/** @defgroup CAN_transmit_constants CAN Transmit Constants
+  * @{
+  */
+#define CAN_TXSTATUS_NOMAILBOX      ((uint8_t)0x04)  /*!< CAN cell did not provide CAN_TxStatus_NoMailBox */
+/**
+  * @}
+  */
+
 /** @defgroup CAN_receive_FIFO_number CAN Receive FIFO Number
   * @{
   */
@@ -601,6 +617,15 @@ typedef  void (*pCAN_CallbackTypeDef)(CAN_HandleTypeDef *hcan); /*!< pointer to 
   *         This parameter can be one of @arg CAN_flags
   * @retval The state of __FLAG__ (TRUE or FALSE).
   */
+#define __HAL_CAN_FIFO_RELEASE(__HANDLE__, __FIFONUMBER__) (((__FIFONUMBER__) == CAN_RX_FIFO0)? \
+((__HANDLE__)->Instance->RF0R = CAN_RF0R_RFOM0) : ((__HANDLE__)->Instance->RF1R = CAN_RF1R_RFOM1))
+
+/**
+  * @brief  Cancel a transmit request.
+  * @param  __HANDLE__: specifies the CAN Handle.
+  * @param  __TRANSMITMAILBOX__: the number of the mailbox that is used for transmission.
+  * @retval None.
+  */
 #define __HAL_CAN_GET_FLAG(__HANDLE__, __FLAG__) \
   ((((__FLAG__) >> 8U) == 5U)? ((((__HANDLE__)->Instance->TSR) & (1U << ((__FLAG__) & CAN_FLAG_MASK))) == (1U << ((__FLAG__) & CAN_FLAG_MASK))): \
    (((__FLAG__) >> 8U) == 2U)? ((((__HANDLE__)->Instance->RF0R) & (1U << ((__FLAG__) & CAN_FLAG_MASK))) == (1U << ((__FLAG__) & CAN_FLAG_MASK))): \
@@ -698,6 +723,8 @@ uint32_t HAL_CAN_IsTxMessagePending(CAN_HandleTypeDef *hcan, uint32_t TxMailboxe
 uint32_t HAL_CAN_GetTxTimestamp(CAN_HandleTypeDef *hcan, uint32_t TxMailbox);
 HAL_StatusTypeDef HAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo, CAN_RxHeaderTypeDef *pHeader, uint8_t aData[]);
 uint32_t HAL_CAN_GetRxFifoFillLevel(CAN_HandleTypeDef *hcan, uint32_t RxFifo);
+HAL_StatusTypeDef HAL_CAN_Receive_IT(CAN_HandleTypeDef *hcan, uint8_t FIFONumber);
+HAL_StatusTypeDef HAL_CAN_Transmit_IT(CAN_HandleTypeDef *hcan);
 
 /**
  * @}
@@ -780,6 +807,11 @@ HAL_StatusTypeDef HAL_CAN_ResetError(CAN_HandleTypeDef *hcan);
   * @{
   */
 #define CAN_FLAG_MASK  (0x000000FFU)
+
+/* Mailboxes definition */
+#define CAN_TXMAILBOX_0   ((uint8_t)0x00)
+#define CAN_TXMAILBOX_1   ((uint8_t)0x01)
+#define CAN_TXMAILBOX_2   ((uint8_t)0x02)
 /**
   * @}
   */
