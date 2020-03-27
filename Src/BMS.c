@@ -260,121 +260,21 @@ void BMS_monitoring(BMS_struct *BMS){
 	EE_WriteVariable(0x4, (uint16_t) (BMS->charge_max >> 16));
 	EE_WriteVariable(0x5, (uint16_t) BMS->charge_max);
 
-	//	if (BMS->error_flag != ERR_NO_ERROR) {
-	//		LTC_convert_fuses();
-	//
-	//		for(i = 0; i < N_OF_PACKS; i++){
-	//
-	//			if (BMS->sensor[i]->status == STAT_OPPERATING) {
-	//
-	//				if(LTC_check_fuses(BMS->sensor[i]) == ERR_OPEN_FUSES)
-	//					BMS->error_flag |= ERR_OPEN_FUSES;
-	//				//			else
-	//				//				BMS->error_flag &= ~ERR_OPEN_FUSES;
-	//			}
-	//
-	//		}
-	//	}
 
-	//BMS->opperating_packs = opperating_packs;
-
-	//BMS->AIR = BMS_AIR_status(BMS);
 }
-//
-//uint8_t BMS_AIR_status(BMS_struct *BMS){
-////	HAL_GPIO_WritePin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin, RESET);
-//	if (HAL_GPIO_ReadPin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin) == 1)
-//		return AIR_CLOSED;
-//
-////	HAL_GPIO_WritePin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin, SET);
-//	else if (HAL_GPIO_ReadPin(AIR_AUX_MINUS_GPIO_Port, AIR_AUX_MINUS_Pin) == 1)
-//		return AIR_CLOSED;
-//	else
-//		return AIR_OPEN;
-//}
-//
-//int BMS_charging(BMS_struct BMS){
-//	//EM CONSTRU��O...
-//	return 0;
-//}
-//
-//int BMS_discharging(BMS_struct BMS){
-//	//EM CONSTRU��O...
-//	return 0;
-//}
-//
-//int BMS_balance(BMS_struct *BMS){
-//	for(uint8_t i = 0; i < N_OF_PACKS; i++){
-//		if(LTC6804_check_status(BMS->sensor[i])){
-//			LTC6804_balance(BMS->sensor[i]);
-//		}
-//	}
-//	//EM CONSTRU��O...
-//	return 0;
-//}
-//
-//int BMS_communication(BMS_struct *BMS){
-//	//EM CONSTRU��O...
-//
-//
-//	//UART_print("\n\n%d\n\n", BMS->charge);
-//	EE_WriteVariable(0x0, (uint16_t) (BMS->charge >> 16));
-//	EE_WriteVariable(0x1, (uint16_t) BMS->charge);
-//	nextLoop(BMS);
-//
-//	switch(BMS->communication_mode){
-//	case COMM_TC_ONLY:
-//		BMS_can(BMS);
-//		break;
-//
-//	case COMM_FULL:
-//
-//		BMS_can(BMS);
-//		if ((HAL_GetTick() - comm_time) > UART_RATE){
-//			BMS_uart(BMS);
-//			comm_time = HAL_GetTick();
-//		}
-//		break;
-//
-//	case COMM_UART_DEBUG:
-//
-//		if ((HAL_GetTick() - comm_time) > UART_RATE){
-//			BMS_uart(BMS);
-//			comm_time = HAL_GetTick();
-//		}
-//
-//		break;
-//	}
-//	return 0;
-//}
-//
+
 uint16_t flag = 0;
 
 void BMS_error(BMS_struct *BMS){
 
 	if(BMS->v_min <= 28000)
 		flag |= ERR_UNDER_VOLTAGE;
-//	else if(BMS->v_min >= 30000)
-//		flag &= ~ERR_UNDER_VOLTAGE;
+
 	if(BMS->v_max >= 36000)
 		flag |= ERR_OVER_VOLTAGE;
-//	else if(BMS->v_max <= 34000)
-//		flag &= ~ERR_OVER_VOLTAGE;
+
 	if(BMS->t_max >= 500)
 		flag |= ERR_OVER_TEMPERATURE;
-
-
-	//	for(int i = 0; i < N_OF_PACKS; i++){
-	//		//if (BMS->sensor[i]->status == STAT_OPPERATING) {
-	//
-	//
-	//
-	//
-	//			//BMS->error_flag &= ~(ERR_UNDER_VOLTAGE | ERR_OVER_VOLTAGE | ERR_OVER_TEMPERATURE);
-	//
-	//		//}
-	//	}
-
 
 	if((flag & ERR_UNDER_VOLTAGE) == ERR_UNDER_VOLTAGE)
 		UV_retries++;
@@ -414,31 +314,6 @@ void BMS_error(BMS_struct *BMS){
 		NextError[1] = 0;
 		BMS->error &= ~ERR_OVER_VOLTAGE;
 	}
-	//	if(OT_retries == 5){
-	//		NextError[2] = 1;
-	//		BMS->error_flag |= ERR_OVER_TEMPERATURE;}
-	//	else if(OT_retries == 0){
-	//		NextError[2] = 0;
-	//		BMS->error_flag &= ~ERR_OVER_TEMPERATURE;}
-
-	//	if(BMS->opperating_packs < N_OF_PACKS){
-	//		NextError[3] = 1;
-	//		BMS->error |= ERR_COMM_ERROR;}  //SET FLAG
-	//	else{
-	//		NextError[3] = 0;
-	//		BMS->error &= ~ERR_COMM_ERROR; //RESET FLAG
-	//}
-	//	switch(BMS->opperation_mode){
-	//	case OPP_DEFAULT:
-	//		if(BMS->current[0] > 1800 || BMS->current[2] > 1800)
-	//			BMS->error_flag |= ERR_OVER_CURRENT;
-	//		break;
-	//
-	//	case OPP_CHARGING:
-	//		if(BMS->current[1] > 2000 || BMS->current[3] > 2000)
-	//			BMS->error_flag |= ERR_OVER_CURRENT;
-	//		break;
-	//	}
 
 
 	if(BMS->v_GLV < 13500){
@@ -593,162 +468,4 @@ void BMS_can(BMS_struct *BMS){
 
 }
 
-//extern uint8_t max_retries;
-//extern uint16_t ADC_BUF[5];
-//
-//
-//void BMS_uart(BMS_struct *BMS){
-//
-//	HAL_GPIO_WritePin(DEBUG_GPIO_Port,DEBUG_Pin, 1);
-//
-//
-//	UART_print("\n\n\n\n"  );//HEADER
-//	UART_print("\n\t\tONLINE PACKS: %d\t\tGLV: %d\t\tCHARGE: %d\t\tERROR:", BMS->opperating_packs, BMS->GLV_voltage , BMS->charge);//HEADER
-//	UART_print_error_flag(BMS->error_flag);
-//	UART_print("\t\tRETRIES:%d", max_retries);
-//	UART_print("\n"  );//HEADER
-//
-//	for(int i = 0; i < N_OF_PACKS; i++){
-//
-//		UART_print("\n");
-//		UART_print("\t\t\t\t\t\t\t\t   -- PACK %d STATUS: %x --\n", i, BMS->sensor[i]->status);
-//		UART_print("\n\t");
-//
-//		if (BMS->sensor[i]->status == STAT_OPPERATING) {
-//			for(int j = 0; j < N_OF_CELLS; j++){
-//				UART_print("CELL %2d: ", j + 1);
-//				UART_print("%d", BMS->sensor[i]->CxV[j]);
-//				//UART_print_float((float)BMS->sensor[i]->CxV[j]/10000);
-//				//UART_print("%x", BMS->sensor[i]->v_error[j]);
-//				UART_print_error_flag(BMS->sensor[i]->v_error[j]);
-//				UART_print("\t");
-//
-//				if ((j + 1) % 6 == 0){
-//					UART_print("\n\t");
-//				}
-//			}
-//
-//			UART_print("\n\t");
-//
-////			for(int j = 0; j < N_OF_THERMISTORS; j++){
-////				UART_print("TEMP %d: ", j);
-////				UART_print_float((float)BMS->sensor[i]->t_cell[j]/1000);
-////				UART_print_error_flag(BMS->sensor[i]->t_error[j]);
-////				UART_print("\t");
-////			}
-//
-//			UART_print("V PACK %d: ", i);
-//			UART_print("%d", BMS->sensor[i]->v_sum);
-//			UART_print("\t");
-//			UART_print("VAR MAX %d: ", i);
-//			UART_print("%d", BMS->sensor[i]->v_var);
-//
-//			UART_print("\n");
-//		}
-//	}
-//
-////	UART_print("\n\tCURRENT 1(1): ");
-////	UART_print_float((float)BMS->current[0]/100);
-////	UART_print("\tCURRENT 1(2): ");
-////	UART_print_float((float)BMS->current[1]/1000);
-////	UART_print("\tCURRENT 2(1): ");
-////	UART_print_float((float)BMS->current[2]/100);
-////	UART_print("\tCURRENT 2(2): ");
-////	UART_print_float((float)BMS->current[3]/1000);
-////	UART_print("\n\tCGLV: ");
-////	UART_print_float((float)BMS->GLV_voltage/1000);
-////	UART_print("\n\t%d \t%d \t%d \t%d", ADC_BUF[0], ADC_BUF[1], ADC_BUF[2], ADC_BUF[3]);
-//
-//	UART_print("\n\t[UV] times: %d", UV_retries);
-//
-//	UART_print("\t[OV] times: %d", OV_retries);
-//
-//	UART_print("\t[OT] times: %d", OT_retries);
-//
-//	HAL_GPIO_WritePin(DEBUG_GPIO_Port,DEBUG_Pin, 0);
-//}
-//
-//
-////uint8_t BMS_mode_comm_navigate(uint8_t mode){
-////	switch(mode){
-////	case COMM_FULL:
-////		return COMM_TC_ONLY;
-////		break;
-////	case COMM_TC_ONLY:
-////		return COMM_UART_DEBUG;
-////		break;
-////	case COMM_UART_DEBUG:
-////		return COMM_FULL;
-////		break;
-////	default:
-////		return OPP_DEFAULT;
-////	}
-////}
-//
-////uint8_t mode_display(uint8_t mode){
-////	switch(mode){
-////	case OPP_BALANCING:
-////		return b;
-////		break;
-////	case OPP_CHARGING:
-////		return c;
-////		break;
-////	case OPP_DEFAULT:
-////		return d;
-////		break;
-////	case OPP_TESTING:
-////		return t;
-////		break;
-////	default:
-////		return d;
-////	}
-////}
-//
-////extern uint8_t mode, accept_time;
-//
-//
-////void BMS_mode_selector(BMS_struct *BMS){
-////	if(!HAL_GPIO_ReadPin(MODE_SELECT_GPIO_Port, MODE_SELECT_Pin)){
-////		int i = 0, op = 0;
-////
-////		i2c_transmit(D);
-////
-////		while (!HAL_GPIO_ReadPin(MODE_SELECT_GPIO_Port, MODE_SELECT_Pin));
-////
-////		while(1){
-////			//---MODE SELECTION ROUTINE---
-////
-////			i2c_transmit(mode_display(a));
-////
-////			if(mode_button == 1){
-////				//---MODE BLINKING ROUTINE---
-////
-////				if(i >= 12) op = 1;
-////				else if (i <= 0) op = 0;
-////
-////				i2c_transmit(mode_display(mode));
-////				HAL_Delay(i);
-////				i2c_transmit(0);
-////				HAL_Delay(12 - i);
-////
-////				if (op == 0) i++;
-////				else i--;
-////
-////				if(accept_time > 1000){
-////					//---MODE CHANGING ROUTINE---
-////
-////					mode_confirm_animation();
-////					return;
-////
-////					//---MODE CHANGING ROUTINE--- END
-////				}
-////
-////				//---MODE BLINKING ROUTINE--- END
-////			}
-////
-////			//---MODE SELECTION ROUTINE--- END
-////		}
-////	}
-////}
-//
-//
+
