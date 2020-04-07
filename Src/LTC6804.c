@@ -8,10 +8,6 @@
 /****************************************************************/
 
 #include <LTC6804.h>
-#include <stdarg.h>
-#include <math.h>
-#include "dwt_stm32_delay.h"
-#include "defines.h"
 
 extern SPI_HandleTypeDef hspi1;
 

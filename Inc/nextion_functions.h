@@ -9,7 +9,6 @@
 #define NEXTION_FUNCTIONS_H_
 
 #include "BMS.h"
-#include "DMA_USART.h"
 
 // NEXTION PAGES DEFINES
 #define N_PAGE0 0

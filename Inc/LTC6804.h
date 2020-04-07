@@ -10,8 +10,9 @@
 #ifndef LTC_2_H
 #define LTC_2_H
 
-#include "stm32f1xx_hal.h"
-#include <math.h>
+#include <stdarg.h>
+#include "dwt_stm32_delay.h"
+#include "defines.h"
 
 
 

@@ -8,11 +8,6 @@
 /****************************************************************/
 
 #include "DHAB_s125.h"
-#include "stm32f1xx_hal.h"
-#include "dwt_stm32_delay.h"
-#include "main.h"
-#include "usart.h"
-#include <stdlib.h>
 
 
 

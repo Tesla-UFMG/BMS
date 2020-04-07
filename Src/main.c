@@ -20,25 +20,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "adc.h"
-#include "can.h"
-#include "dma.h"
-#include "spi.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
-#include "stm32f1xx_hal.h"
-#include "BMS.h"
-#include <stdlib.h>
-#include "dwt_stm32_delay.h"
-#include "eeprom.h"
-#include "nextion.h"
-#include "DMA_USART.h"
-#include "nextion_functions.h"
 
 /* USER CODE END Includes */
 

@@ -24,7 +24,8 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "defines.h"
+#include "dwt_stm32_delay.h"
 
 
 /* USER CODE BEGIN Includes */

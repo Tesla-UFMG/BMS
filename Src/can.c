@@ -27,7 +27,6 @@ uint8_t* idRx;
 uint8_t* vetRx;
 uint8_t vetTx[__DLC__];
 
-#include "dwt_stm32_delay.h"
 
 /* USER CODE END 0 */
 

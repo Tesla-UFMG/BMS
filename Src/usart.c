@@ -22,10 +22,6 @@
 
 /* USER CODE BEGIN 0 */
 
-#include <stdarg.h>
-#include <string.h>
-#include "dwt_stm32_delay.h"
-#include "defines.h"
 
 #define abs(x) ((x)>=0?(x):-(x))
 

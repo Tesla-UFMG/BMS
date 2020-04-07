@@ -9,9 +9,9 @@
 #ifndef BMS_H
 #define BMS_H
 
-#include <LTC6804.h>
+#include "LTC6804.h"
 #include "DHAB_s125.h"
-#include "defines.h"
+#include "eeprom.h"
 
 uint8_t NextError[5];
 

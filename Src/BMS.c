@@ -8,13 +8,6 @@
 /****************************************************************/
 
 #include "BMS.h"
-#include "stm32f1xx_hal.h"
-#include "usart.h"
-#include "dwt_stm32_delay.h"
-#include "can.h"
-#include "eeprom.h"
-#include <stdlib.h>
-#include "nextion.h"
 
 static int8_t UV_retries, OV_retries, OT_retries;
 
