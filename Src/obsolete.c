@@ -16,15 +16,8 @@
 //		return AIR_OPEN;
 //}
 //
-//int BMS_charging(BMS_struct BMS){
-//	//EM CONSTRU��O...
-//	return 0;
 //}
 //
-//int BMS_discharging(BMS_struct BMS){
-//	//EM CONSTRU��O...
-//	return 0;
-//}
 //
 //int BMS_balance(BMS_struct *BMS){
 //	for(uint8_t i = 0; i < N_OF_PACKS; i++){

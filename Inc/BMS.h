@@ -27,6 +27,7 @@ typedef struct BMS_struct {
 
 	LTC_sensor *sensor[N_OF_PACKS];
 	LTC_config *config;
+	DHAB_sensor *dhabSensor[N_OF_DHAB];
 
 	uint16_t v_GLV;
 	uint16_t v_TS;
@@ -44,6 +45,9 @@ typedef struct BMS_struct {
 	float charge_percent;
 	int32_t charge_max;
 	int32_t charge_min;
+	float charge_variation_percent;
+	float discharge_percent;
+	float discharge_variation_percent;
 
 	//AIR
 	uint8_t AIR;
@@ -71,5 +75,7 @@ void BMS_error(BMS_struct *BMS);
 void BMS_can(BMS_struct *BMS);
 
 void BMS_uart(BMS_struct *BMS);
+
+void BMS_initial_SOC(BMS_struct *BMS);
 
 #endif

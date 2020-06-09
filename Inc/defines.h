@@ -131,6 +131,7 @@
 //------//
 
 //SENSOR DE CORRENTE
+#define N_OF_DHAB		3
 #define MAX_CURRENT 	800 //A
 #define ITERATIONS 		10
 #define ZERO_CURRENT0	466 //492
