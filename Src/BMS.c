@@ -24,49 +24,49 @@ static int8_t UV_retries, OV_retries, OT_retries;
 static const uint16_t CAN_ID_TABLE[8][5] = {
 
 		{
-				260,		//PACK 2 V_GROUP 0 		(cells 0, 1, 2, 3)
-				261,		//PACK 2 V_GROUP 1		(cells 4, 5, 6, 7)
-				262,		//PACK 2 V_GROUP 2      (cells 8, 9, 10, 11)
-				263,		//PACK 2 T_GROUP        (sensor 0, 1, 2, 3)
+				256,		//PACK 2 V_GROUP 0 		(cells 0, 1, 2, 3)
+				257,		//PACK 2 V_GROUP 1		(cells 4, 5, 6, 7)
+				258,		//PACK 2 V_GROUP 2      (cells 8, 9, 10, 11)
+				259,		//PACK 2 T_GROUP        (sensor 0, 1, 2, 3)
 		},
 		{
-				265,		//PACK 3 V_GROUP 0 		(cells 0, 1, 2, 3)
-				266,		//PACK 3 V_GROUP 1      (cells 4, 5, 6, 7)
-				267,		//PACK 3 V_GROUP 2      (cells 8, 9, 10, 11)
-				268,		//PACK 3 T_GROUP        (sensor 0, 1, 2, 3)
+				260,		//PACK 3 V_GROUP 0 		(cells 0, 1, 2, 3)
+				261,		//PACK 3 V_GROUP 1      (cells 4, 5, 6, 7)
+				262,		//PACK 3 V_GROUP 2      (cells 8, 9, 10, 11)
+				263,		//PACK 3 T_GROUP        (sensor 0, 1, 2, 3)
 		},
 		{
-				270,		//PACK 4 V_GROUP 0 		(cells 0, 1, 2, 3)
-				271,		//PACK 4 V_GROUP 1      (cells 4, 5, 6, 7)
-				272,		//PACK 4 V_GROUP 2      (cells 8, 9, 10, 11)
-				273,		//PACK 4 T_GROUP        (sensor 0, 1, 2, 3)
+				264,		//PACK 4 V_GROUP 0 		(cells 0, 1, 2, 3)
+				265,		//PACK 4 V_GROUP 1      (cells 4, 5, 6, 7)
+				266,		//PACK 4 V_GROUP 2      (cells 8, 9, 10, 11)
+				267,		//PACK 4 T_GROUP        (sensor 0, 1, 2, 3)
 		},
 		{
-				275,		//PACK 5 V_GROUP 0      (cells 0, 1, 2, 3)
-				276,		//PACK 5 V_GROUP 1      (cells 4, 5, 6, 7)
-				277,		//PACK 5 V_GROUP 2      (cells 8, 9, 10, 11)
-				278,		//PACK 5 T_GROUP        (sensor 0, 1, 2, 3)
+				268,		//PACK 5 V_GROUP 0      (cells 0, 1, 2, 3)
+				269,		//PACK 5 V_GROUP 1      (cells 4, 5, 6, 7)
+				270,		//PACK 5 V_GROUP 2      (cells 8, 9, 10, 11)
+				271,		//PACK 5 T_GROUP        (sensor 0, 1, 2, 3)
 		},
 		{
-				280,		//PACK 0 V_GROUP 0 		(cells 0, 1, 2, 3)
-				281,		//PACK 0 V_GROUP 1		(cells 4, 5, 6, 7)
-				282,		//PACK 0 V_GROUP 2      (cells 8, 9, 10, 11)
-				283,		//PACK 0 T_GROUP        (sensor 0, 1, 2, 3)
+				272,		//PACK 0 V_GROUP 0 		(cells 0, 1, 2, 3)
+				273,		//PACK 0 V_GROUP 1		(cells 4, 5, 6, 7)
+				274,		//PACK 0 V_GROUP 2      (cells 8, 9, 10, 11)
+				275,		//PACK 0 T_GROUP        (sensor 0, 1, 2, 3)
 		},
 
 		{
-				285,		//PACK 1 V_GROUP 0 		(cells 0, 1, 2, 3)
-				286,		//PACK 1 V_GROUP 1		(cells 4, 5, 6, 7)
-				287,		//PACK 1 V_GROUP 2      (cells 8, 9, 10, 11)
-				288,		//PACK 1 T_GROUP        (sensor 0, 1, 2, 3)
+				276,		//PACK 1 V_GROUP 0 		(cells 0, 1, 2, 3)
+				277,		//PACK 1 V_GROUP 1		(cells 4, 5, 6, 7)
+				278,		//PACK 1 V_GROUP 2      (cells 8, 9, 10, 11)
+				279,		//PACK 1 T_GROUP        (sensor 0, 1, 2, 3)
 		},
 		{
-				51,		//CHARGING CURRENT (bytes 0, 1, 2, 3) AND DISCHARGING CURRENT(bytes 4, 5, 6, 7)
+				50,		//CHARGING CURRENT (bytes 0, 1, 2, 3) AND DISCHARGING CURRENT(bytes 4, 5, 6, 7)
 		},
 		{
-				52,		//BMS MODE(bytes 0),COMM MODE(bytes 1), AIR STATUS(bytes 2 & 3), BATTERY %(bytes 4 & 5), GLOBAL ERROR FLAG(byte 6)
-				53,
-				54
+				51,		//BMS MODE(bytes 0),COMM MODE(bytes 1), AIR STATUS(bytes 2 & 3), BATTERY %(bytes 4 & 5), GLOBAL ERROR FLAG(byte 6)
+				52,
+				53
 		},
 };
 
@@ -454,7 +454,7 @@ void BMS_can(BMS_struct *BMS){
 	can_buffer[6] = ((int16_t)BMS->current[3]);
 	can_buffer[7] = ((int16_t)BMS->current[3]) >> 8;
 
-	CAN_Transmit(can_buffer, 51);
+	CAN_Transmit(can_buffer, 50);
 	//	CAN_Transmit(can_buffer, 352);
 
 
@@ -470,7 +470,7 @@ void BMS_can(BMS_struct *BMS){
 			0,
 			BMS->AIR);
 
-	CAN_Transmit(can_buffer, 52);
+	CAN_Transmit(can_buffer, 51);
 
 	//	sendString(CAN_ID_TABLE[CAN_GENERAL_ID][0],
 	//			BMS->v_GLV,
@@ -488,7 +488,7 @@ void BMS_can(BMS_struct *BMS){
 	can_buffer[6] = BMS->t_max;
 	can_buffer[7] = BMS->t_max >> 8;
 
-	CAN_Transmit(can_buffer, 53);
+	CAN_Transmit(can_buffer, 52);
 
 	//	sendString(CAN_ID_TABLE[CAN_GENERAL_ID][1],
 	//			0,
@@ -501,7 +501,7 @@ void BMS_can(BMS_struct *BMS){
 			0,
 			0);
 
-	CAN_Transmit(can_buffer, 54);
+	CAN_Transmit(can_buffer, 53);
 	//
 	//	//sendString(CAN_ID_TABLE[CAN_GENERAL_ID][2], BMS->v_min,0,0,0);
 	//
