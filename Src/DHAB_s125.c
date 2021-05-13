@@ -57,7 +57,7 @@ is done.
 
  Version 1.0 - Initial release 15/05/2020 by Tesla UFMG
 *******************************************************/
-double DHAB_currentIntegration(DHAB_sensor *sensor){
+/*double DHAB_currentIntegration(DHAB_sensor *sensor){
 	clock_t runningTime;
 	double totalCoulombCounting = 0;
 
@@ -72,4 +72,4 @@ double DHAB_currentIntegration(DHAB_sensor *sensor){
 	}
 
 	return totalCoulombCounting;
-}
+}*/

@@ -62,9 +62,9 @@ void BMS_monitoring(BMS_struct *BMS);
 
 uint8_t BMS_AIR_status(BMS_struct *BMS);
 
-int BMS_charging(BMS_struct BMS);
+void BMS_charging(BMS_struct BMS);
 
-int BMS_discharging(BMS_struct BMS);
+void BMS_discharging(BMS_struct BMS);
 
 int BMS_balance(BMS_struct *BMS);
 

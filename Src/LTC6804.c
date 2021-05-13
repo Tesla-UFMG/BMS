@@ -350,8 +350,9 @@ void LTC_send_command(LTC_config *config, ...){
 	case LTC_COMMAND_RDCVB 	:
 
 		sensor->CxV[3] = rx_data[0];
-		sensor->CxV[4] = rx_data[1];
-		sensor->CxV[5] = rx_data[2];
+		if(sensor->ADDR >= 6)
+			sensor->CxV[4] = rx_data[1];
+		//sensor->CxV[5] = rx_data[2];
 
 		break;
 
@@ -366,8 +367,9 @@ void LTC_send_command(LTC_config *config, ...){
 	case LTC_COMMAND_RDCVD 	:
 
 		sensor->CxV[9]  = rx_data[0];
-		sensor->CxV[10] = rx_data[1];
-		sensor->CxV[11] = rx_data[2];
+		if(sensor->ADDR >= 6)
+			sensor->CxV[10] = rx_data[1];
+		//sensor->CxV[11] = rx_data[2];
 
 		break;
 
@@ -553,7 +555,7 @@ The function reads the values stored in the LTC6804's registers.
 Those values can be the cells' voltages, the NTC resistors' tem-
 peratures or the IC's status and configuration. Also, it returns
 the calculation of the most and the least charged cell and the
-difference between these two.
+difference between them.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
