@@ -20,10 +20,10 @@
 #define ST_VOLTAGE					86
 #define MIN_V_CELL					1000
 #define MAX_V_CELL					1000
-#define N_OF_PACKS					6
-#define N_OF_SLAVES					9
-#define N_OF_CELLS					12
-#define N_OF_THERMISTORS			4
+#define N_OF_PACKS					1
+#define N_OF_SLAVES					1
+#define N_OF_CELLS					8
+#define N_OF_THERMISTORS			1
 #define MAX_CELL_V_DISCHARGE		36000//36500
 #define MAX_CELL_V_CHARGE			36000
 #define MAX_CELL_V_STORE			33000/
