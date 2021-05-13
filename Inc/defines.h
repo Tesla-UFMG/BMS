@@ -11,8 +11,7 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-
-//defines gerais
+//GENERAL DEFINES:
 #define BLINK_TIME					500
 #define BLINK_ERROR_TIME			200
 #define MAX_VOLTAGE					96
@@ -39,7 +38,6 @@
 #define READ  0
 #define WRITE 1
 
-
 //BMS OPERATION MODES:
 #define OPP_DEFAULT 	0
 #define OPP_CHARGING 	1
@@ -57,7 +55,7 @@
 
 #define UART_RATE			500 //ms
 #define CAN_RATE			3000 //ms
-#define CAN_TEMPERATURE_ID  3
+#define CAN_TEMPERATURE_ID	3
 #define CAN_ERROR_FLAG_ID  	4
 #define CAN_CURRENT_ID		6
 #define CAN_GENERAL_ID		7
@@ -74,7 +72,6 @@
 #define ERR_GLV_VOLTAGE			0b010000000
 #define ERR_BALANCE				0b100000000
 
-
 //LED DEFINES:
 #define LED_BLACK			0
 #define LED_RED				0b001
@@ -90,16 +87,15 @@
 #define AIR_CLOSED			0b01
 #define AIR_ERROR			0b10
 
-//defines logicos
+//LOGIC DEFINES:
 #define FALSE 	0
 #define TRUE 	1
 #define OUTPUT 	0
 #define INPUT 	1
 
-//DEFINES SENSOR DE TENS�O:
-
-#define READ_VOLTAGES 0
-#define READ_TEMPERATURES 2
+//VOLTAGE SENSOR DEFINES:
+#define READ_VOLTAGES 		0
+#define READ_TEMPERATURES	2
 
 #define STAT_OPPERATING	0b00000000
 #define STAT_OFFLINE	0b00100000
