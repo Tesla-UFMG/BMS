@@ -10,8 +10,9 @@
 #ifndef LTC_2_H
 #define LTC_2_H
 
-#include "stm32f1xx_hal.h"
-#include <math.h>
+#include <stdarg.h>
+#include "dwt_stm32_delay.h"
+#include "defines.h"
 
 
 
@@ -23,11 +24,11 @@ typedef struct LTC_command{
 
 	//COMMAND SETTINGS
 	uint16_t MD;		// set the ADC mode
-	uint16_t DCP;	// set if discharge is permitted during discharge
+	uint16_t DCP;		// set if discharge is permitted during discharge
 	uint16_t CH;		// set CELL channels to convert
-	uint16_t CHG;	// set GPIO channels to convert
-	uint16_t CHST;	// set STAT channels to convert
-	uint16_t PUP;	// set if pull up or pull down is enabled in ADOW
+	uint16_t CHG;		// set GPIO channels to convert
+	uint16_t CHST;		// set STAT channels to convert
+	uint16_t PUP;		// set if pull up or pull down is enabled in ADOW
 	uint16_t ST;		// set the self test mode
 
 }LTC_command;
@@ -44,7 +45,7 @@ typedef struct LTC_config{
 	uint8_t SWTRD:1;	// 1 bit - set the under voltage limit
 	uint8_t ADCOPT:1;	// 1 bit - set the ADC mode
 	uint16_t VUV:12; 	// 12 bits - set the under voltage limit
-	uint16_t VOV; 	// 12 bits - set the over  voltage limit
+	uint16_t VOV; 		// 12 bits - set the over  voltage limit
 	uint8_t DCTO:4; 	// 4 bits - set the duration of discharge
 	uint8_t ADC_READY;
 
@@ -69,7 +70,7 @@ typedef struct LTC_sensor{
 	uint16_t ITMP; 		// 16 bits - get the internal temperature
 	uint16_t VA; 		// 16 bits - get the analog voltage
 	uint16_t VD; 		// 16 bits - get the digital voltage
-	uint16_t DCC;  	// 12 bits - set which cell to discharge
+	uint16_t DCC;  		// 12 bits - set which cell to discharge
 
 	uint16_t V_MAX;
 	uint16_t V_MIN;
@@ -103,11 +104,11 @@ typedef struct LTC_sensor{
 //	CONFIG_ADCOP = 0b00001000,
 //
 //	//VUV - Undervoltage Comparison Voltage:
-//	//Comparison voltage = (VUV + 1) • 16 • 100µV
+//	//Comparison voltage = (VUV + 1) ï¿½ 16 ï¿½ 100ï¿½V
 //	CONFIG_VUV 	 = 0b00010000,
 //
 //	//VOV - Overvoltage Comparison Voltage:
-//	//Comparison voltage = (VOV + 1) • 16 • 100µV
+//	//Comparison voltage = (VOV + 1) ï¿½ 16 ï¿½ 100ï¿½V
 //	CONFIG_VOV 	 = 0b00100000,
 //
 //	//DCC - Discharge Cell x:

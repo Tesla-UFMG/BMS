@@ -8,13 +8,23 @@
 /****************************************************************/
 
 #include "DHAB_s125.h"
-#include "stm32f1xx_hal.h"
-#include "dwt_stm32_delay.h"
-#include "main.h"
-#include "usart.h"
-#include <stdlib.h>
 
+/*******************************************************
+ Function void DHAB_read(DHAB_sensor*)
 
+V1.0:
+The function uses the microcontroller's ADCs to read
+and calculate the current passing through the DHAB S125
+sensor.
+
+ Version 1.0 - Initial release 15/05/2020 by Tesla UFMG
+*******************************************************/
+void DHAB_read(DHAB_sensor *sensor)
+{
+	for(int i = 0; i < N_OF_DHAB; i++){
+
+	}
+}
 
 void DHAB_init(){
 
@@ -35,3 +45,31 @@ void DHAB_init(){
 //	}
 //	return error_flag;
 //}
+
+/*******************************************************
+ Function double DHAB_currentIntegration(DHAB_sensor)
+
+V1.0:
+The function takes the read values from the current sensors
+and calculates the amount of charge drawn or loaded by the
+battery integrating the current in time after the conversion
+is done.
+
+ Version 1.0 - Initial release 15/05/2020 by Tesla UFMG
+*******************************************************/
+/*double DHAB_currentIntegration(DHAB_sensor *sensor){
+	clock_t runningTime;
+	double totalCoulombCounting = 0;
+
+	runningTime = clock();
+	if(ADC_FLAG_EOC && ADC_FLAG_JEOC){
+		runningTime = clock() - runningTime;
+		double timeSpent = (double)runningTime/CLOCK_PER_SEC;
+		for(uint8_t i = 0; i < N_OF_DHAB; i++){
+			sensor[i]->coulombCounting = sensor[i]->current*timeSpent;
+			totalCoulombCounting = totalCoulombCounting + sensor[i]->coulombCounting;
+		}
+	}
+
+	return totalCoulombCounting;
+}*/

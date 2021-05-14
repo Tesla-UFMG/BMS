@@ -29,3 +29,20 @@
 //uint8_t DHAB_get_error(DHAB* sensor);
 //
 //#endif
+
+#include "dwt_stm32_delay.h"
+#include "defines.h"
+#include "usart.h"
+#include <stdlib.h>
+
+
+typedef struct DHAB_sensor{
+	double current;
+	double current_adc;
+	double coulombCounting;
+}DHAB_sensor;
+
+void DHAB_init();
+void DHAB_get_error(DHAB_sensor *sensor);
+void DHAB_read(DHAB_sensor *sensor);
+double DHAB_currentIntegration(DHAB_sensor *sensor);

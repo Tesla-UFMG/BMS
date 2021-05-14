@@ -1,9 +1,6 @@
 
 
 
-#include "BMS.h"
-#include <stdlib.h>
-#include "nextion.h"
 #include "nextion_functions.h"
 extern UART_HandleTypeDef huart3;
 
