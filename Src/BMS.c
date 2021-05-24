@@ -90,19 +90,19 @@ void BMS_set_thermistor_zeros(BMS_struct *BMS){
 	uint32_t mean = 0;
 
 	for (int i = 0; i < N_OF_PACKS; i++)
-		for (int j = 0; j < 5; ++j)
+		for (int j = 0; j < N_OF_THERMISTORS; ++j)
 			THERMISTOR_ZEROS[i][j] = 0;
 
 	BMS_convert(BMS_CONVERT_GPIO, BMS);
 
 	for (int i = 0; i < N_OF_PACKS; i++)
-		for (int j = 0; j < 5; ++j)
+		for (int j = 0; j < N_OF_THERMISTORS; ++j)
 			mean += BMS->sensor[i]->GxV[j];
 
 	mean = (uint32_t)((float)mean/(N_OF_PACKS*5));
 
 	for (int i = 0; i < N_OF_PACKS; i++)
-		for (int j = 0; j < 5; ++j)
+		for (int j = 0; j < N_OF_THERMISTORS; ++j)
 			THERMISTOR_ZEROS[i][j] = mean - BMS->sensor[i]->GxV[j];
 }
 
@@ -191,7 +191,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 			BMS->v_TS += BMS->sensor[i]->SOC;
 
 			//TODO Verificar necessidade desse loop
-			for(uint8_t j = 0; j < 4; j++){
+			for(uint8_t j = 0; j < N_OF_THERMISTORS; j++){
 				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
 					BMS->t_max = BMS->sensor[i]->GxV[j];
 			}
@@ -208,7 +208,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 
 			LTC_read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
 
-			for(uint8_t j = 0; j < 4; j++){
+			for(uint8_t j = 0; j < N_OF_THERMISTORS; j++){
 
 				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
 					BMS->t_max = BMS->sensor[i]->GxV[j];
