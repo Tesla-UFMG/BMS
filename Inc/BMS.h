@@ -14,6 +14,7 @@
 #include "eeprom.h"
 
 uint8_t NextError[5];
+char LED_error = 1;
 
 typedef struct BMS_struct {
 
@@ -77,5 +78,7 @@ void BMS_can(BMS_struct *BMS);
 void BMS_uart(BMS_struct *BMS);
 
 void BMS_initial_SOC(BMS_struct *BMS);
+
+void BMS_check(BMS_struct);
 
 #endif

@@ -173,6 +173,7 @@ int main(void)
 
 	while (1)
 	{
+		BMS_check(BMS);
 		BMS_monitoring(BMS);
 		BMS_error(BMS);
 		BMS_can(BMS);
