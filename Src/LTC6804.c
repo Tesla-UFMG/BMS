@@ -350,9 +350,9 @@ void LTC_send_command(LTC_config *config, ...){
 	case LTC_COMMAND_RDCVB 	:
 
 		sensor->CxV[3] = rx_data[0];
-		if(sensor->ADDR >= 6)
+//		if(sensor->ADDR >= 6)
 			sensor->CxV[4] = rx_data[1];
-		//sensor->CxV[5] = rx_data[2];
+		sensor->CxV[5] = rx_data[2];
 
 		break;
 
@@ -367,7 +367,7 @@ void LTC_send_command(LTC_config *config, ...){
 	case LTC_COMMAND_RDCVD 	:
 
 		sensor->CxV[9]  = rx_data[0];
-		if(sensor->ADDR >= 6)
+//		if(sensor->ADDR >= 6)
 			sensor->CxV[10] = rx_data[1];
 		//sensor->CxV[11] = rx_data[2];
 
@@ -402,7 +402,7 @@ void LTC_send_command(LTC_config *config, ...){
 		sensor->VD = rx_data[0];
 
 		uint32_t flag = rx_data[1] | (uint32_t)rx_data[2] << 16;
-		for (int j = 0; j < 12; j++)
+		for (int j = 0; j < N_OF_CELLS; j++)
 			sensor->V_ERROR[j] = (flag >> (j * 2)) & 0x3;
 
 		break;
@@ -519,7 +519,7 @@ static void LTC_T_convert(LTC_sensor* sensor){
 	r0 = 10000;
 	B = 3380;
 
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < N_OF_THERMISTORS; ++i) {
 		r = (float)(sensor->GxV[i]*10000) / (float)(sensor->REF - sensor->GxV[i]);
 		sensor->GxV[i] = ((t0 * B) / (t0 * log( r / r0) + B) - 273)*10;
 		sensor->GxV[i] += THERMISTOR_ZEROS[sensor->ADDR][i];
