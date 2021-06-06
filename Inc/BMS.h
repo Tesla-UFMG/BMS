@@ -38,8 +38,8 @@ typedef struct BMS_struct {
 	uint16_t t_max;		//of the bank
 
 	//CURRENT
-	float current[N_OF_DHAB];
-	float c_adc[N_OF_DHAB];
+	float current[4];
+	float c_adc[4];
 
 	//CHARGE_PERCENTAGE
 	int32_t charge;

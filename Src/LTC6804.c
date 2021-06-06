@@ -369,7 +369,7 @@ void LTC_send_command(LTC_config *config, ...){
 		sensor->CxV[9]  = rx_data[0];
 //		if(sensor->ADDR >= 6)
 			sensor->CxV[10] = rx_data[1];
-		//sensor->CxV[11] = rx_data[2];
+		sensor->CxV[11] = rx_data[2];
 
 		break;
 
