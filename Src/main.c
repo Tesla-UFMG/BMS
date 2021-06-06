@@ -57,6 +57,7 @@ int32_t ADC_BUF[5];
 uint32_t adc_time;
 uint8_t mode_button = 0, debounce_flag, accept_flag, accept_time, debounce_time, mode;
 uint16_t VirtAddVarTab[NumbOfVar] = {0x5555, 0x6666, 0x7777};
+char LED_DEBUG = 1;
 
 extern DMA_HandleTypeDef hdma_usart3_rx;
 
@@ -173,7 +174,7 @@ int main(void)
 
 	while (1)
 	{
-		BMS_check(BMS);
+		BMS_check(&LED_DEBUG);
 		BMS_monitoring(BMS);
 		BMS_error(BMS);
 		BMS_can(BMS);

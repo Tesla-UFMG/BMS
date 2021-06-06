@@ -623,12 +623,12 @@ correctly. Implemented for testing reasons.
 
  Version 1.0 - Initial release 06/06/2021 by Tesla UFMG
 *******************************************************/
-void BMS_check(BMS_struct)
+void BMS_check(char *LED_STATUS)
 {
-	if(LED_DEBUG)
+	if(*LED_STATUS)
 		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, SET);
 	else
 		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, RESET);
 
-	LED_DEBUG = !LED_DEBUG;
+	*LED_STATUS = !(*LED_STATUS);
 }
