@@ -618,20 +618,17 @@ void BMS_discharging(BMS_struct BMS){
  Function void BMS_check(BMS_struct)
 
 V1.0:
-The function flashes the error led while the BMS works
+The function flashes the debug led while the BMS works
 correctly. Implemented for testing reasons.
 
  Version 1.0 - Initial release 06/06/2021 by Tesla UFMG
 *******************************************************/
 void BMS_check(BMS_struct)
 {
-	if(BMS->error != ERR_NO_ERROR){
+	if(LED_DEBUG)
+		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, SET);
+	else
+		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, RESET);
 
-		if(LED_error)
-			HAL_GPIO_WritePin(ERR_LED_GPIO_Port, ERR_LED_Pin, SET);
-		else
-			HAL_GPIO_WritePin(ERR_LED_GPIO_Port, ERR_LED_Pin, RESET);
-
-		LED_error = !LED_error;
-	}
+	LED_DEBUG = !LED_DEBUG;
 }
