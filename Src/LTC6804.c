@@ -587,7 +587,7 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 //							sensor->CxV[6] = sensor->CxV[3];
 //					}
 
-		LTC_SOC(config, sensor);
+//		LTC_SOC(config, sensor);
 
 
 		sensor->V_MIN = 36000;
