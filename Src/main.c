@@ -78,6 +78,8 @@ void SystemClock_Config(void);
 int aux = 0;
 int initialReadings = 0;
 float CURRENT_ZERO[N_OF_DHAB];
+extern uint16_t voltage[12];
+extern uint16_t temperatura[5];
 
 float filter(float old, float new){
 	return (FILTER_GAIN * old + new) / (FILTER_GAIN + 1);

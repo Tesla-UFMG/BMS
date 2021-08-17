@@ -10,6 +10,7 @@
 #include <LTC6804.h>
 
 extern SPI_HandleTypeDef hspi1;
+uint16_t temperatura[5];
 
 #define BYTESWAP(word) ((word >> 8) + (word << 8))
 
@@ -524,6 +525,9 @@ static void LTC_T_convert(LTC_sensor* sensor){
 		sensor->GxV[i] = ((t0 * B) / (t0 * log( r / r0) + B) - 273)*10;
 		sensor->GxV[i] += THERMISTOR_ZEROS[sensor->ADDR][i];
 	}
+	for (int i =0; i<N_OF_THERMISTORS; i++){
+			temperatura[i] =sensor->GxV[i];
+		}
 }
 
 /*******************************************************
@@ -588,7 +592,9 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 
 		sensor->V_MIN = 36000;
 		sensor->V_MAX = 28000;
-
+		for(uint8_t i = 0; i < 12; i++){
+					voltage[i] = sensor->CxV[i];
+		}
 		for(uint8_t i = 0; i < N_OF_CELLS; i++){
 			if(sensor->CxV[i] < sensor->V_MIN)
 				sensor->V_MIN = sensor->CxV[i];
