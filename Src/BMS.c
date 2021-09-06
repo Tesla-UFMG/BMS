@@ -118,9 +118,6 @@ needed for the BMS boot.
 *******************************************************/
 void BMS_init(BMS_struct *BMS){
 
-	CAN_Config_Filter();
-	CAN_Config_Frames();
-	CAN_Receive_IT();
 
 	BMS->config = (LTC_config*) calloc(1 ,sizeof(LTC_config));
 	BMS->config->command = (LTC_command*) calloc(1 ,sizeof(LTC_command));

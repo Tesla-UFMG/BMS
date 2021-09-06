@@ -1,12 +1,12 @@
 /**
   ******************************************************************************
-  * File Name          : CAN.h
-  * Description        : This file provides code for the configuration
-  *                      of the CAN instances.
+  * @file    can.h
+  * @brief   This file contains all the function prototypes for
+  *          the can.c file
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -17,19 +17,24 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __can_H
-#define __can_H
+#ifndef __CAN_H__
+#define __CAN_H__
+
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "defines.h"
-#include "dwt_stm32_delay.h"
-
+#include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+CAN_FilterTypeDef sFilterConfig;
+CAN_TxHeaderTypeDef TxHeader;
+CAN_RxHeaderTypeDef RxHeader;
+int16_t TxGyro[8];
+int16_t TxAccel[8];
+uint8_t RxData[8];
+uint32_t TxMailbox;
 /* USER CODE END Includes */
 
 extern CAN_HandleTypeDef hcan;
@@ -42,24 +47,14 @@ void MX_CAN_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
-void CAN_Config_Filter(void);
-void CAN_Config_Frames(void);
-void CAN_Receive_IT(void);
-void CAN_Transmit(uint8_t *vet, uint32_t id);
+
 
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ can_H */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
+#endif /* __CAN_H__ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

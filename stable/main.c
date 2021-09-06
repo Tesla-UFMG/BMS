@@ -177,7 +177,7 @@ int main(void)
 	BMS = (BMS_struct*) calloc(1, sizeof(BMS_struct));
 	BMS_init(BMS);
 
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_BUF, 5);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_BUF, 6);
 
 
 	//LTC_balance_test(BMS->config, BMS->sensor[0]);

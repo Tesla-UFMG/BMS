@@ -17,13 +17,26 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
-
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "can.h"
+#include "dma.h"
+#include "spi.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stm32f1xx_hal.h"
+#include "BMS.h"
+#include <stdlib.h>
+#include "dwt_stm32_delay.h"
+#include "eeprom.h"
+#include "nextion.h"
+#include "DMA_USART.h"
+#include "nextion_functions.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,7 +66,7 @@ ErrorStatus  HSEStartUpStatus;
 HAL_StatusTypeDef FlashStatus;
 
 BMS_struct* BMS;
-int32_t ADC_BUF[5];
+int32_t ADC_BUF[6];
 uint32_t adc_time;
 uint8_t mode_button = 0, debounce_flag, accept_flag, accept_time, debounce_time, mode;
 uint16_t VirtAddVarTab[NumbOfVar] = {0x5555, 0x6666, 0x7777};
@@ -115,7 +128,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -149,7 +161,7 @@ int main(void)
 
 	DWT_Delay_Init();
 
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t* )ADC_BUF, 5);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t* )ADC_BUF, 6);
 	USART_DMA_Init(&huart3, &hdma_usart3_rx);
 
 	HAL_TIM_Base_Start_IT(&htim3);
@@ -165,8 +177,6 @@ int main(void)
 	NexPageShow(1);
 
   /* USER CODE END 2 */
- 
- 
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -177,7 +187,7 @@ int main(void)
 		BMS_error(BMS);
 		BMS_can(BMS);
 		nexLoop(BMS);
-
+		CAN_Transmit();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -196,7 +206,8 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -209,7 +220,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -257,7 +268,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

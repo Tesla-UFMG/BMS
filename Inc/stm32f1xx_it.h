@@ -24,9 +24,7 @@
 
 #ifdef __cplusplus
  extern "C" {
-#endif 
-
-/* Includes ------------------------------------------------------------------*/
+#endif
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
