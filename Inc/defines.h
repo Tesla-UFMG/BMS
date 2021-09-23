@@ -24,6 +24,7 @@
 #define N_OF_SLAVES					9
 #define N_OF_CELLS					12
 #define N_OF_THERMISTORS			4
+#define PACKS_IN_SERIES				2
 #define MAX_CELL_V_DISCHARGE		36000//36500
 #define MAX_CELL_V_CHARGE			36000
 #define MAX_CELL_V_STORE			33000/
