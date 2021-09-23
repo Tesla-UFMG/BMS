@@ -28,16 +28,10 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-CAN_FilterTypeDef sFilterConfig;
-CAN_TxHeaderTypeDef TxHeader;
-CAN_RxHeaderTypeDef RxHeader;
-int16_t TxGyro[8];
-int16_t TxAccel[8];
-uint8_t RxData[8];
-uint32_t TxMailbox;
-/* USER CODE END Includes */
 
-extern CAN_HandleTypeDef hcan;
+extern void Error_Handler();
+
+/* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
 
@@ -47,7 +41,7 @@ void MX_CAN_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
-
+void CAN_Transmit(uint8_t vet[8], uint32_t id);
 
 /* USER CODE END Prototypes */
 

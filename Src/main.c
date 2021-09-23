@@ -187,7 +187,6 @@ int main(void)
 		BMS_error(BMS);
 		BMS_can(BMS);
 		nexLoop(BMS);
-		CAN_Transmit();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
