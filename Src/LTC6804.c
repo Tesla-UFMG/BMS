@@ -508,7 +508,7 @@ extern int16_t THERMISTOR_ZEROS[N_OF_PACKS][5];
 
 V1.0:
 The function converts the ADC value read by the LTC6804
-into a temperature value in °C. It follows the steps described
+into a temperature value in ï¿½C. It follows the steps described
 in the LTC6804 datasheet, page 27.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
@@ -576,15 +576,10 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 		config->command->NAME = LTC_COMMAND_RDCVD;
 		LTC_send_command(config, sensor);
 
-
-
-//					if(sensor->ADDR == 0){
-//							sensor->CxV[5] = sensor->CxV[2];
-//							sensor->CxV[6] = sensor->CxV[3];
-//					}
-
-		LTC_SOC(config, sensor);
-
+//		if(sensor->ADDR == 0){
+//				sensor->CxV[5] = sensor->CxV[2];
+//				sensor->CxV[6] = sensor->CxV[3];
+//		}
 
 		sensor->V_MIN = 36000;
 		sensor->V_MAX = 28000;
@@ -631,7 +626,6 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 		LTC_send_command(config, sensor);
 
 	}
-
 }
 
 /*******************************************************
