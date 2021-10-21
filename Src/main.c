@@ -60,8 +60,9 @@
 
 //static float CURRENT_ZERO[4] = {2250, 2990, 2396, 2396};
 //static const float CURRENT_GAIN[4] = {1.22, 1.52, 1.22, 1.22};
-//static float CURRENT_ZERO[4] = {2223, 2750, 2223, 2227};
-static const float CURRENT_GAIN[4] = {1.22, 1.51, 1.22, 1.22};
+static float CURRENT_ZERO[4] = {30.42034498, 237.9730226, 237.973, 29.51695};
+static const float CURRENT_GAIN[4] = {0.01448599958, 0.1131870739, 0.1131, 0.01389};
+// [CURSENS2, CURSENS1 (BAIXA), CURSENS1 (ALTA), CURSENS3]
 ErrorStatus  HSEStartUpStatus;
 HAL_StatusTypeDef FlashStatus;
 
@@ -89,7 +90,7 @@ void SystemClock_Config(void);
 
 int aux = 0;
 int initialReadings = 0;
-float CURRENT_ZERO[N_OF_DHAB];
+//float CURRENT_ZERO[N_OF_DHAB];
 
 float filter(float old, float new){
 	return (FILTER_GAIN * old + new) / (FILTER_GAIN + 1);
@@ -97,23 +98,23 @@ float filter(float old, float new){
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc)
 {
-	if(initialReadings < 5){
+//	if(initialReadings < 5){
+//		for(uint8_t i = 0; i < N_OF_DHAB; i++){
+//			CURRENT_ZERO[i] += ((float)ADC_BUF[i] * (float)CURRENT_GAIN[i]);
+//			initialReadings++;
+//			if(initialReadings == 5){
+//				for(uint8_t j = 0; j < N_OF_DHAB; j++)
+//					CURRENT_ZERO[j] = CURRENT_ZERO[j]/5;
+//				}
+//		}
+//	}
+//	else{
 		for(uint8_t i = 0; i < N_OF_DHAB; i++){
-			CURRENT_ZERO[i] += ((float)ADC_BUF[i] * (float)CURRENT_GAIN[i]);
-			initialReadings++;
-			if(initialReadings == 5){
-				for(uint8_t j = 0; j < N_OF_DHAB; j++)
-					CURRENT_ZERO[j] = CURRENT_ZERO[j]/5;
-				}
+			BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)ADC_BUF[i+1]);
+			BMS->current[i] = filter(BMS->current[i], ((float)ADC_BUF[i+1] * CURRENT_GAIN[i]) - CURRENT_ZERO[i]);
 		}
-	}
-	else{
-		for(uint8_t i = 0; i < N_OF_DHAB; i++){
-		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)ADC_BUF[i]);
-		BMS->current[i] = filter(BMS->current[i], ((float)ADC_BUF[i] * CURRENT_GAIN[i]) - CURRENT_ZERO[i]);//		BMS->current[i] = filter(BMS->current[i], (ADC_BUF[i]));
-		}
-	}
-	BMS->v_GLV = filter(BMS->v_GLV , ((float)(ADC_BUF[4] + 400) * 4.5));
+//	}
+	BMS->v_GLV = filter	(BMS->v_GLV , ((float)(ADC_BUF[4] + 400) * 4.5));
 }
 
 
