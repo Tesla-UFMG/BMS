@@ -145,11 +145,7 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef* canHandle)
 void CAN_Transmit(uint8_t vet[8], uint32_t id)
 {
     TxHeader.StdId = id;
-    if(HAL_CAN_AddTxMessage(&hcan, &TxHeader, vet, &TxMailbox) == HAL_OK)
-    {
-    	HAL_GPIO_TogglePin(DEBUG_GPIO_Port, DEBUG_Pin);
-    }else
-    {
+    if(HAL_CAN_AddTxMessage(&hcan, &TxHeader, vet, &TxMailbox) != HAL_OK) {
     	Error_Handler();
     }
     HAL_Delay(20);

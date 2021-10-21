@@ -384,10 +384,12 @@ void BMS_error(BMS_struct *BMS){
 	if(BMS->error != ERR_NO_ERROR){
 		HAL_GPIO_WritePin(AIR_ENABLE_GPIO_Port, AIR_ENABLE_Pin, RESET);
 		HAL_GPIO_WritePin(ERR_LED_GPIO_Port, ERR_LED_Pin, SET);
+		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, SET);
 	}else{
 		flag &= ERR_NO_ERROR;
 		HAL_GPIO_WritePin(AIR_ENABLE_GPIO_Port, AIR_ENABLE_Pin, SET);
 		HAL_GPIO_WritePin(ERR_LED_GPIO_Port, ERR_LED_Pin, RESET);
+		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, RESET);
 	}
 }
 
