@@ -494,7 +494,7 @@ void BMS_can(BMS_struct *BMS){
 	can_buffer[0] = 0;
 	can_buffer[1] = 0;
 	can_buffer[2] = BMS->v_TS;
-	can_buffer[3] = BMS->v_TS;
+	can_buffer[3] = BMS->v_TS >> 8;
 	can_buffer[4] = 0;
 	can_buffer[5] = 0;
 	can_buffer[6] = BMS->t_max;
