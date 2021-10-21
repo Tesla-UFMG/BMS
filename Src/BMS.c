@@ -198,11 +198,12 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 
 			BMS->v_TS += BMS->sensor[i]->SOC;
 
+
 			//TODO Verificar necessidade desse loop
-			for(uint8_t j = 0; j < 4; j++){
-				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
-					BMS->t_max = BMS->sensor[i]->GxV[j];
-			}
+//			for(uint8_t j = 0; j < 4; j++){
+//				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
+//					BMS->t_max = BMS->sensor[i]->GxV[j];
+//			}
 		}
 
 	}
