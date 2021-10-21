@@ -55,14 +55,14 @@ typedef struct LTC_config{
 typedef struct LTC_sensor{
 
 	uint8_t ADDR;
-	uint8_t V_ERROR[12];
-	uint8_t T_ERROR[5];
+	uint8_t V_ERROR[N_OF_CELLS];
+	uint8_t T_ERROR[N_OF_THERMISTORS];
 
 	//CELL REGISTERS A to D
-	uint16_t CxV[12]; 	// 12 * 16 bits - get CELL voltages
+	uint16_t CxV[N_OF_CELLS]; 	// 12 * 16 bits - get CELL voltages
 
 	//AUXILIARY REGISTERS A & B
-	uint16_t GxV[5]; 	// 5 * 16 bits - get GPIO voltages
+	uint16_t GxV[N_OF_THERMISTORS]; 	// 5 * 16 bits - get GPIO voltages
 	uint16_t REF;		// 16 bits - get the second reference voltage
 
 	//STATUS REGISTER A & B

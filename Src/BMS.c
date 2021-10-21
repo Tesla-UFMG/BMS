@@ -89,21 +89,30 @@ accurate readings.
 void BMS_set_thermistor_zeros(BMS_struct *BMS){
 	uint32_t mean = 0;
 
-	for (int i = 0; i < N_OF_PACKS; i++)
-		for (int j = 0; j < 5; ++j)
-			THERMISTOR_ZEROS[i][j] = 0;
+	for (int i = 0; i < N_OF_SLAVES; i++){
+		if(i!=1 && i!=4 && i!=7){
+			for (int j = 0; j < N_OF_THERMISTORS; ++j)
+				THERMISTOR_ZEROS[i][j] = 0;
+		}
+	}
 
 	BMS_convert(BMS_CONVERT_GPIO, BMS);
 
-	for (int i = 0; i < N_OF_PACKS; i++)
-		for (int j = 0; j < 5; ++j)
-			mean += BMS->sensor[i]->GxV[j];
+	for (int i = 0; i < N_OF_SLAVES; i++){
+		if(i!=1 && i!=4 && i!=7){
+			for (int j = 0; j < N_OF_THERMISTORS; ++j)
+				mean += BMS->sensor[i]->GxV[j];
+		}
+	}
 
-	mean = (uint32_t)((float)mean/(N_OF_PACKS*5));
+	mean = (uint32_t)((float)mean/(N_OF_PACKS*N_OF_THERMISTORS));
 
-	for (int i = 0; i < N_OF_PACKS; i++)
-		for (int j = 0; j < 5; ++j)
-			THERMISTOR_ZEROS[i][j] = mean - BMS->sensor[i]->GxV[j];
+	for (int i = 0; i < N_OF_SLAVES; i++){
+		if(i!=1 && i!=4 && i!=7){
+			for (int j = 0; j < N_OF_THERMISTORS; ++j)
+				THERMISTOR_ZEROS[i][j] = mean - BMS->sensor[i]->GxV[j];
+		}
+	}
 }
 
 /*******************************************************
@@ -122,7 +131,7 @@ void BMS_init(BMS_struct *BMS){
 	BMS->config = (LTC_config*) calloc(1 ,sizeof(LTC_config));
 	BMS->config->command = (LTC_command*) calloc(1 ,sizeof(LTC_command));
 
-	for(int i = 0; i < N_OF_PACKS; i++){
+	for(int i = 0; i < N_OF_SLAVES; i++){
 		BMS->sensor[i] = (LTC_sensor*) calloc(1, sizeof(LTC_sensor));
 		BMS->sensor[i]->ADDR = i;
 		LTC_init(BMS->config);
@@ -176,7 +185,9 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_send_command(BMS->config);
 
-		for(uint8_t i = 0; i < N_OF_PACKS; i++){
+		BMS->v_min = MAX_CELL_V_DISCHARGE;
+
+		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
 			LTC_read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
 
@@ -220,7 +231,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_send_command(BMS->config);
 
-		for(uint8_t i = 0; i < N_OF_PACKS; i++){
+		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
 			LTC_read(LTC_READ_STATUS, BMS->config, BMS->sensor[i]);
 
@@ -307,13 +318,13 @@ tion.
 *******************************************************/
 void BMS_error(BMS_struct *BMS){
 
-	if(BMS->v_min <= 28000)
+	if(BMS->v_min <= MIN_CELL_V)
 		flag |= ERR_UNDER_VOLTAGE;
 
-	if(BMS->v_max >= 36000)
+	if(BMS->v_max >= MAX_CELL_V_DISCHARGE)
 		flag |= ERR_OVER_VOLTAGE;
 
-	if(BMS->t_max >= 500)
+	if(BMS->t_max < 10000)
 		flag |= ERR_OVER_TEMPERATURE;
 
 	if((flag & ERR_UNDER_VOLTAGE) == ERR_UNDER_VOLTAGE)

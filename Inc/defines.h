@@ -23,7 +23,7 @@
 #define N_OF_PACKS					6
 #define N_OF_SLAVES					9
 #define N_OF_CELLS					12
-#define N_OF_THERMISTORS			4
+#define N_OF_THERMISTORS			5
 #define PACKS_IN_SERIES				2
 #define MAX_CELL_V_DISCHARGE		36000//36500
 #define MAX_CELL_V_CHARGE			36000
@@ -133,7 +133,7 @@
 //------//
 
 //SENSOR DE CORRENTE
-#define N_OF_DHAB		3
+#define N_OF_DHAB		4
 #define MAX_CURRENT 	800 //A
 #define ITERATIONS 		10
 #define ZERO_CURRENT0	466 //492

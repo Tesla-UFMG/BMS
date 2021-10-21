@@ -25,7 +25,7 @@ typedef struct BMS_struct {
 	uint8_t opperating_packs;
 	uint8_t status;
 
-	LTC_sensor *sensor[N_OF_PACKS];
+	LTC_sensor *sensor[N_OF_SLAVES];
 	LTC_config *config;
 	DHAB_sensor *dhabSensor[N_OF_DHAB];
 

@@ -350,9 +350,10 @@ void LTC_send_command(LTC_config *config, ...){
 	case LTC_COMMAND_RDCVB 	:
 
 		sensor->CxV[3] = rx_data[0];
-		if(sensor->ADDR >= 6)
+		if(sensor->ADDR == 1 || sensor->ADDR == 4 || sensor->ADDR == 7){
 			sensor->CxV[4] = rx_data[1];
-		//sensor->CxV[5] = rx_data[2];
+			sensor->CxV[5] = rx_data[2];
+		}
 
 		break;
 
@@ -367,24 +368,24 @@ void LTC_send_command(LTC_config *config, ...){
 	case LTC_COMMAND_RDCVD 	:
 
 		sensor->CxV[9]  = rx_data[0];
-		if(sensor->ADDR >= 6)
-			sensor->CxV[10] = rx_data[1];
+		//sensor->CxV[10] = rx_data[1];
 		//sensor->CxV[11] = rx_data[2];
 
 		break;
 
 	case LTC_COMMAND_RDAUXA	:
-
-		sensor->GxV[0] = rx_data[0];
-		sensor->GxV[1] = rx_data[1];
-		sensor->GxV[2] = rx_data[2];
-
+		if(sensor->ADDR != 1 && sensor->ADDR != 4 && sensor->ADDR != 7){
+			sensor->GxV[0] = rx_data[0];
+			sensor->GxV[1] = rx_data[1];
+			sensor->GxV[2] = rx_data[2];
+		}
 		break;
 
 	case LTC_COMMAND_RDAUXB	:
-
-		sensor->GxV[3] = rx_data[0];
-		sensor->GxV[4] = rx_data[1];
+		if(sensor->ADDR != 1 && sensor->ADDR != 4 && sensor->ADDR != 7){
+			sensor->GxV[3] = rx_data[0];
+			sensor->GxV[4] = rx_data[1];
+		}
 		sensor->REF =    rx_data[2];
 
 		break;
@@ -585,7 +586,7 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 		sensor->V_MAX = 28000;
 
 		for(uint8_t i = 0; i < N_OF_CELLS; i++){
-			if(sensor->CxV[i] < sensor->V_MIN)
+			if(sensor->CxV[i] != 0 && sensor->CxV[i] < sensor->V_MIN)
 				sensor->V_MIN = sensor->CxV[i];
 			if(sensor->CxV[i] > sensor->V_MAX)
 				sensor->V_MAX = sensor->CxV[i];
