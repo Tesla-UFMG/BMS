@@ -164,7 +164,7 @@ void BMS_init(BMS_struct *BMS){
 
 	BMS_initial_SOC(BMS);
 
-	BMS_set_thermistor_zeros(BMS);
+//	BMS_set_thermistor_zeros(BMS);
 
 }
 
@@ -212,18 +212,19 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_send_command(BMS->config);
 
-		for(uint8_t i = 0; i < N_OF_PACKS; i++){
+		BMS->t_max = 30000;
+
+		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
 			LTC_read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
 
-			for(uint8_t j = 0; j < 4; j++){
+			for(uint8_t j = 0; j < N_OF_THERMISTORS; j++){
 
-				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
+				if(BMS->sensor[i]->GxV[j] < BMS->t_max && BMS->sensor[i]->GxV[j] > 1000)
 					BMS->t_max = BMS->sensor[i]->GxV[j];
 
 			}
 		}
-
 	}
 	if (BMS_CONVERT&BMS_CONVERT_STAT) {
 

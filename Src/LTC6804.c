@@ -606,7 +606,7 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 
 		//		sensor->T_MIN = 60000;
 		//		sensor->T_MAX = 28000;
-		LTC_T_convert(sensor);
+//		LTC_T_convert(sensor);
 
 	}
 	if (LTC_READ&LTC_READ_STATUS) {
