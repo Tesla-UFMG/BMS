@@ -14,6 +14,7 @@
 #include "dwt_stm32_delay.h"
 #include "defines.h"
 #include "main.h"
+#include "math.h"
 
 
 typedef struct LTC_command{

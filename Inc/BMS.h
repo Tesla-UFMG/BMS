@@ -12,6 +12,7 @@
 #include "LTC6804.h"
 #include "DHAB_s125.h"
 #include "eeprom.h"
+#include "can.h"
 
 uint8_t NextError[5];
 
@@ -57,6 +58,8 @@ typedef struct BMS_struct {
 void BMS_mode_selector(BMS_struct *BMS);
 
 void BMS_init(BMS_struct *BMS);
+
+void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS);
 
 void BMS_monitoring(BMS_struct *BMS);
 
