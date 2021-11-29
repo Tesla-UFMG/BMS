@@ -97,9 +97,9 @@ void Error_Handler(void);
 #define CHARGE_ENABLE_GPIO_Port GPIOB
 #define ERR_LED_Pin GPIO_PIN_7
 #define ERR_LED_GPIO_Port GPIOB
-#define AIR_AUX_PLUS_Pin GPIO_PIN_8
+#define AIR_AUX_PLUS_Pin GPIO_PIN_6
 #define AIR_AUX_PLUS_GPIO_Port GPIOB
-#define AIR_AUX_MINUS_Pin GPIO_PIN_9
+#define AIR_AUX_MINUS_Pin GPIO_PIN_5
 #define AIR_AUX_MINUS_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 

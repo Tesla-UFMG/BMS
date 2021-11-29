@@ -287,10 +287,10 @@ void BMS_monitoring(BMS_struct *BMS){
 	if(BMS->charge > BMS->charge_max)
 		BMS->charge_max = BMS->charge;
 
-	if(HAL_GPIO_ReadPin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin) == 0)
-		BMS->AIR = AIR_OPEN;
-	else
-		BMS->AIR = AIR_CLOSED;
+//	if(HAL_GPIO_ReadPin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin) == GPIO_PIN_RESET)
+//		BMS->AIR = AIR_OPEN;
+//	else
+//		BMS->AIR = AIR_CLOSED;
 
 	EE_WriteVariable(0x0, (uint16_t) (BMS->charge >> 16));
 	EE_WriteVariable(0x1, (uint16_t) BMS->charge);
