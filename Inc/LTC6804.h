@@ -13,7 +13,8 @@
 #include <stdarg.h>
 #include "dwt_stm32_delay.h"
 #include "defines.h"
-
+#include "main.h"
+#include "math.h"
 
 
 typedef struct LTC_command{
@@ -55,14 +56,14 @@ typedef struct LTC_config{
 typedef struct LTC_sensor{
 
 	uint8_t ADDR;
-	uint8_t V_ERROR[12];
-	uint8_t T_ERROR[5];
+	uint8_t V_ERROR[N_OF_CELLS];
+	uint8_t T_ERROR[N_OF_THERMISTORS];
 
 	//CELL REGISTERS A to D
-	uint16_t CxV[12]; 	// 12 * 16 bits - get CELL voltages
+	uint16_t CxV[N_OF_CELLS]; 	// 12 * 16 bits - get CELL voltages
 
 	//AUXILIARY REGISTERS A & B
-	uint16_t GxV[5]; 	// 5 * 16 bits - get GPIO voltages
+	uint16_t GxV[N_OF_THERMISTORS]; 	// 5 * 16 bits - get GPIO voltages
 	uint16_t REF;		// 16 bits - get the second reference voltage
 
 	//STATUS REGISTER A & B
@@ -75,7 +76,7 @@ typedef struct LTC_sensor{
 	uint16_t V_MAX;
 	uint16_t V_MIN;
 	uint16_t V_DELTA;
-	uint16_t CHARGE[12];
+	uint16_t CHARGE[N_OF_CELLS];
 	uint16_t TOTAL_CHARGE;
 
 
@@ -150,6 +151,11 @@ typedef struct LTC_sensor{
 #define LTC_COMMAND_WRCOMM	0b11100100001	// Write COMM Register Group   ***** NOT IMPLEMENTED
 #define LTC_COMMAND_RDCOMM	0b11100100010	// Read COMM Register Group    ***** NOT IMPLEMENTED
 #define LTC_COMMAND_STCOMM	0b11100100011	// Start I2C/SPI Communication ***** NOT IMPLEMENTED
+
+//Temperature conversion parameters NTC B57164K0103
+#define B 	4300	// Beta parameter
+#define t0	298		// 25ºC in Kelvins
+#define r0	10000	// resistance at 25ºC
 
 typedef enum{
 

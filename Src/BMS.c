@@ -13,52 +13,53 @@ static int8_t UV_retries, OV_retries, OT_retries;
 
 //uint8_t balance_enable = 1;
 
-
 //extern uint8_t mode_button;
 //extern I2C_HandleTypeDef hi2c2;
-
-
-
-
 
 static const uint16_t CAN_ID_TABLE[8][5] = {
 
 		{
-				256,		//PACK 2 V_GROUP 0 		(cells 0, 1, 2, 3)
-				257,		//PACK 2 V_GROUP 1		(cells 4, 5, 6, 7)
-				258,		//PACK 2 V_GROUP 2      (cells 8, 9, 10, 11)
-				259,		//PACK 2 T_GROUP        (sensor 0, 1, 2, 3)
+				256,		//PACK 2 		(cells 0, 1, 2, 3)
+				257,		//PACK 2 		(cells 4, 5, 6, 7)
+				258,		//PACK 2 		(cells 8, 9, 10, 11)
+				259,		//PACK 2 		(cell 12, sensor 0, 1, 2)
+				260,		//PACK 2 		(sensor 3, 4, 0, 0)
 		},
 		{
-				260,		//PACK 3 V_GROUP 0 		(cells 0, 1, 2, 3)
-				261,		//PACK 3 V_GROUP 1      (cells 4, 5, 6, 7)
-				262,		//PACK 3 V_GROUP 2      (cells 8, 9, 10, 11)
-				263,		//PACK 3 T_GROUP        (sensor 0, 1, 2, 3)
+				261,		//PACK 2 		(cells 0, 1, 2, 3)
+				262,		//PACK 2 		(cells 4, 5, 6, 7)
+				263,		//PACK 2 		(cells 8, 9, 10, 11)
+				264,		//PACK 2 		(cell 12, sensor 0, 1, 2)
+				265,		//PACK 2 		(sensor 3, 4, 0, 0)
 		},
 		{
-				264,		//PACK 4 V_GROUP 0 		(cells 0, 1, 2, 3)
-				265,		//PACK 4 V_GROUP 1      (cells 4, 5, 6, 7)
-				266,		//PACK 4 V_GROUP 2      (cells 8, 9, 10, 11)
-				267,		//PACK 4 T_GROUP        (sensor 0, 1, 2, 3)
+				266,		//PACK 2 		(cells 0, 1, 2, 3)
+				267,		//PACK 2 		(cells 4, 5, 6, 7)
+				268,		//PACK 2 		(cells 8, 9, 10, 11)
+				269,		//PACK 2 		(cell 12, sensor 0, 1, 2)
+				270,		//PACK 2 		(sensor 3, 4, 0, 0)
 		},
 		{
-				268,		//PACK 5 V_GROUP 0      (cells 0, 1, 2, 3)
-				269,		//PACK 5 V_GROUP 1      (cells 4, 5, 6, 7)
-				270,		//PACK 5 V_GROUP 2      (cells 8, 9, 10, 11)
-				271,		//PACK 5 T_GROUP        (sensor 0, 1, 2, 3)
+				271,		//PACK 2 		(cells 0, 1, 2, 3)
+				272,		//PACK 2 		(cells 4, 5, 6, 7)
+				273,		//PACK 2 		(cells 8, 9, 10, 11)
+				274,		//PACK 2 		(cell 12, sensor 0, 1, 2)
+				275,		//PACK 2 		(sensor 3, 4, 0, 0)
 		},
 		{
-				272,		//PACK 0 V_GROUP 0 		(cells 0, 1, 2, 3)
-				273,		//PACK 0 V_GROUP 1		(cells 4, 5, 6, 7)
-				274,		//PACK 0 V_GROUP 2      (cells 8, 9, 10, 11)
-				275,		//PACK 0 T_GROUP        (sensor 0, 1, 2, 3)
+				276,		//PACK 2 		(cells 0, 1, 2, 3)
+				277,		//PACK 2 		(cells 4, 5, 6, 7)
+				278,		//PACK 2 		(cells 8, 9, 10, 11)
+				279,		//PACK 2 		(cell 12, sensor 0, 1, 2)
+				280,		//PACK 2 		(sensor 3, 4, 0, 0)
 		},
 
 		{
-				276,		//PACK 1 V_GROUP 0 		(cells 0, 1, 2, 3)
-				277,		//PACK 1 V_GROUP 1		(cells 4, 5, 6, 7)
-				278,		//PACK 1 V_GROUP 2      (cells 8, 9, 10, 11)
-				279,		//PACK 1 T_GROUP        (sensor 0, 1, 2, 3)
+				281,		//PACK 2 		(cells 0, 1, 2, 3)
+				282,		//PACK 2 		(cells 4, 5, 6, 7)
+				283,		//PACK 2 		(cells 8, 9, 10, 11)
+				284,		//PACK 2 		(cell 12, sensor 0, 1, 2)
+				285,		//PACK 2 		(sensor 3, 4, 0, 0)
 		},
 		{
 				50,		//CHARGING CURRENT (bytes 0, 1, 2, 3) AND DISCHARGING CURRENT(bytes 4, 5, 6, 7)
@@ -89,21 +90,30 @@ accurate readings.
 void BMS_set_thermistor_zeros(BMS_struct *BMS){
 	uint32_t mean = 0;
 
-	for (int i = 0; i < N_OF_PACKS; i++)
-		for (int j = 0; j < 5; ++j)
-			THERMISTOR_ZEROS[i][j] = 0;
+	for (int i = 0; i < N_OF_SLAVES; i++){
+		if(i!=1 && i!=4 && i!=7){
+			for (int j = 0; j < N_OF_THERMISTORS; ++j)
+				THERMISTOR_ZEROS[i][j] = 0;
+		}
+	}
 
 	BMS_convert(BMS_CONVERT_GPIO, BMS);
 
-	for (int i = 0; i < N_OF_PACKS; i++)
-		for (int j = 0; j < 5; ++j)
-			mean += BMS->sensor[i]->GxV[j];
+	for (int i = 0; i < N_OF_SLAVES; i++){
+		if(i!=1 && i!=4 && i!=7){
+			for (int j = 0; j < N_OF_THERMISTORS; ++j)
+				mean += BMS->sensor[i]->GxV[j];
+		}
+	}
 
-	mean = (uint32_t)((float)mean/(N_OF_PACKS*5));
+	mean = (uint32_t)((float)mean/(N_OF_PACKS*N_OF_THERMISTORS));
 
-	for (int i = 0; i < N_OF_PACKS; i++)
-		for (int j = 0; j < 5; ++j)
-			THERMISTOR_ZEROS[i][j] = mean - BMS->sensor[i]->GxV[j];
+	for (int i = 0; i < N_OF_SLAVES; i++){
+		if(i!=1 && i!=4 && i!=7){
+			for (int j = 0; j < N_OF_THERMISTORS; ++j)
+				THERMISTOR_ZEROS[i][j] = mean - BMS->sensor[i]->GxV[j];
+		}
+	}
 }
 
 /*******************************************************
@@ -118,24 +128,20 @@ needed for the BMS boot.
 *******************************************************/
 void BMS_init(BMS_struct *BMS){
 
-	CAN_Config_Filter();
-	CAN_Config_Frames();
-	CAN_Receive_IT();
 
 	BMS->config = (LTC_config*) calloc(1 ,sizeof(LTC_config));
 	BMS->config->command = (LTC_command*) calloc(1 ,sizeof(LTC_command));
 
-	for(int i = 0; i < N_OF_PACKS; i++){
+	for(int i = 0; i < N_OF_SLAVES; i++){
 		BMS->sensor[i] = (LTC_sensor*) calloc(1, sizeof(LTC_sensor));
 		BMS->sensor[i]->ADDR = i;
 		LTC_init(BMS->config);
 	}
 
 	BMS->error = ERR_NO_ERROR;
-	BMS->v_min = 50000;
-	BMS->v_max = 0;
-
-	BMS->mode = 0;
+	BMS->mode = BMS_MONITORING;
+//	BMS->v_min = 50000;
+//	BMS->v_max = 0;
 
 
 	uint16_t aux;
@@ -158,7 +164,7 @@ void BMS_init(BMS_struct *BMS){
 
 	BMS_initial_SOC(BMS);
 
-	BMS_set_thermistor_zeros(BMS);
+//	BMS_set_thermistor_zeros(BMS);
 
 }
 
@@ -179,7 +185,10 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_send_command(BMS->config);
 
-		for(uint8_t i = 0; i < N_OF_PACKS; i++){
+		BMS->v_min = RESET_V_MIN;
+		BMS->v_max = RESET_V_MAX;
+
+		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
 			LTC_read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
 
@@ -187,14 +196,6 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 				BMS->v_min = BMS->sensor[i]->V_MIN;
 			if(BMS->sensor[i]->V_MAX > BMS->v_max)
 				BMS->v_max = BMS->sensor[i]->V_MAX;
-
-			BMS->v_TS += BMS->sensor[i]->SOC;
-
-			//TODO Verificar necessidade desse loop
-			for(uint8_t j = 0; j < 4; j++){
-				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
-					BMS->t_max = BMS->sensor[i]->GxV[j];
-			}
 		}
 
 	}
@@ -204,18 +205,19 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_send_command(BMS->config);
 
-		for(uint8_t i = 0; i < N_OF_PACKS; i++){
+		BMS->t_max = RESET_T_MAX;
+
+		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
 			LTC_read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
 
-			for(uint8_t j = 0; j < 4; j++){
+			for(uint8_t j = 0; j < N_OF_THERMISTORS; j++){
 
 				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
 					BMS->t_max = BMS->sensor[i]->GxV[j];
 
 			}
 		}
-
 	}
 	if (BMS_CONVERT&BMS_CONVERT_STAT) {
 
@@ -223,14 +225,16 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_send_command(BMS->config);
 
-		for(uint8_t i = 0; i < N_OF_PACKS; i++){
+		BMS->v_TS = 0;
+
+		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
 			LTC_read(LTC_READ_STATUS, BMS->config, BMS->sensor[i]);
 
 			BMS->v_TS += BMS->sensor[i]->SOC;
 		}
 
-		BMS->v_TS /= N_OF_PACKS/2;
+		BMS->v_TS /= (N_OF_PACKS / PACKS_IN_SERIES);
 
 	}
 }
@@ -247,22 +251,11 @@ the need of balancing the cells.
 *******************************************************/
 void BMS_monitoring(BMS_struct *BMS){
 
-
-	BMS->v_min = BMS->sensor[0]->V_MIN;
-	BMS->v_max = BMS->sensor[0]->V_MAX;
-	BMS->v_TS = 0;
-	BMS->t_max = 0;
-
-	//TODO Verificar necessidade dessa atribuição
-	BMS->v_min = 50000;
-	BMS->v_max = 0;
+	BMS_convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
 
 	BMS->charge_percent = 0;
 
-	BMS_convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
-
-
-	for(uint8_t i = 0; i < N_OF_PACKS; i++){
+	for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 		if (BMS->mode & BMS_BALANCING)
 			LTC_set_balance_flag(BMS->config, BMS->sensor[i]);
 		else
@@ -276,13 +269,17 @@ void BMS_monitoring(BMS_struct *BMS){
 
 	BMS->charge_percent /= N_OF_PACKS;
 
+//	BMS->charge_percent = 0,0641 * BMS->v_TS - 466,66;
 
 	if(BMS->charge < BMS->charge_min)
 		BMS->charge_min = BMS->charge;
 	if(BMS->charge > BMS->charge_max)
 		BMS->charge_max = BMS->charge;
 
-
+//	if(HAL_GPIO_ReadPin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin) == GPIO_PIN_RESET)
+//		BMS->AIR = AIR_OPEN;
+//	else
+//		BMS->AIR = AIR_CLOSED;
 
 	EE_WriteVariable(0x0, (uint16_t) (BMS->charge >> 16));
 	EE_WriteVariable(0x1, (uint16_t) BMS->charge);
@@ -292,7 +289,6 @@ void BMS_monitoring(BMS_struct *BMS){
 
 	EE_WriteVariable(0x4, (uint16_t) (BMS->charge_max >> 16));
 	EE_WriteVariable(0x5, (uint16_t) BMS->charge_max);
-
 
 }
 
@@ -310,19 +306,20 @@ tion.
 *******************************************************/
 void BMS_error(BMS_struct *BMS){
 
-	if(BMS->v_min <= 28000)
+	if(BMS->v_min < MIN_CELL_V)
 		flag |= ERR_UNDER_VOLTAGE;
 
-	if(BMS->v_max >= 36000)
+	if(BMS->v_max > MAX_CELL_V_DISCHARGE)
 		flag |= ERR_OVER_VOLTAGE;
 
-	if(BMS->t_max >= 500)
+	if(BMS->t_max > MAX_TEMPERATURE)
 		flag |= ERR_OVER_TEMPERATURE;
 
 	if((flag & ERR_UNDER_VOLTAGE) == ERR_UNDER_VOLTAGE)
 		UV_retries++;
 	else
 		UV_retries--;
+
 	if((flag & ERR_OVER_VOLTAGE) == ERR_OVER_VOLTAGE)
 		OV_retries++;
 	else
@@ -333,15 +330,15 @@ void BMS_error(BMS_struct *BMS){
 	else
 		OT_retries--;
 
-	if(UV_retries > 5) UV_retries = 5;
-	if(OV_retries > 5) OV_retries = 5;
-	if(OT_retries > 5) OT_retries = 5;
+	if(UV_retries > 20) UV_retries = 20;
+	if(OV_retries > 20) OV_retries = 20;
+	if(OT_retries > 20) OT_retries = 20;
 	if(UV_retries < 0) UV_retries = 0;
 	if(OV_retries < 0) OV_retries = 0;
 	if(OT_retries < 0) OT_retries = 0;
 
 
-	if(UV_retries == 5){
+	if(UV_retries == 20){
 		NextError[0] = 1;
 		BMS->error |= ERR_UNDER_VOLTAGE;
 	}
@@ -349,7 +346,7 @@ void BMS_error(BMS_struct *BMS){
 		NextError[0] = 0;
 		BMS->error &= ~ERR_UNDER_VOLTAGE;
 	}
-	if(OV_retries == 5){
+	if(OV_retries == 20){
 		NextError[1] = 1;
 		BMS->error |= ERR_OVER_VOLTAGE;
 	}
@@ -357,25 +354,33 @@ void BMS_error(BMS_struct *BMS){
 		NextError[1] = 0;
 		BMS->error &= ~ERR_OVER_VOLTAGE;
 	}
-
-
-	if(BMS->v_GLV < 13500){
-		BMS->error |= ERR_GLV_VOLTAGE;
-		NextError[4] = 1;
-	}else if(BMS->v_GLV < 13500){
-		BMS->error &= ~ERR_GLV_VOLTAGE;
-		NextError[4] = 0;
+	if(OT_retries == 20){
+		NextError[2] = 1;
+		BMS->error |= ERR_OVER_TEMPERATURE;
 	}
-
-
+	else if(OT_retries == 0){
+		NextError[2] = 0;
+		BMS->error &= ~ERR_OVER_TEMPERATURE;
+	}
+//	if(BMS->v_GLV < 13500){
+//		BMS->error |= ERR_GLV_VOLTAGE;
+//		NextError[4] = 1;
+//	}else if(BMS->v_GLV < 13500){
+//		BMS->error &= ~ERR_GLV_VOLTAGE;
+//		NextError[4] = 0;
+//	}
 
 	if(BMS->error != ERR_NO_ERROR){
 		HAL_GPIO_WritePin(AIR_ENABLE_GPIO_Port, AIR_ENABLE_Pin, RESET);
 		HAL_GPIO_WritePin(ERR_LED_GPIO_Port, ERR_LED_Pin, SET);
+		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, RESET);
+//		HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, RESET);
 	}else{
 		flag &= ERR_NO_ERROR;
 		HAL_GPIO_WritePin(AIR_ENABLE_GPIO_Port, AIR_ENABLE_Pin, SET);
 		HAL_GPIO_WritePin(ERR_LED_GPIO_Port, ERR_LED_Pin, RESET);
+		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, SET);
+//		HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, SET);
 	}
 }
 
@@ -405,48 +410,343 @@ and minimum voltages through CAN communication.
 void BMS_can(BMS_struct *BMS){
 	uint8_t can_buffer[8];
 
-	for(uint8_t i = 0; i < N_OF_PACKS; i++){
-		//if (BMS->sensor[i]->status == STAT_OPPERATING) {
-		for (uint8_t j = 0; j < 3; j++) {
+	//PACK 5
+	can_buffer[0] = BMS->sensor[0]->CxV[0];
+	can_buffer[1] = BMS->sensor[0]->CxV[0] >> 8;
+	can_buffer[2] = BMS->sensor[0]->CxV[1];
+	can_buffer[3] = BMS->sensor[0]->CxV[1] >> 8;
+	can_buffer[4] = BMS->sensor[0]->CxV[2];
+	can_buffer[5] = BMS->sensor[0]->CxV[2] >> 8;
+	can_buffer[6] = BMS->sensor[0]->CxV[3];
+	can_buffer[7] = BMS->sensor[0]->CxV[3] >> 8;
 
-			can_buffer[0] = BMS->sensor[i]->CxV[4 * j + 0];
-			can_buffer[1] = BMS->sensor[i]->CxV[4 * j + 0] >> 8;
-			can_buffer[2] = BMS->sensor[i]->CxV[4 * j + 1];
-			can_buffer[3] = BMS->sensor[i]->CxV[4 * j + 1] >> 8;
-			can_buffer[4] = BMS->sensor[i]->CxV[4 * j + 2];
-			can_buffer[5] = BMS->sensor[i]->CxV[4 * j + 2] >> 8;
-			can_buffer[6] = BMS->sensor[i]->CxV[4 * j + 3];
-			can_buffer[7] = BMS->sensor[i]->CxV[4 * j + 3] >> 8;
+	CAN_Transmit(can_buffer, 256);
 
-			CAN_Transmit(can_buffer, CAN_ID_TABLE[i][j]);
+	can_buffer[0] = BMS->sensor[0]->CxV[6];
+	can_buffer[1] = BMS->sensor[0]->CxV[6] >> 8;
+	can_buffer[2] = BMS->sensor[0]->CxV[7];
+	can_buffer[3] = BMS->sensor[0]->CxV[7] >> 8;
+	can_buffer[4] = BMS->sensor[0]->CxV[8];
+	can_buffer[5] = BMS->sensor[0]->CxV[8] >> 8;
+	can_buffer[6] = BMS->sensor[0]->CxV[9];
+	can_buffer[7] = BMS->sensor[0]->CxV[9] >> 8;
 
-			//			sendString(CAN_ID_TABLE[i][j], 	BMS->sensor[i]->CxV[(j * 4)],
-			//					BMS->sensor[i]->CxV[(j * 4) +1],
-			//					BMS->sensor[i]->CxV[(j * 4) +2],
-			//					BMS->sensor[i]->CxV[(j * 4) +3]);
+	CAN_Transmit(can_buffer, 257);
 
-		}
+	can_buffer[0] = BMS->sensor[1]->CxV[0];
+	can_buffer[1] = BMS->sensor[1]->CxV[0] >> 8;
+	can_buffer[2] = BMS->sensor[1]->CxV[1];
+	can_buffer[3] = BMS->sensor[1]->CxV[1] >> 8;
+	can_buffer[4] = BMS->sensor[1]->CxV[2];
+	can_buffer[5] = BMS->sensor[1]->CxV[2] >> 8;
+	can_buffer[6] = BMS->sensor[1]->CxV[3];
+	can_buffer[7] = BMS->sensor[1]->CxV[3] >> 8;
 
-		can_buffer[0] = BMS->sensor[i]->GxV[0];
-		can_buffer[1] = BMS->sensor[i]->GxV[0] >> 8;
-		can_buffer[2] = BMS->sensor[i]->GxV[1];
-		can_buffer[3] = BMS->sensor[i]->GxV[1] >> 8;
-		can_buffer[4] = BMS->sensor[i]->GxV[2];
-		can_buffer[5] = BMS->sensor[i]->GxV[2] >> 8;
-		can_buffer[6] = BMS->sensor[i]->GxV[3];
-		can_buffer[7] = BMS->sensor[i]->GxV[3] >> 8;
+	CAN_Transmit(can_buffer, 258);
 
+	can_buffer[0] = BMS->sensor[1]->CxV[4];
+	can_buffer[1] = BMS->sensor[1]->CxV[4] >> 8;
+	can_buffer[2] = BMS->sensor[0]->GxV[0];
+	can_buffer[3] = BMS->sensor[0]->GxV[0] >> 8;
+	can_buffer[4] = BMS->sensor[0]->GxV[1];
+	can_buffer[5] = BMS->sensor[0]->GxV[1] >> 8;
+	can_buffer[6] = BMS->sensor[0]->GxV[2];
+	can_buffer[7] = BMS->sensor[0]->GxV[2] >> 8;
 
+	CAN_Transmit(can_buffer, 259);
 
-		CAN_Transmit(can_buffer, CAN_ID_TABLE[i][CAN_TEMPERATURE_ID]);
+	can_buffer[0] = BMS->sensor[0]->GxV[3];
+	can_buffer[1] = BMS->sensor[0]->GxV[3] >> 8;
+	can_buffer[2] = BMS->sensor[0]->GxV[4];
+	can_buffer[3] = BMS->sensor[0]->GxV[4] >> 8;
+	can_buffer[4] = 0;
+	can_buffer[5] = 0 >> 8;
+	can_buffer[6] = 0;
+	can_buffer[7] = 0 >> 8;
 
-		//		sendString(CAN_ID_TABLE[i][CAN_TEMPERATURE_ID],
-		//				BMS->sensor[i]->GxV[0],
-		//				BMS->sensor[i]->GxV[1],
-		//				BMS->sensor[i]->GxV[2],
-		//				BMS->sensor[i]->GxV[3]);
+	CAN_Transmit(can_buffer, 260);
 
-	}
+	//PACK 6
+	can_buffer[0] = BMS->sensor[1]->CxV[5];
+	can_buffer[1] = BMS->sensor[1]->CxV[5] >> 8;
+	can_buffer[2] = BMS->sensor[1]->CxV[6];
+	can_buffer[3] = BMS->sensor[1]->CxV[6] >> 8;
+	can_buffer[4] = BMS->sensor[1]->CxV[7];
+	can_buffer[5] = BMS->sensor[1]->CxV[7] >> 8;
+	can_buffer[6] = BMS->sensor[1]->CxV[8];
+	can_buffer[7] = BMS->sensor[1]->CxV[8] >> 8;
+
+	CAN_Transmit(can_buffer, 261);
+
+	can_buffer[0] = BMS->sensor[1]->CxV[9];
+	can_buffer[1] = BMS->sensor[1]->CxV[9] >> 8;
+	can_buffer[2] = BMS->sensor[2]->CxV[0];
+	can_buffer[3] = BMS->sensor[2]->CxV[0] >> 8;
+	can_buffer[4] = BMS->sensor[2]->CxV[1];
+	can_buffer[5] = BMS->sensor[2]->CxV[1] >> 8;
+	can_buffer[6] = BMS->sensor[2]->CxV[2];
+	can_buffer[7] = BMS->sensor[2]->CxV[2] >> 8;
+
+	CAN_Transmit(can_buffer, 262);
+
+	can_buffer[0] = BMS->sensor[2]->CxV[3];
+	can_buffer[1] = BMS->sensor[2]->CxV[3] >> 8;
+	can_buffer[2] = BMS->sensor[2]->CxV[6];
+	can_buffer[3] = BMS->sensor[2]->CxV[6] >> 8;
+	can_buffer[4] = BMS->sensor[2]->CxV[7];
+	can_buffer[5] = BMS->sensor[2]->CxV[7] >> 8;
+	can_buffer[6] = BMS->sensor[2]->CxV[8];
+	can_buffer[7] = BMS->sensor[2]->CxV[8] >> 8;
+
+	CAN_Transmit(can_buffer, 263);
+
+	can_buffer[0] = BMS->sensor[2]->CxV[9];
+	can_buffer[1] = BMS->sensor[2]->CxV[9] >> 8;
+	can_buffer[2] = BMS->sensor[2]->GxV[0];
+	can_buffer[3] = BMS->sensor[2]->GxV[0] >> 8;
+	can_buffer[4] = BMS->sensor[2]->GxV[1];
+	can_buffer[5] = BMS->sensor[2]->GxV[1] >> 8;
+	can_buffer[6] = BMS->sensor[2]->GxV[2];
+	can_buffer[7] = BMS->sensor[2]->GxV[2] >> 8;
+
+	CAN_Transmit(can_buffer, 264);
+
+	can_buffer[0] = BMS->sensor[2]->GxV[3];
+	can_buffer[1] = BMS->sensor[2]->GxV[3] >> 8;
+	can_buffer[2] = BMS->sensor[2]->GxV[4];
+	can_buffer[3] = BMS->sensor[2]->GxV[4] >> 8;
+	can_buffer[4] = 0;
+	can_buffer[5] = 0 >> 8;
+	can_buffer[6] = 0;
+	can_buffer[7] = 0 >> 8;
+
+	CAN_Transmit(can_buffer, 265);
+
+	//PACK 4
+	can_buffer[0] = BMS->sensor[5]->CxV[0];
+	can_buffer[1] = BMS->sensor[5]->CxV[0] >> 8;
+	can_buffer[2] = BMS->sensor[5]->CxV[1];
+	can_buffer[3] = BMS->sensor[5]->CxV[1] >> 8;
+	can_buffer[4] = BMS->sensor[5]->CxV[2];
+	can_buffer[5] = BMS->sensor[5]->CxV[2] >> 8;
+	can_buffer[6] = BMS->sensor[5]->CxV[3];
+	can_buffer[7] = BMS->sensor[5]->CxV[3] >> 8;
+
+	CAN_Transmit(can_buffer, 266);
+
+	can_buffer[0] = BMS->sensor[5]->CxV[6];
+	can_buffer[1] = BMS->sensor[5]->CxV[6] >> 8;
+	can_buffer[2] = BMS->sensor[5]->CxV[7];
+	can_buffer[3] = BMS->sensor[5]->CxV[7] >> 8;
+	can_buffer[4] = BMS->sensor[5]->CxV[8];
+	can_buffer[5] = BMS->sensor[5]->CxV[8] >> 8;
+	can_buffer[6] = BMS->sensor[5]->CxV[9];
+	can_buffer[7] = BMS->sensor[5]->CxV[9] >> 8;
+
+	CAN_Transmit(can_buffer, 267);
+
+	can_buffer[0] = BMS->sensor[4]->CxV[0];
+	can_buffer[1] = BMS->sensor[4]->CxV[0] >> 8;
+	can_buffer[2] = BMS->sensor[4]->CxV[1];
+	can_buffer[3] = BMS->sensor[4]->CxV[1] >> 8;
+	can_buffer[4] = BMS->sensor[4]->CxV[2];
+	can_buffer[5] = BMS->sensor[4]->CxV[2] >> 8;
+	can_buffer[6] = BMS->sensor[4]->CxV[3];
+	can_buffer[7] = BMS->sensor[4]->CxV[3] >> 8;
+
+	CAN_Transmit(can_buffer, 268);
+
+	can_buffer[0] = BMS->sensor[4]->CxV[4];
+	can_buffer[1] = BMS->sensor[4]->CxV[4] >> 8;
+	can_buffer[2] = BMS->sensor[5]->GxV[0];
+	can_buffer[3] = BMS->sensor[5]->GxV[0] >> 8;
+	can_buffer[4] = BMS->sensor[5]->GxV[1];
+	can_buffer[5] = BMS->sensor[5]->GxV[1] >> 8;
+	can_buffer[6] = BMS->sensor[5]->GxV[2];
+	can_buffer[7] = BMS->sensor[5]->GxV[2] >> 8;
+
+	CAN_Transmit(can_buffer, 269);
+
+	can_buffer[0] = BMS->sensor[5]->GxV[3];
+	can_buffer[1] = BMS->sensor[5]->GxV[3] >> 8;
+	can_buffer[2] = BMS->sensor[5]->GxV[4];
+	can_buffer[3] = BMS->sensor[5]->GxV[4] >> 8;
+	can_buffer[4] = 0;
+	can_buffer[5] = 0 >> 8;
+	can_buffer[6] = 0;
+	can_buffer[7] = 0 >> 8;
+
+	CAN_Transmit(can_buffer, 270);
+
+	//PACK 3
+	can_buffer[0] = BMS->sensor[4]->CxV[5];
+	can_buffer[1] = BMS->sensor[4]->CxV[5] >> 8;
+	can_buffer[2] = BMS->sensor[4]->CxV[6];
+	can_buffer[3] = BMS->sensor[4]->CxV[6] >> 8;
+	can_buffer[4] = BMS->sensor[4]->CxV[7];
+	can_buffer[5] = BMS->sensor[4]->CxV[7] >> 8;
+	can_buffer[6] = BMS->sensor[4]->CxV[8];
+	can_buffer[7] = BMS->sensor[4]->CxV[8] >> 8;
+
+	CAN_Transmit(can_buffer, 271);
+
+	can_buffer[0] = BMS->sensor[4]->CxV[9];
+	can_buffer[1] = BMS->sensor[4]->CxV[9] >> 8;
+	can_buffer[2] = BMS->sensor[3]->CxV[0];
+	can_buffer[3] = BMS->sensor[3]->CxV[0] >> 8;
+	can_buffer[4] = BMS->sensor[3]->CxV[1];
+	can_buffer[5] = BMS->sensor[3]->CxV[1] >> 8;
+	can_buffer[6] = BMS->sensor[3]->CxV[2];
+	can_buffer[7] = BMS->sensor[3]->CxV[2] >> 8;
+
+	CAN_Transmit(can_buffer, 272);
+
+	can_buffer[0] = BMS->sensor[3]->CxV[3];
+	can_buffer[1] = BMS->sensor[3]->CxV[3] >> 8;
+	can_buffer[2] = BMS->sensor[3]->CxV[6];
+	can_buffer[3] = BMS->sensor[3]->CxV[6] >> 8;
+	can_buffer[4] = BMS->sensor[3]->CxV[7];
+	can_buffer[5] = BMS->sensor[3]->CxV[7] >> 8;
+	can_buffer[6] = BMS->sensor[3]->CxV[8];
+	can_buffer[7] = BMS->sensor[3]->CxV[8] >> 8;
+
+	CAN_Transmit(can_buffer, 273);
+
+	can_buffer[0] = BMS->sensor[3]->CxV[9];
+	can_buffer[1] = BMS->sensor[3]->CxV[9] >> 8;
+	can_buffer[2] = BMS->sensor[3]->GxV[0];
+	can_buffer[3] = BMS->sensor[3]->GxV[0] >> 8;
+	can_buffer[4] = BMS->sensor[3]->GxV[1];
+	can_buffer[5] = BMS->sensor[3]->GxV[1] >> 8;
+	can_buffer[6] = BMS->sensor[3]->GxV[2];
+	can_buffer[7] = BMS->sensor[3]->GxV[2] >> 8;
+
+	CAN_Transmit(can_buffer, 274);
+
+	can_buffer[0] = BMS->sensor[3]->GxV[3];
+	can_buffer[1] = BMS->sensor[3]->GxV[3] >> 8;
+	can_buffer[2] = BMS->sensor[3]->GxV[4];
+	can_buffer[3] = BMS->sensor[3]->GxV[4] >> 8;
+	can_buffer[4] = 0;
+	can_buffer[5] = 0 >> 8;
+	can_buffer[6] = 0;
+	can_buffer[7] = 0 >> 8;
+
+	CAN_Transmit(can_buffer, 275);
+
+	//PACK 2
+	can_buffer[0] = BMS->sensor[6]->CxV[0];
+	can_buffer[1] = BMS->sensor[6]->CxV[0] >> 8;
+	can_buffer[2] = BMS->sensor[6]->CxV[1];
+	can_buffer[3] = BMS->sensor[6]->CxV[1] >> 8;
+	can_buffer[4] = BMS->sensor[6]->CxV[2];
+	can_buffer[5] = BMS->sensor[6]->CxV[2] >> 8;
+	can_buffer[6] = BMS->sensor[6]->CxV[3];
+	can_buffer[7] = BMS->sensor[6]->CxV[3] >> 8;
+
+	CAN_Transmit(can_buffer, 276);
+
+	can_buffer[0] = BMS->sensor[6]->CxV[6];
+	can_buffer[1] = BMS->sensor[6]->CxV[6] >> 8;
+	can_buffer[2] = BMS->sensor[6]->CxV[7];
+	can_buffer[3] = BMS->sensor[6]->CxV[7] >> 8;
+	can_buffer[4] = BMS->sensor[6]->CxV[8];
+	can_buffer[5] = BMS->sensor[6]->CxV[8] >> 8;
+	can_buffer[6] = BMS->sensor[6]->CxV[9];
+	can_buffer[7] = BMS->sensor[6]->CxV[9] >> 8;
+
+	CAN_Transmit(can_buffer, 277);
+
+	can_buffer[0] = BMS->sensor[7]->CxV[0];
+	can_buffer[1] = BMS->sensor[7]->CxV[0] >> 8;
+	can_buffer[2] = BMS->sensor[7]->CxV[1];
+	can_buffer[3] = BMS->sensor[7]->CxV[1] >> 8;
+	can_buffer[4] = BMS->sensor[7]->CxV[2];
+	can_buffer[5] = BMS->sensor[7]->CxV[2] >> 8;
+	can_buffer[6] = BMS->sensor[7]->CxV[3];
+	can_buffer[7] = BMS->sensor[7]->CxV[3] >> 8;
+
+	CAN_Transmit(can_buffer, 278);
+
+	can_buffer[0] = BMS->sensor[7]->CxV[4];
+	can_buffer[1] = BMS->sensor[7]->CxV[4] >> 8;
+	can_buffer[2] = BMS->sensor[6]->GxV[0];
+	can_buffer[3] = BMS->sensor[6]->GxV[0] >> 8;
+	can_buffer[4] = BMS->sensor[6]->GxV[1];
+	can_buffer[5] = BMS->sensor[6]->GxV[1] >> 8;
+	can_buffer[6] = BMS->sensor[6]->GxV[2];
+	can_buffer[7] = BMS->sensor[6]->GxV[2] >> 8;
+
+	CAN_Transmit(can_buffer, 279);
+
+	can_buffer[0] = BMS->sensor[6]->GxV[3];
+	can_buffer[1] = BMS->sensor[6]->GxV[3] >> 8;
+	can_buffer[2] = BMS->sensor[6]->GxV[4];
+	can_buffer[3] = BMS->sensor[6]->GxV[4] >> 8;
+	can_buffer[4] = 0;
+	can_buffer[5] = 0 >> 8;
+	can_buffer[6] = 0;
+	can_buffer[7] = 0 >> 8;
+
+	CAN_Transmit(can_buffer, 280);
+
+	//PACK 1
+	can_buffer[0] = BMS->sensor[7]->CxV[5];
+	can_buffer[1] = BMS->sensor[7]->CxV[5] >> 8;
+	can_buffer[2] = BMS->sensor[7]->CxV[6];
+	can_buffer[3] = BMS->sensor[7]->CxV[6] >> 8;
+	can_buffer[4] = BMS->sensor[7]->CxV[7];
+	can_buffer[5] = BMS->sensor[7]->CxV[7] >> 8;
+	can_buffer[6] = BMS->sensor[7]->CxV[8];
+	can_buffer[7] = BMS->sensor[7]->CxV[8] >> 8;
+
+	CAN_Transmit(can_buffer, 281);
+
+	can_buffer[0] = BMS->sensor[7]->CxV[9];
+	can_buffer[1] = BMS->sensor[7]->CxV[9] >> 8;
+	can_buffer[2] = BMS->sensor[8]->CxV[0];
+	can_buffer[3] = BMS->sensor[8]->CxV[0] >> 8;
+	can_buffer[4] = BMS->sensor[8]->CxV[1];
+	can_buffer[5] = BMS->sensor[8]->CxV[1] >> 8;
+	can_buffer[6] = BMS->sensor[8]->CxV[2];
+	can_buffer[7] = BMS->sensor[8]->CxV[2] >> 8;
+
+	CAN_Transmit(can_buffer, 282);
+
+	can_buffer[0] = BMS->sensor[8]->CxV[3];
+	can_buffer[1] = BMS->sensor[8]->CxV[3] >> 8;
+	can_buffer[2] = BMS->sensor[8]->CxV[6];
+	can_buffer[3] = BMS->sensor[8]->CxV[6] >> 8;
+	can_buffer[4] = BMS->sensor[8]->CxV[7];
+	can_buffer[5] = BMS->sensor[8]->CxV[7] >> 8;
+	can_buffer[6] = BMS->sensor[8]->CxV[8];
+	can_buffer[7] = BMS->sensor[8]->CxV[8] >> 8;
+
+	CAN_Transmit(can_buffer, 283);
+
+	can_buffer[0] = BMS->sensor[8]->CxV[9];
+	can_buffer[1] = BMS->sensor[8]->CxV[9] >> 8;
+	can_buffer[2] = BMS->sensor[8]->GxV[0];
+	can_buffer[3] = BMS->sensor[8]->GxV[0] >> 8;
+	can_buffer[4] = BMS->sensor[8]->GxV[1];
+	can_buffer[5] = BMS->sensor[8]->GxV[1] >> 8;
+	can_buffer[6] = BMS->sensor[8]->GxV[2];
+	can_buffer[7] = BMS->sensor[8]->GxV[2] >> 8;
+
+	CAN_Transmit(can_buffer, 284);
+
+	can_buffer[0] = BMS->sensor[8]->GxV[3];
+	can_buffer[1] = BMS->sensor[8]->GxV[3] >> 8;
+	can_buffer[2] = BMS->sensor[8]->GxV[4];
+	can_buffer[3] = BMS->sensor[8]->GxV[4] >> 8;
+	can_buffer[4] = 0;
+	can_buffer[5] = 0 >> 8;
+	can_buffer[6] = 0;
+	can_buffer[7] = 0 >> 8;
+
+	CAN_Transmit(can_buffer, 285);
+
+	/*///////////////////////////////////////////////*/
 
 	can_buffer[0] = ((int16_t)BMS->current[0]);
 	can_buffer[1] = ((int16_t)BMS->current[0]) >> 8;
@@ -458,34 +758,18 @@ void BMS_can(BMS_struct *BMS){
 	can_buffer[7] = ((int16_t)BMS->current[3]) >> 8;
 
 	CAN_Transmit(can_buffer, 50);
-	//	CAN_Transmit(can_buffer, 352);
 
-
-
-	//	sendString(CAN_ID_TABLE[CAN_CURRENT_ID][0],
-	//			BMS->current[0],
-	//			BMS->current[1],
-	//			BMS->current[2],
-	//			BMS->current[3]);
-
-	can_buf(can_buffer, BMS->v_GLV,
-			(uint16_t)(BMS->charge_percent/10),
+	can_buf(can_buffer, 15,
+			(uint16_t)(BMS->charge_percent),
 			0,
-			BMS->AIR);
+			0);
 
 	CAN_Transmit(can_buffer, 51);
-
-	//	sendString(CAN_ID_TABLE[CAN_GENERAL_ID][0],
-	//			BMS->v_GLV,
-	//			(216000 - BMS->charge/100)/2160,
-	//			BMS->AIR,
-	//			BMS->error);
-
 
 	can_buffer[0] = 0;
 	can_buffer[1] = 0;
 	can_buffer[2] = BMS->v_TS;
-	can_buffer[3] = BMS->v_TS;
+	can_buffer[3] = BMS->v_TS >> 8;
 	can_buffer[4] = 0;
 	can_buffer[5] = 0;
 	can_buffer[6] = BMS->t_max;
@@ -493,32 +777,12 @@ void BMS_can(BMS_struct *BMS){
 
 	CAN_Transmit(can_buffer, 52);
 
-	//	sendString(CAN_ID_TABLE[CAN_GENERAL_ID][1],
-	//			0,
-	//			BMS->v_TS,
-	//			0,
-	//			BMS->t_max);
-
 	can_buf(can_buffer, BMS->v_min,
 			BMS->v_max,
 			0,
 			0);
 
 	CAN_Transmit(can_buffer, 53);
-	//
-	//	//sendString(CAN_ID_TABLE[CAN_GENERAL_ID][2], BMS->v_min,0,0,0);
-	//
-	//	can_buf(can_buffer, BMS->AIR,
-	//			0,
-	//			0,
-	//			0);
-	//
-	//	can_buffer[7] = 0;
-	//
-	//	CAN_Transmit(can_buffer, 0);
-
-	//sendString(0, BMS->AIR,0,0);
-
 }
 
 
@@ -550,22 +814,22 @@ void BMS_initial_SOC(BMS_struct *BMS){
 	else if(BMS->sensor->V_MIN < 31980 && BMS->sensor->V_MIN >= 31290)		//9,53% -- 5,86%
 		BMS->charge_percent = 53.23*(BMS->sensor->V_MIN/10000) - 160.69;
 	else
-		BMS->charge_percent = 0;*/
+		BMS->charge_percent = 0;
 
-//	if(BMS->sensor->V_MIN < 34000 && BMS->sensor->V_MIN >= 33400)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 94;
-//	else if(BMS->sensor->V_MIN < 33400 && BMS->sensor->V_MIN >= 33320)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 76;
-//	else if(BMS->sensor->V_MIN < 33320 && BMS->sensor->V_MIN >= 33000)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 46;
-//	else if(BMS->sensor->V_MIN < 33000 && BMS->sensor->V_MIN >= 32895)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
-//	else if(BMS->sensor->V_MIN < 32895 && BMS->sensor->V_MIN >= 31980)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
-//	else if(BMS->sensor->V_MIN < 31980 && BMS->sensor->V_MIN >= 31280)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 4;
-//	else
-//		BMS->charge_percent = 0;
+	if(BMS->sensor->V_MIN < 34000 && BMS->sensor->V_MIN >= 33400)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 94;
+	else if(BMS->sensor->V_MIN < 33400 && BMS->sensor->V_MIN >= 33320)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 76;
+	else if(BMS->sensor->V_MIN < 33320 && BMS->sensor->V_MIN >= 33000)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 46;
+	else if(BMS->sensor->V_MIN < 33000 && BMS->sensor->V_MIN >= 32895)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
+	else if(BMS->sensor->V_MIN < 32895 && BMS->sensor->V_MIN >= 31980)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
+	else if(BMS->sensor->V_MIN < 31980 && BMS->sensor->V_MIN >= 31280)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 4;
+	else
+		BMS->charge_percent = 0;*/
 
 	if(BMS->charge_percent > 100)
 		BMS->charge_percent = 100;

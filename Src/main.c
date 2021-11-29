@@ -17,13 +17,26 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
-
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
+#include "can.h"
+#include "dma.h"
+#include "spi.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stm32f1xx_hal.h"
+#include "BMS.h"
+#include <stdlib.h>
+#include "dwt_stm32_delay.h"
+#include "eeprom.h"
+#include "nextion.h"
+#include "DMA_USART.h"
+#include "nextion_functions.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,13 +60,14 @@
 
 //static float CURRENT_ZERO[4] = {2250, 2990, 2396, 2396};
 //static const float CURRENT_GAIN[4] = {1.22, 1.52, 1.22, 1.22};
-//static float CURRENT_ZERO[4] = {2223, 2750, 2223, 2227};
-static const float CURRENT_GAIN[4] = {1.22, 1.51, 1.22, 1.22};
+static float CURRENT_ZERO[4] = {30.42034498, 237.9730226, 237.973, 29.51695};
+static const float CURRENT_GAIN[4] = {0.01448599958, 0.1131870739, 0.1131, 0.01389};
+// [CURSENS2, CURSENS1 (BAIXA), CURSENS1 (ALTA), CURSENS3]
 ErrorStatus  HSEStartUpStatus;
 HAL_StatusTypeDef FlashStatus;
 
 BMS_struct* BMS;
-int32_t ADC_BUF[5];
+int32_t ADC_BUF[6];
 uint32_t adc_time;
 uint8_t mode_button = 0, debounce_flag, accept_flag, accept_time, debounce_time, mode;
 uint16_t VirtAddVarTab[NumbOfVar] = {0x5555, 0x6666, 0x7777};
@@ -76,7 +90,7 @@ void SystemClock_Config(void);
 
 int aux = 0;
 int initialReadings = 0;
-float CURRENT_ZERO[N_OF_DHAB];
+//float CURRENT_ZERO[N_OF_DHAB];
 
 float filter(float old, float new){
 	return (FILTER_GAIN * old + new) / (FILTER_GAIN + 1);
@@ -84,23 +98,23 @@ float filter(float old, float new){
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc)
 {
-	if(initialReadings < 5){
+//	if(initialReadings < 5){
+//		for(uint8_t i = 0; i < N_OF_DHAB; i++){
+//			CURRENT_ZERO[i] += ((float)ADC_BUF[i] * (float)CURRENT_GAIN[i]);
+//			initialReadings++;
+//			if(initialReadings == 5){
+//				for(uint8_t j = 0; j < N_OF_DHAB; j++)
+//					CURRENT_ZERO[j] = CURRENT_ZERO[j]/5;
+//				}
+//		}
+//	}
+//	else{
 		for(uint8_t i = 0; i < N_OF_DHAB; i++){
-			CURRENT_ZERO[i] += ((float)ADC_BUF[i] * (float)CURRENT_GAIN[i]);
-			initialReadings++;
-			if(initialReadings == 5){
-				for(uint8_t j = 0; j < N_OF_DHAB; j++)
-					CURRENT_ZERO[j] = CURRENT_ZERO[j]/5;
-				}
+			BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)ADC_BUF[i+1]);
+			BMS->current[i] = filter(BMS->current[i], ((float)ADC_BUF[i+1] * CURRENT_GAIN[i]) - CURRENT_ZERO[i]);
 		}
-	}
-	else{
-		for(uint8_t i = 0; i < N_OF_DHAB; i++){
-		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)ADC_BUF[i]);
-		BMS->current[i] = filter(BMS->current[i], ((float)ADC_BUF[i] * CURRENT_GAIN[i]) - CURRENT_ZERO[i]);//		BMS->current[i] = filter(BMS->current[i], (ADC_BUF[i]));
-		}
-	}
-	BMS->v_GLV = filter(BMS->v_GLV , ((float)(ADC_BUF[4] + 400) * 4.5));
+//	}
+	BMS->v_GLV = filter	(BMS->v_GLV , ((float)(ADC_BUF[4] + 400) * 4.5));
 }
 
 
@@ -115,7 +129,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -149,7 +162,7 @@ int main(void)
 
 	DWT_Delay_Init();
 
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t* )ADC_BUF, 5);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t* )ADC_BUF, 6);
 	USART_DMA_Init(&huart3, &hdma_usart3_rx);
 
 	HAL_TIM_Base_Start_IT(&htim3);
@@ -162,11 +175,10 @@ int main(void)
 
 	HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, 1);
 
-	NexPageShow(1);
+//	nexInit();
+	NexPageShow(0);
 
   /* USER CODE END 2 */
- 
- 
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -177,7 +189,6 @@ int main(void)
 		BMS_error(BMS);
 		BMS_can(BMS);
 		nexLoop(BMS);
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -196,7 +207,8 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -209,7 +221,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -257,7 +269,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
