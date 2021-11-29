@@ -185,7 +185,8 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_send_command(BMS->config);
 
-		BMS->v_min = MAX_CELL_V_DISCHARGE;
+		BMS->v_min = RESET_V_MIN;
+		BMS->v_max = RESET_V_MAX;
 
 		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
@@ -195,15 +196,6 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 				BMS->v_min = BMS->sensor[i]->V_MIN;
 			if(BMS->sensor[i]->V_MAX > BMS->v_max)
 				BMS->v_max = BMS->sensor[i]->V_MAX;
-
-			BMS->v_TS += BMS->sensor[i]->SOC;
-
-
-			//TODO Verificar necessidade desse loop
-//			for(uint8_t j = 0; j < 4; j++){
-//				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
-//					BMS->t_max = BMS->sensor[i]->GxV[j];
-//			}
 		}
 
 	}
@@ -213,7 +205,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_send_command(BMS->config);
 
-		BMS->t_max = 30000;
+		BMS->t_max = RESET_T_MAX;
 
 		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
@@ -232,6 +224,8 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 		BMS->config->command->NAME = LTC_COMMAND_ADSTAT;
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_send_command(BMS->config);
+
+		BMS->v_TS = 0;
 
 		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
@@ -257,15 +251,9 @@ the need of balancing the cells.
 *******************************************************/
 void BMS_monitoring(BMS_struct *BMS){
 
-
-	BMS->v_min = BMS->sensor[0]->V_MIN;
-	BMS->v_max = BMS->sensor[0]->V_MAX;
-	BMS->v_TS = 0;
-	BMS->t_max = 0;
-	BMS->charge_percent = 0;
-
 	BMS_convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
 
+	BMS->charge_percent = 0;
 
 	for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 		if (BMS->mode & BMS_BALANCING)
@@ -281,6 +269,7 @@ void BMS_monitoring(BMS_struct *BMS){
 
 	BMS->charge_percent /= N_OF_PACKS;
 
+//	BMS->charge_percent = 0,0641 * BMS->v_TS - 466,66;
 
 	if(BMS->charge < BMS->charge_min)
 		BMS->charge_min = BMS->charge;
@@ -300,7 +289,6 @@ void BMS_monitoring(BMS_struct *BMS){
 
 	EE_WriteVariable(0x4, (uint16_t) (BMS->charge_max >> 16));
 	EE_WriteVariable(0x5, (uint16_t) BMS->charge_max);
-
 
 }
 
