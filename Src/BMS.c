@@ -342,15 +342,15 @@ void BMS_error(BMS_struct *BMS){
 	else
 		OT_retries--;
 
-	if(UV_retries > 5) UV_retries = 5;
-	if(OV_retries > 5) OV_retries = 5;
-	if(OT_retries > 5) OT_retries = 5;
+	if(UV_retries > 20) UV_retries = 20;
+	if(OV_retries > 20) OV_retries = 20;
+	if(OT_retries > 20) OT_retries = 20;
 	if(UV_retries < 0) UV_retries = 0;
 	if(OV_retries < 0) OV_retries = 0;
 	if(OT_retries < 0) OT_retries = 0;
 
 
-	if(UV_retries == 5){
+	if(UV_retries == 20){
 		NextError[0] = 1;
 		BMS->error |= ERR_UNDER_VOLTAGE;
 	}
@@ -358,7 +358,7 @@ void BMS_error(BMS_struct *BMS){
 		NextError[0] = 0;
 		BMS->error &= ~ERR_UNDER_VOLTAGE;
 	}
-	if(OV_retries == 5){
+	if(OV_retries == 20){
 		NextError[1] = 1;
 		BMS->error |= ERR_OVER_VOLTAGE;
 	}
@@ -366,7 +366,7 @@ void BMS_error(BMS_struct *BMS){
 		NextError[1] = 0;
 		BMS->error &= ~ERR_OVER_VOLTAGE;
 	}
-	if(OT_retries == 5){
+	if(OT_retries == 20){
 		NextError[2] = 1;
 		BMS->error |= ERR_OVER_TEMPERATURE;
 	}
