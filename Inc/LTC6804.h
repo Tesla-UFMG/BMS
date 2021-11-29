@@ -151,6 +151,11 @@ typedef struct LTC_sensor{
 #define LTC_COMMAND_RDCOMM	0b11100100010	// Read COMM Register Group    ***** NOT IMPLEMENTED
 #define LTC_COMMAND_STCOMM	0b11100100011	// Start I2C/SPI Communication ***** NOT IMPLEMENTED
 
+//Temperature conversion parameters NTC B57164K0103
+#define B 	4300	// Beta parameter
+#define t0	298		// 25ºC in Kelvins
+#define r0	10000	// resistance at 25ºC
+
 typedef enum{
 
 	LTC_READ_CELL 	= 0b0001,
