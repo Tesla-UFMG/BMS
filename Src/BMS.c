@@ -362,13 +362,13 @@ void BMS_error(BMS_struct *BMS){
 		NextError[2] = 0;
 		BMS->error &= ~ERR_OVER_TEMPERATURE;
 	}
-	if(BMS->v_GLV < 13500){
-		BMS->error |= ERR_GLV_VOLTAGE;
-		NextError[4] = 1;
-	}else if(BMS->v_GLV < 13500){
-		BMS->error &= ~ERR_GLV_VOLTAGE;
-		NextError[4] = 0;
-	}
+//	if(BMS->v_GLV < 13500){
+//		BMS->error |= ERR_GLV_VOLTAGE;
+//		NextError[4] = 1;
+//	}else if(BMS->v_GLV < 13500){
+//		BMS->error &= ~ERR_GLV_VOLTAGE;
+//		NextError[4] = 0;
+//	}
 
 	if(BMS->error != ERR_NO_ERROR){
 		HAL_GPIO_WritePin(AIR_ENABLE_GPIO_Port, AIR_ENABLE_Pin, RESET);
