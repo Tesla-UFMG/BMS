@@ -814,22 +814,22 @@ void BMS_initial_SOC(BMS_struct *BMS){
 	else if(BMS->sensor->V_MIN < 31980 && BMS->sensor->V_MIN >= 31290)		//9,53% -- 5,86%
 		BMS->charge_percent = 53.23*(BMS->sensor->V_MIN/10000) - 160.69;
 	else
-		BMS->charge_percent = 0;*/
+		BMS->charge_percent = 0;
 
-//	if(BMS->sensor->V_MIN < 34000 && BMS->sensor->V_MIN >= 33400)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 94;
-//	else if(BMS->sensor->V_MIN < 33400 && BMS->sensor->V_MIN >= 33320)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 76;
-//	else if(BMS->sensor->V_MIN < 33320 && BMS->sensor->V_MIN >= 33000)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 46;
-//	else if(BMS->sensor->V_MIN < 33000 && BMS->sensor->V_MIN >= 32895)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
-//	else if(BMS->sensor->V_MIN < 32895 && BMS->sensor->V_MIN >= 31980)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
-//	else if(BMS->sensor->V_MIN < 31980 && BMS->sensor->V_MIN >= 31280)
-//		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 4;
-//	else
-//		BMS->charge_percent = 0;
+	if(BMS->sensor->V_MIN < 34000 && BMS->sensor->V_MIN >= 33400)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 94;
+	else if(BMS->sensor->V_MIN < 33400 && BMS->sensor->V_MIN >= 33320)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 76;
+	else if(BMS->sensor->V_MIN < 33320 && BMS->sensor->V_MIN >= 33000)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 46;
+	else if(BMS->sensor->V_MIN < 33000 && BMS->sensor->V_MIN >= 32895)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
+	else if(BMS->sensor->V_MIN < 32895 && BMS->sensor->V_MIN >= 31980)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
+	else if(BMS->sensor->V_MIN < 31980 && BMS->sensor->V_MIN >= 31280)
+		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 4;
+	else
+		BMS->charge_percent = 0;*/
 
 	if(BMS->charge_percent > 100)
 		BMS->charge_percent = 100;
