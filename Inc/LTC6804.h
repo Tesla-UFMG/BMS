@@ -75,7 +75,7 @@ typedef struct LTC_sensor{
 	uint16_t V_MAX;
 	uint16_t V_MIN;
 	uint16_t V_DELTA;
-	uint16_t CHARGE[12];
+	uint16_t CHARGE[N_OF_CELLS];
 	uint16_t TOTAL_CHARGE;
 
 

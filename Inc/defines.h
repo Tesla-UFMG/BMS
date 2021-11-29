@@ -30,9 +30,11 @@
 #define MAX_CELL_V_STORE			33000/
 #define MIN_CELL_V					26000//27500
 #define MIN_CELL_V_BALLANCE 		23000
+#define RESET_V_MAX					0
+#define RESET_V_MIN					36000
 #define FUSE_LIMIT					1
 #define V_ERROR_COM					65528
-#define MAX_TEMPERATURE				59000
+#define MAX_TEMPERATURE				500
 #define T_ERROR_COM					1
 #define BALANCE_TIME				120
 #define BALANCE_V_ERROR				5

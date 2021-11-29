@@ -138,10 +138,9 @@ void BMS_init(BMS_struct *BMS){
 	}
 
 	BMS->error = ERR_NO_ERROR;
-	BMS->v_min = 50000;
-	BMS->v_max = 0;
-
-	BMS->mode = 0;
+	BMS->mode = BMS_MONITORING;
+//	BMS->v_min = 50000;
+//	BMS->v_max = 0;
 
 
 	uint16_t aux;
@@ -221,7 +220,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 
 			for(uint8_t j = 0; j < N_OF_THERMISTORS; j++){
 
-				if(BMS->sensor[i]->GxV[j] < BMS->t_max && BMS->sensor[i]->GxV[j] > 1000)
+				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
 					BMS->t_max = BMS->sensor[i]->GxV[j];
 
 			}
@@ -262,17 +261,12 @@ void BMS_monitoring(BMS_struct *BMS){
 	BMS->v_max = BMS->sensor[0]->V_MAX;
 	BMS->v_TS = 0;
 	BMS->t_max = 0;
-
-	//TODO Verificar necessidade dessa atribuição
-	BMS->v_min = 50000;
-	BMS->v_max = 0;
-
 	BMS->charge_percent = 0;
 
 	BMS_convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
 
 
-	for(uint8_t i = 0; i < N_OF_PACKS; i++){
+	for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 		if (BMS->mode & BMS_BALANCING)
 			LTC_set_balance_flag(BMS->config, BMS->sensor[i]);
 		else
@@ -323,19 +317,20 @@ tion.
 *******************************************************/
 void BMS_error(BMS_struct *BMS){
 
-	if(BMS->v_min <= MIN_CELL_V)
+	if(BMS->v_min < MIN_CELL_V)
 		flag |= ERR_UNDER_VOLTAGE;
 
-	if(BMS->v_max >= MAX_CELL_V_DISCHARGE)
+	if(BMS->v_max > MAX_CELL_V_DISCHARGE)
 		flag |= ERR_OVER_VOLTAGE;
 
-	if(BMS->t_max < 10000)
+	if(BMS->t_max > MAX_TEMPERATURE)
 		flag |= ERR_OVER_TEMPERATURE;
 
 	if((flag & ERR_UNDER_VOLTAGE) == ERR_UNDER_VOLTAGE)
 		UV_retries++;
 	else
 		UV_retries--;
+
 	if((flag & ERR_OVER_VOLTAGE) == ERR_OVER_VOLTAGE)
 		OV_retries++;
 	else

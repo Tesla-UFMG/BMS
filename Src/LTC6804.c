@@ -577,13 +577,8 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 		config->command->NAME = LTC_COMMAND_RDCVD;
 		LTC_send_command(config, sensor);
 
-//		if(sensor->ADDR == 0){
-//				sensor->CxV[5] = sensor->CxV[2];
-//				sensor->CxV[6] = sensor->CxV[3];
-//		}
-
-		sensor->V_MIN = 36000;
-		sensor->V_MAX = 28000;
+		sensor->V_MIN = MAX_CELL_V_DISCHARGE;
+		sensor->V_MAX = MIN_CELL_V;
 
 		for(uint8_t i = 0; i < N_OF_CELLS; i++){
 			if(sensor->CxV[i] != 0 && sensor->CxV[i] < sensor->V_MIN)
