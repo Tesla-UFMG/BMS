@@ -175,7 +175,7 @@ int main(void)
 
 	HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, 1);
 
-//	nexInit();
+	nexInit();
 	NexPageShow(0);
 
   /* USER CODE END 2 */

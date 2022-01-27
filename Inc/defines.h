@@ -39,6 +39,8 @@
 #define RESET_T_MAX					0
 #define BALANCE_TIME				120
 #define BALANCE_V_ERROR				5
+#define TIME_BALANCING_SEC			30
+#define ONE_SEC_IN_MS				1000000
 
 #define READ  0
 #define WRITE 1
