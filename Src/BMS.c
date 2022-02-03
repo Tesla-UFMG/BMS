@@ -256,7 +256,7 @@ void BMS_monitoring(BMS_struct *BMS){
 	BMS->charge_percent = 0;
 
 	if(BMS->mode & BMS_BALANCING){
-		for(uint8_t i = 0; i < TIME_BALACING_SEC; i++){
+		for(uint8_t i = 0; i < TIME_BALANCING_SEC; i++){
 			for(uint8_t j = 0; j < N_OF_SLAVES; j++){
 
 				LTC_set_balance_flag(BMS->config, BMS->sensor[j]);
