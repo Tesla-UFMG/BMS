@@ -13,6 +13,7 @@
 #include "DHAB_s125.h"
 #include "eeprom.h"
 #include "can.h"
+#include "defines.h"
 
 uint8_t NextError[5];
 
