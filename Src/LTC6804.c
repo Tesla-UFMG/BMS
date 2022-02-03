@@ -295,7 +295,7 @@ function and do the tasks accordingly to the command sent.
 void LTC_send_command(LTC_config *config, ...){
 
 	uint16_t tx_data[3] = { 0, 0, 0},
-			rx_data[3] = { 0, 0, 0};
+			 rx_data[3] = { 0, 0, 0};
 
 	LTC_sensor *sensor;
 
@@ -359,8 +359,13 @@ void LTC_send_command(LTC_config *config, ...){
 
 	case LTC_COMMAND_RDCVC 	:
 
-		sensor->CxV[6] = rx_data[0];
-		sensor->CxV[7] = rx_data[1];
+//		if(sensor->ADDR == 1){
+//			sensor->CxV[6] = (rx_data[0] + rx_data[1]) / 2;
+//			sensor->CxV[7] = sensor->CxV[6];
+//		}else{
+			sensor->CxV[6] = rx_data[0];
+			sensor->CxV[7] = rx_data[1];
+//		}
 		sensor->CxV[8] = rx_data[2];
 
 		break;
@@ -499,7 +504,6 @@ void LTC_balance_test(LTC_config *config, LTC_sensor *sensor){
 
 	sensor->DCC = 0;
 	LTC_send_command(config, sensor);
-
 }
 
 //extern int16_t THERMISTOR_ZEROS[N_OF_PACKS][5];
@@ -614,13 +618,14 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 
 		LTC_wait(config, sensor);
 
-		config->command->NAME = LTC_COMMAND_RDAUXA;
-		LTC_send_command(config, sensor);
-		config->command->NAME = LTC_COMMAND_RDAUXB;
-		LTC_send_command(config, sensor);
-
 		if(sensor->ADDR != 1 || sensor->ADDR != 4 || sensor->ADDR != 7){
+
+			config->command->NAME = LTC_COMMAND_RDAUXA;
+			LTC_send_command(config, sensor);
+			config->command->NAME = LTC_COMMAND_RDAUXB;
+			LTC_send_command(config, sensor);
 			LTC_T_convert(sensor);
+
 		}
 
 	}

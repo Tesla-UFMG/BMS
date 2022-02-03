@@ -255,19 +255,21 @@ void BMS_monitoring(BMS_struct *BMS){
 
 	BMS->charge_percent = 0;
 
-	for(uint8_t i = 0; i < N_OF_SLAVES; i++){
-		if (BMS->mode & BMS_BALANCING)
-			LTC_set_balance_flag(BMS->config, BMS->sensor[i]);
-		else
-			LTC_reset_balance_flag(BMS->config, BMS->sensor[i]);
+	if(BMS->mode & BMS_BALANCING){
+		for(uint8_t i = 0; i < TIME_BALACING_SEC; i++){
+			for(uint8_t j = 0; j < N_OF_SLAVES; j++){
 
-		LTC_balance(BMS->config, BMS->sensor[i]);
+				LTC_set_balance_flag(BMS->config, BMS->sensor[j]);
 
-		BMS->charge_percent += BMS->sensor[i]->TOTAL_CHARGE;
+				LTC_balance(BMS->config, BMS->sensor[j]);
 
+	//			BMS->charge_percent += BMS->sensor[j]->TOTAL_CHARGE;
+			}
+			DWT_Delay_us(ONE_SEC_IN_MS);
+		}
 	}
 
-	BMS->charge_percent /= N_OF_PACKS;
+//	BMS->charge_percent /= N_OF_PACKS;
 
 //	BMS->charge_percent = 0,0641 * BMS->v_TS - 466,66;
 
@@ -371,7 +373,9 @@ void BMS_error(BMS_struct *BMS){
 //	}
 
 	if(BMS->error != ERR_NO_ERROR){
-		HAL_GPIO_WritePin(AIR_ENABLE_GPIO_Port, AIR_ENABLE_Pin, RESET);
+		if(BMS->mode != BMS_BALANCING)
+			HAL_GPIO_WritePin(AIR_ENABLE_GPIO_Port, AIR_ENABLE_Pin, RESET);
+
 		HAL_GPIO_WritePin(ERR_LED_GPIO_Port, ERR_LED_Pin, SET);
 		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, RESET);
 //		HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, RESET);
