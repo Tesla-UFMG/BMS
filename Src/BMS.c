@@ -11,6 +11,8 @@
 
 static int8_t UV_retries, OV_retries, OT_retries;
 
+static uint16_t safety_limits[NUMBER_OF_ERRORS];
+
 //uint8_t balance_enable = 1;
 
 //extern uint8_t mode_button;
@@ -137,7 +139,8 @@ void BMS_Init(BMS_struct *BMS) {
 	}
 
 	BMS->error = ERR_NO_ERROR;
-	BMS->mode = BMS_MONITORING;
+	BMS->mode  = BMS_MONITORING;
+	BMS_SetSafetyLimits(BMS);
 
 	open_shutdown();
 	bms_indicator_light_turn(OFF);
@@ -148,6 +151,29 @@ void BMS_Init(BMS_struct *BMS) {
 		charger_disable();
 
 	LTC_Init(BMS->config);
+}
+
+void BMS_SetSafetyLimits(BMS_struct* BMS) {
+	switch (BMS->mode) {
+		case BMS_MONITORING:
+			safety_limits[OVER_VOLTAGE]     = VOLTAGE_MAX_DISCHARGE;
+			safety_limits[UNDER_VOLTAGE]    = VOLTAGE_MIN_DISCHARGE;
+			safety_limits[OVER_TEMPERATURE] = TEMPERATURE_MAX_DISCHARGE;
+			break;
+		case BMS_CHARGING:
+			safety_limits[OVER_VOLTAGE]     = VOLTAGE_MAX_CHARGE;
+			safety_limits[UNDER_VOLTAGE]    = VOLTAGE_MIN_CHARGE;
+			safety_limits[OVER_TEMPERATURE] = TEMPERATURE_MAX_CHARGE;
+			break;
+		case BMS_BALANCING:
+			safety_limits[OVER_VOLTAGE]     = VOLTAGE_MAX_BALANCE;
+			safety_limits[UNDER_VOLTAGE]    = VOLTAGE_MIN_BALANCE;
+			safety_limits[OVER_TEMPERATURE] = TEMPERATURE_MAX_BALANCE;
+			break;
+		default:
+			Error_Handler();
+			break;
+	}
 }
 
 /*******************************************************
