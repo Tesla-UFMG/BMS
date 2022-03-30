@@ -34,7 +34,7 @@ void BMS_Init(BMS_struct *BMS) {
 	BMS->mode  = BMS_MONITORING;
 	BMS_SetSafetyLimits(BMS);
 
-	open_shutdown();
+	close_shutdown_circuit();
 	bms_indicator_light_turn(OFF);
 	led_debug_turn(OFF);
 	if(BMS->mode == BMS_CHARGING)

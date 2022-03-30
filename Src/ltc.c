@@ -39,9 +39,9 @@ uint16_t LTC_PEC(uint16_t *data , uint8_t len) {
 	remainder = LTC_PEC_SEED;
 	for (uint8_t i = 0; i < len; i++){
 		address   = ((remainder >> 7) ^ ((data[i] >> 8) & 0xFF)) & 0xFF; //calculate PEC table address
-		remainder = (remainder << 8 ) ^ PEC_TABLE[address];
+		remainder = (remainder << 8 ) ^ pec_table[address];
 		address   = ((remainder >> 7) ^ (data[i] & 0xFF)) & 0xFF;    	 //calculate PEC table address
-		remainder = (remainder << 8 ) ^ PEC_TABLE[address];
+		remainder = (remainder << 8 ) ^ pec_table[address];
 	}
 	return (remainder * 2); //The CRC15 has a 0 in the LSB so the final value must be multiplied by 2
 }
@@ -126,7 +126,6 @@ void LTC_TransmitReceive(uint16_t command, uint16_t* tx_data, uint16_t* rx_data)
 	if((tx_data[0] & 0x07FF) < LTC_COMMAND_ADCV) {
 		for (uint8_t i = 0; i < 4; ++i) {
 			rx_data[i] = LTC_SPI(tx_data[i]);
-			bufferRx[i] = rx_data[i];
 		}
 	}
 }
@@ -175,7 +174,6 @@ void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data
 		config->GPIO   = (rx_data[0] >> 3) & 0x1F;
 		config->VUV    = (rx_data[0] >> 8) | (rx_data[1] & 0x000F);
 		config->VOV    = (rx_data[1] >> 4);
-		config->DCC    = (rx_data[2] & 0x0FFF);
 		config->DCTO   = (rx_data[2] >> 12);
 		break;
 
@@ -259,7 +257,7 @@ void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data
 	}
 }
 
-void LTC_ConfigCommandName(LTC_sensor sensor, LTC_config config) {
+void LTC_ConfigCommandName(LTC_sensor* sensor, LTC_config* config) {
 	config->command->NAME |= (sensor->ADDR & (0x1111 * ~config->command->BROADCAST)) |
 			                 (~config->command->BROADCAST << 4) << 11;
 }
@@ -294,7 +292,7 @@ void LTC_SendCommand(LTC_config *config, ...) {
 	LTC_TransmitCommand(command);
 	LTC_TransmitReceive(command, tx_data, rx_data);
 	LTC_EndTramission();
-	LTC_RecieveMessage(sensor, config, rx_data);
+	LTC_ReceiveMessage(sensor, config, rx_data);
 }
 
 void LTC_ConvertTemp(LTC_sensor* sensor) {
