@@ -155,17 +155,19 @@ void LTC_WakeUp() {
 	LTC_EndTramission();
 }
 
+void LTC_TransmitCommand(uint16_t command) {
+	uint16_t pec = LTC_PEC(&command, 1);
+	LTC_SPI(command);
+	LTC_SPI(pec);
+}
+
 void LTC_transmit_recieve (uint16_t command, uint16_t* tx_data, uint16_t* rx_data){
 
 	uint16_t pec = LTC_PEC(&command, 1),
 			buffer[4] = {command, pec, 0, 0}; //tx buffer
 
 	LTC_WakeUp();
-
-	//SEND COMMAND ROUTINE:
-	LTC_StartTrasmission();
-	LTC_SPI(buffer[0]);
-	LTC_SPI(buffer[1]);
+	LTC_TransmitCommand(command);
 
 	//TRANSMIT/RECIEVE DATA ROUTINE:
 	for (uint8_t i = 0; i < 4; ++i)
