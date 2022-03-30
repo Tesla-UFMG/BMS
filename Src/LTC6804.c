@@ -125,10 +125,14 @@ a bit in the CS GPIO port and waiting for 10us.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void LTC_CS(uint8_t level){
+void LTC_ChipSelect(uint8_t level) {
 	HAL_GPIO_WritePin(ISOSPI_CS_GPIO_Port, ISOSPI_CS_Pin , level);
 	DWT_Delay_us(10);
 }
+
+void LTC_StartTrasmission() { LTC_ChipSelect(LOW); }
+
+void LTC_EndTramission() { LTC_ChipSelect(HIGH); }
 
 uint16_t LTC_SPI(uint16_t Tx_data) {
 	uint16_t Rx_data = 0;
@@ -145,18 +149,20 @@ routine, following the steps described in the LTC6804 datasheet.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
+
+
 void LTC_transmit_recieve (uint16_t command, uint16_t* tx_data, uint16_t* rx_data){
 
 	uint16_t pec = LTC_PEC(&command, 1),
 			buffer[4] = {command, pec, 0, 0}; //tx buffer
 
 	//WAKE UP ROUTINE
-	LTC_CS(0);
+	LTC_StartTrasmission();
 	LTC_SPI(0);
-	LTC_CS(1);
+	LTC_EndTramission();
 
 	//SEND COMMAND ROUTINE:
-	LTC_CS(0);
+	LTC_StartTrasmission();
 	LTC_SPI(buffer[0]);
 	LTC_SPI(buffer[1]);
 
@@ -173,7 +179,7 @@ void LTC_transmit_recieve (uint16_t command, uint16_t* tx_data, uint16_t* rx_dat
 		for (uint8_t i = 0; i < 4; ++i)
 			rx_data[i] = LTC_SPI(buffer[i]);
 	}
-	LTC_CS(1);
+	LTC_EndTramission();
 
 }
 
