@@ -22,11 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stm32f1xx_hal.h"
-#include "BMS.h"
-#include <stdlib.h>
+#include "bms.h"
 #include "dwt_stm32_delay.h"
-#include "eeprom.h"
 #include "nextion.h"
 #include "DMA_USART.h"
 #include "nextion_functions.h"
@@ -64,21 +61,8 @@ DMA_HandleTypeDef hdma_usart3_rx;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
-//static float CURRENT_ZERO[4] = {2250, 2990, 2396, 2396};
-//static const float CURRENT_GAIN[4] = {1.22, 1.52, 1.22, 1.22};
-static float CURRENT_ZERO[4] = {30.42034498, 237.9730226, 237.973, 29.51695};
-static const float CURRENT_GAIN[4] = {0.01448599958, 0.1131870739, 0.1131, 0.01389};
-// [CURSENS2, CURSENS1 (BAIXA), CURSENS1 (ALTA), CURSENS3]
-ErrorStatus  HSEStartUpStatus;
-HAL_StatusTypeDef FlashStatus;
-
 BMS_struct* BMS;
-int32_t ADC_BUF[6];
-uint32_t adc_time;
-uint8_t mode_button = 0, debounce_flag, accept_flag, accept_time, debounce_time, mode;
-uint16_t VirtAddVarTab[NumbOfVar] = {0x5555, 0x6666, 0x7777};
-
-extern DMA_HandleTypeDef hdma_usart3_rx;
+int32_t adc_buffer[NUMBER_OF_CURRENT_SENSORS*CHANELLS_PER_CURRENT_SENSOR];
 
 /* USER CODE END PV */
 
@@ -103,35 +87,16 @@ static void MX_USART3_UART_Init(void);
 
 #define FILTER_GAIN 255
 
-int aux = 0;
-int initialReadings = 0;
-//float CURRENT_ZERO[N_OF_DHAB];
-
 float filter(float old, float new){
 	return (FILTER_GAIN * old + new) / (FILTER_GAIN + 1);
 }
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc)
-{
-//	if(initialReadings < 5){
-//		for(uint8_t i = 0; i < N_OF_DHAB; i++){
-//			CURRENT_ZERO[i] += ((float)ADC_BUF[i] * (float)CURRENT_GAIN[i]);
-//			initialReadings++;
-//			if(initialReadings == 5){
-//				for(uint8_t j = 0; j < N_OF_DHAB; j++)
-//					CURRENT_ZERO[j] = CURRENT_ZERO[j]/5;
-//				}
-//		}
-//	}
-//	else{
-		for(uint8_t i = 0; i < N_OF_DHAB; i++){
-			BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)ADC_BUF[i+1]);
-			BMS->current[i] = filter(BMS->current[i], ((float)ADC_BUF[i+1] * CURRENT_GAIN[i]) - CURRENT_ZERO[i]);
-		}
-//	}
-	BMS->v_GLV = filter	(BMS->v_GLV , ((float)(ADC_BUF[4] + 400) * 4.5));
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
+	for(uint8_t i = 0; i < N_OF_DHAB; i++) {
+		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i+1]);
+		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i+1] * CURRENT_GAIN[i]) - CURRENT_ZERO[i]);
+	}
 }
-
 
 /* USER CODE END 0 */
 
@@ -172,40 +137,34 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
-	HAL_FLASH_Unlock();
-	EE_Init();
+  HAL_FLASH_Unlock();
 
-	DWT_Delay_Init();
+  DWT_Delay_Init();
 
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t* )ADC_BUF, 6);
-	USART_DMA_Init(&huart3, &hdma_usart3_rx);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, 6);
+  USART_DMA_Init(&huart3, &hdma_usart3_rx);
+  CAN_Init();
 
-	HAL_TIM_Base_Start_IT(&htim3);
-	HAL_TIM_Base_Start_IT(&htim4);
+  HAL_TIM_Base_Start_IT(&htim3);
+  HAL_TIM_Base_Start_IT(&htim4);
 
-	BMS = (BMS_struct*) calloc(1, sizeof(BMS_struct));
-	BMS_Init(BMS);
+  BMS = (BMS_struct*) calloc(1, sizeof(BMS_struct));
+  BMS_Init(BMS);
 
-	DWT_Delay_us(50000);
-
-	HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, 1);
-
-	nexInit();
-	NexPageShow(0);
+  DWT_Delay_us(50000);
+  nexInit();
+  NexPageShow(0);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-	while (1)
-	{
-		BMS_Monitoring(BMS);
-		BMS_ErrorTreatment(BMS);
-		BMS_can(BMS);
-		nexLoop(BMS);
+  while (1)
+  {
     /* USER CODE END WHILE */
-
+	BMS_Monitoring(BMS);
+	BMS_ErrorTreatment(BMS);
+	nexLoop(BMS);
     /* USER CODE BEGIN 3 */
 
 	}
