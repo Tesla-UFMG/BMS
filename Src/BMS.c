@@ -190,7 +190,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 
 		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
-			LTC_read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
+			LTC_Read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
 
 			if(BMS->sensor[i]->V_MIN < BMS->v_min)
 				BMS->v_min = BMS->sensor[i]->V_MIN;
@@ -209,7 +209,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 
 		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
-			LTC_read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
+			LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
 
 			for(uint8_t j = 0; j < N_OF_THERMISTORS; j++){
 
@@ -229,7 +229,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 
 		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 
-			LTC_read(LTC_READ_STATUS, BMS->config, BMS->sensor[i]);
+			LTC_Read(LTC_READ_STATUS, BMS->config, BMS->sensor[i]);
 
 			BMS->v_TS += BMS->sensor[i]->SOC;
 		}
@@ -259,7 +259,7 @@ void BMS_monitoring(BMS_struct *BMS){
 		for(uint8_t i = 0; i < TIME_BALANCING_SEC; i++){
 			for(uint8_t j = 0; j < N_OF_SLAVES; j++){
 
-				LTC_set_balance_flag(BMS->config, BMS->sensor[j]);
+				LTC_SetBalanceFlag(BMS->config, BMS->sensor[j]);
 
 				LTC_balance(BMS->config, BMS->sensor[j]);
 

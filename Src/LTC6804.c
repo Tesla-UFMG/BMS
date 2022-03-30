@@ -8,6 +8,7 @@
 /****************************************************************/
 
 #include <LTC6804.h>
+#include "stdbool.h"
 
 extern SPI_HandleTypeDef hspi1;
 
@@ -532,11 +533,8 @@ difference between them.
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
 void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
-
-	config->command->BROADCAST = FALSE;
-
+	config->command->BROADCAST = false;
 	if (LTC_READ&LTC_READ_CELL) {
-
 		LTC_Wait(config, sensor);
 
 		config->command->NAME = LTC_COMMAND_RDCVA;
@@ -548,51 +546,39 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 		config->command->NAME = LTC_COMMAND_RDCVD;
 		LTC_SendCommand(config, sensor);
 
-		sensor->V_MIN = MAX_CELL_V_DISCHARGE;
-		sensor->V_MAX = MIN_CELL_V;
-
+		sensor->V_MIN = UINT16_MAX;
+		sensor->V_MAX = 0;
 		for(uint8_t i = 0; i < N_OF_CELLS; i++){
 			if(sensor->CxV[i] != 0 && sensor->CxV[i] < sensor->V_MIN)
 				sensor->V_MIN = sensor->CxV[i];
 			if(sensor->CxV[i] > sensor->V_MAX)
 				sensor->V_MAX = sensor->CxV[i];
 		}
-
 		sensor->V_DELTA = sensor->V_MAX - sensor->V_MIN;
-
 	}
 	if (LTC_READ&LTC_READ_GPIO) {
-
 		LTC_Wait(config, sensor);
 
-		if(sensor->ADDR != 1 || sensor->ADDR != 4 || sensor->ADDR != 7){
+		config->command->NAME = LTC_COMMAND_RDAUXA;
+		LTC_SendCommand(config, sensor);
+		config->command->NAME = LTC_COMMAND_RDAUXB;
+		LTC_SendCommand(config, sensor);
 
-			config->command->NAME = LTC_COMMAND_RDAUXA;
-			LTC_SendCommand(config, sensor);
-			config->command->NAME = LTC_COMMAND_RDAUXB;
-			LTC_SendCommand(config, sensor);
-			LTC_T_convert(sensor);
-
-		}
-
+		LTC_T_convert(sensor);
 	}
 	if (LTC_READ&LTC_READ_STATUS) {
-
 		LTC_Wait(config, sensor);
 
 		config->command->NAME = LTC_COMMAND_RDSTATA;
 		LTC_SendCommand(config, sensor);
 		config->command->NAME = LTC_COMMAND_RDSTATB;
 		LTC_SendCommand(config, sensor);
-
 	}
 	if (LTC_READ&LTC_READ_CONFIG){
-
 		LTC_Wait(config, sensor);
 
 		config->command->NAME = LTC_COMMAND_RDCFG;
 		LTC_SendCommand(config, sensor);
-
 	}
 }
 
