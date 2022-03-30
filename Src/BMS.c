@@ -9,13 +9,8 @@
 
 #include "BMS.h"
 
-static int8_t retries[NUMBER_OF_ERRORS]
+static int8_t retries[NUMBER_OF_ERRORS];
 static uint16_t safety_limits[NUMBER_OF_ERRORS];
-
-//uint8_t balance_enable = 1;
-
-//extern uint8_t mode_button;
-//extern I2C_HandleTypeDef hi2c2;
 
 static const uint16_t CAN_ID_TABLE[8][5] = {
 
@@ -72,61 +67,6 @@ static const uint16_t CAN_ID_TABLE[8][5] = {
 		},
 };
 
-#define BMS_CONVERT_CELL 	1
-#define BMS_CONVERT_GPIO	2
-#define BMS_CONVERT_STAT	4
-#define BMS_CONVERT_CONFIG	8
-
- int16_t THERMISTOR_ZEROS[N_OF_PACKS][5];
-
-/*******************************************************
-  Function void BMS_set_thermistor_zeros(BMS_struct*)
-
-V1.0:
-The function calculates the thermistors' zeros for more
-accurate readings.
-
- Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
-*******************************************************/
-void BMS_set_thermistor_zeros(BMS_struct *BMS){
-	uint32_t mean = 0;
-
-	for (int i = 0; i < N_OF_SLAVES; i++){
-		if(i!=1 && i!=4 && i!=7){
-			for (int j = 0; j < N_OF_THERMISTORS; ++j)
-				THERMISTOR_ZEROS[i][j] = 0;
-		}
-	}
-
-	BMS_Convert(BMS_CONVERT_GPIO, BMS);
-
-	for (int i = 0; i < N_OF_SLAVES; i++){
-		if(i!=1 && i!=4 && i!=7){
-			for (int j = 0; j < N_OF_THERMISTORS; ++j)
-				mean += BMS->sensor[i]->GxV[j];
-		}
-	}
-
-	mean = (uint32_t)((float)mean/(N_OF_PACKS*N_OF_THERMISTORS));
-
-	for (int i = 0; i < N_OF_SLAVES; i++){
-		if(i!=1 && i!=4 && i!=7){
-			for (int j = 0; j < N_OF_THERMISTORS; ++j)
-				THERMISTOR_ZEROS[i][j] = mean - BMS->sensor[i]->GxV[j];
-		}
-	}
-}
-
-/*******************************************************
-  Function void BMS_init(BMS_struct*)
-
-V1.0:
-The function is responsible for initializing the Battery
-Management System (BMS). It sets up all the configuration
-needed for the BMS boot.
-
-  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
-*******************************************************/
 void BMS_Init(BMS_struct *BMS) {
 	BMS->config = (LTC_config*) calloc(1 ,sizeof(LTC_config));
 	BMS->config->command = (LTC_command*) calloc(1 ,sizeof(LTC_command));
@@ -175,15 +115,6 @@ void BMS_SetSafetyLimits(BMS_struct* BMS) {
 	}
 }
 
-/*******************************************************
-  Function void BMS_convert(uint8_t, BMS_struct*)
-
-V1.0:
-The function converts the cells' voltage or the GPIO pins'
-analogic values into digital values.
-
- Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
-*******************************************************/
 void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 	if (BMS_CONVERT&BMS_CONVERT_CELL) {
 		BMS->config->command->NAME = LTC_COMMAND_ADCV;
@@ -247,34 +178,12 @@ void BMS_AIR_Status(BMS_struct BMS) {
 		BMS->AIR = AIR_CLOSED;
 }
 
-/*******************************************************
-  Function void BMS_monitoring(BMS_struct*)
-
-V1.0:
-The function monitors the main aspects of the BMS, such as
-the maximum and minimum voltages, the BMS charge percent and
-the need of balancing the cells.
-
- Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
-*******************************************************/
 void BMS_Monitoring(BMS_struct *BMS){
 	BMS_Convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
 	BMS_Balance(BMS);
 	BMS_AIR_Status(BMS);
 }
 
-uint16_t flag = 0;
-
-/*******************************************************
- Function void BMS_error(BMS_struct*)
-
-V1.0:
-The function tests a series of conditions and sets the right
-error flag depending on what may happen through the BMS opera-
-tion.
-
- Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
-*******************************************************/
 void BMS_ErrorTreatment(BMS_struct *BMS) {
 	retries[OVER_VOLTAGE]     += BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE]  ? 1 : -1;
 	retries[UNDER_VOLTAGE]    += BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE] ? 1 : -1;
@@ -310,16 +219,6 @@ void can_buf(uint8_t buffer[8], uint16_t word1, uint16_t word2, uint16_t word3, 
 
 }
 
-/*******************************************************
- Function void BMS_can(BMS_struct*)
-
-V1.0:
-The function sends essential informations about the BMS such
-as the cells' voltages, temperature, charge percent, maximum
-and minimum voltages through CAN communication.
-
- Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
-*******************************************************/
 void BMS_can(BMS_struct *BMS){
 	uint8_t can_buffer[8];
 
@@ -696,97 +595,4 @@ void BMS_can(BMS_struct *BMS){
 			0);
 
 	CAN_Transmit(can_buffer, 53);
-}
-
-
-/*******************************************************
- Function void BMS_initial_SOC(LTC_sensor)
-
-V1.0:
-The function reads all cells' voltage and takes the least
-charged cell as the Open Circuit Voltage (OCV). Depending
-on the value taken as the OCV, the SoC will be determined
-by a linear equation.
-
- Version 1.0 - Initial release 13/05/2020 by Tesla UFMG
-*******************************************************/
-void BMS_initial_SOC(BMS_struct *BMS){
-	/*for(uint8_t i = 0; i < N_OF_PACKS; i++)
-		LTC_read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
-
-	if(BMS->sensor->V_MIN < 33680 && BMS->sensor->V_MIN >= 33400)			//98,00% -- 96,00%
-		BMS->charge_percent = 71.43*(BMS->sensor->V_MIN/10000) - 142.57;
-	else if(BMS->sensor->V_MIN < 33400 && BMS->sensor->V_MIN >= 33310)		//96,61% -- 76,16%
-		BMS->charge_percent = 2297.96*(BMS->sensor->V_MIN/10000) - 7578.34;
-	else if(BMS->sensor->V_MIN < 33310 && BMS->sensor->V_MIN >= 32990)		//75,50% -- 68,61%
-		BMS->charge_percent = 216.09*(BMS->sensor->V_MIN/10000) - 644.27;
-	else if(BMS->sensor->V_MIN < 32990 && BMS->sensor->V_MIN >= 32880)		//71,30% -- 40,39%
-		BMS->charge_percent = 2835.23*(BMS->sensor->V_MIN/10000) - 9281.84;
-	else if(BMS->sensor->V_MIN < 32880 && BMS->sensor->V_MIN >= 31980)		//38,38% -- 10,01%
-		BMS->charge_percent = 315.54*(BMS->sensor->V_MIN/10000) - 999.08;
-	else if(BMS->sensor->V_MIN < 31980 && BMS->sensor->V_MIN >= 31290)		//9,53% -- 5,86%
-		BMS->charge_percent = 53.23*(BMS->sensor->V_MIN/10000) - 160.69;
-	else
-		BMS->charge_percent = 0;
-
-	if(BMS->sensor->V_MIN < 34000 && BMS->sensor->V_MIN >= 33400)
-		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 94;
-	else if(BMS->sensor->V_MIN < 33400 && BMS->sensor->V_MIN >= 33320)
-		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 76;
-	else if(BMS->sensor->V_MIN < 33320 && BMS->sensor->V_MIN >= 33000)
-		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 46;
-	else if(BMS->sensor->V_MIN < 33000 && BMS->sensor->V_MIN >= 32895)
-		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
-	else if(BMS->sensor->V_MIN < 32895 && BMS->sensor->V_MIN >= 31980)
-		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 8;
-	else if(BMS->sensor->V_MIN < 31980 && BMS->sensor->V_MIN >= 31280)
-		BMS->charge_percent = 2*(BMS->sensor->V_MIN/10000) + 4;
-	else
-		BMS->charge_percent = 0;*/
-
-	if(BMS->charge_percent > 100)
-		BMS->charge_percent = 100;
-	if(BMS->charge_percent < 0)
-		BMS->charge_percent = 0;
-}
-
-/*******************************************************
- Function void BMS_charging(BMS_struct)
-
-V1.0:
-The function updates the battery's charge percent with the
-current integration function, determining the battery's SoC
-along with the BMS_Initial_SOC function.
-
- Version 1.0 - Initial release 14/05/2020 by Tesla UFMG
-*******************************************************/
-void BMS_charging(BMS_struct BMS){
-	/*BMS->charge = BMS->charge + DHAB_currentIntegration();
-	BMS->charge_variation_percent = (BMS->charge/BMS->charge_max)*100;
-	BMS->charge_percent = BMS->charge_percent + BMS->charge_variation_percent;
-	BMS->discharge_percent = 100 - BMS->charge_percent;
-
-	if(BMS->error == ERR_OVER_VOLTAGE)
-		BMS->charge_max = BMS->charge;*/
-}
-
-/*******************************************************
- Function void BMS_discharging(BMS_struct)
-
-V1.0:
-The function updates the battery's discharge percent with
-the current integration function. Finally, it calculates
-the battery's charge percent with the relation
-charge = 100 - discharge
-
- Version 1.0 - Initial release 14/05/2020 by Tesla UFMG
-*******************************************************/
-void BMS_discharging(BMS_struct BMS){
-	/*BMS->charge = BMS->charge + DHAB_currentIntegrarion();
-	BMS->discharge_variation_percent = (BMS->charge/BMS->charge_max)*100;
-	BMS->discharge_percent = BMS->discharge_percent + BMS->discharge_variation_percent;
-	BMS->charge_percent = 100 - BMS->discharge_percent;
-
-	if(BMS->error == ERR_UNDER_VOLTAGE)
-		BMS->charge_min = BMS->charge;*/
 }

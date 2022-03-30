@@ -64,6 +64,11 @@ typedef enum{
 
 }BMS_RETRIES;
 
+#define BMS_CONVERT_CELL 	1
+#define BMS_CONVERT_GPIO	2
+#define BMS_CONVERT_STAT	4
+#define BMS_CONVERT_CONFIG	8
+
 void BMS_mode_selector(BMS_struct *BMS);
 
 void BMS_Init(BMS_struct *BMS);
