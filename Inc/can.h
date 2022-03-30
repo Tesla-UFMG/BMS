@@ -8,6 +8,8 @@
 #ifndef CAN_H_
 #define CAN_H_
 
+#include "stdint.h"
+
 #define CAN_BUFFER_SIZE	4
 
 void CAN_Init();

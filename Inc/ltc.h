@@ -8,6 +8,7 @@
 #ifndef LTC_H_
 #define LTC_H_
 
+#include "stdint.h"
 #include "stdarg.h"
 
 #define LTC_MAX_SUPPORTED_CELLS	12

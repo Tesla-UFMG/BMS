@@ -8,8 +8,12 @@
 #include "bms.h"
 #include "can.h"
 #include "charger.h"
+#include "constants.h"
+#include "dwt_stm32_delay.h"
+#include "main.h"
 #include "led.h"
 #include "shutdown_circuit.h"
+#include "stdbool.h"
 
 static int8_t retries[NUMBER_OF_ERRORS];
 static uint16_t safety_limits[NUMBER_OF_ERRORS];

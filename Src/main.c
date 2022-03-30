@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bms.h"
+#include "constants.h"
 #include "dwt_stm32_delay.h"
 #include "nextion.h"
 #include "DMA_USART.h"

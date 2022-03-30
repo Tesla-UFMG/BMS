@@ -2,6 +2,8 @@
 
 
 #include "nextion_functions.h"
+#include "stm32f1xx.h"
+
 extern UART_HandleTypeDef huart3;
 
 extern uint8_t uart_user_message[256];	/* Buffer received for user access */
