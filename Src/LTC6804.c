@@ -40,16 +40,11 @@ sheet, page 44.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-uint16_t LTC_pec2 (uint16_t* data, uint8_t size, uint8_t option){
-
+uint16_t LTC_PEC2(uint16_t* data, uint8_t size) {
 	uint16_t aux, in0, pec = 16;
 	int i, j;
-
 	for(i = 0; i < size; i++){
-
-		if (option == 0)
-			data[i] = BYTESWAP(data[i]);
-
+		data[i] = BYTESWAP(data[i]);
 		for(j = 15; j >= 0; j--){
 			aux = 0x00;
 			in0 =  ((data[i] >> j) & 0x01) ^ ((pec >> 14) & 0x01);
@@ -68,15 +63,10 @@ uint16_t LTC_pec2 (uint16_t* data, uint8_t size, uint8_t option){
 			aux += in0;
 			pec =  aux ^ (pec << 1);
 		}
-		if (option == 0)
-			data[i] = BYTESWAP(data[i]);
+		data[i] = BYTESWAP(data[i]);
 	}
 	pec = pec << 1;
-
-	if (option == 0)
-		pec = BYTESWAP(pec);
-
-	return (pec);
+	return (BYTESWAP(pec));
 }
 
 void LTC_PEC_InitTable() {
