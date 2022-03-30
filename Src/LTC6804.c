@@ -332,7 +332,7 @@ static void LTC_T_convert(LTC_sensor* sensor){
 void LTC_Wait(LTC_config *config, LTC_sensor *sensor){
 	do{
 		config->command->NAME = LTC_COMMAND_PLADC;
-		config->command->BROADCAST = FALSE;
+		config->command->BROADCAST = false;
 		LTC_SendCommand(config, sensor);
 	}while(!config->ADC_READY);
 }
@@ -401,7 +401,7 @@ void LTC_SetBalanceFlag(LTC_config *config, LTC_sensor *sensor) {
 void LTC_ResetBalanceFlag(LTC_config *config, LTC_sensor *sensor) { sensor->DCC = 0; }
 
 void LTC_Balance(LTC_config *config, LTC_sensor *sensor) {
-	config->command->BROADCAST = FALSE;
+	config->command->BROADCAST = false;
 	config->command->NAME = LTC_COMMAND_WRCFG;
 	LTC_SendCommand(config, sensor);
 }
