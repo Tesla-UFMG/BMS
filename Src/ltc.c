@@ -297,7 +297,7 @@ void LTC_SendCommand(LTC_config *config, ...) {
 }
 
 void LTC_ConvertTemp(LTC_sensor* sensor) {
-	for(uint8_t i = 0; i < N_OF_THERMISTORS; i++){
+	for(uint8_t i = 0; i < NUMBER_OF_THERMISTORS; i++){
 		sensor->GxV[i] = NTC_ConvertTemp(sensor->GxV[i], sensor->REF);
 	}
 }
@@ -326,7 +326,7 @@ void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor) {
 
 		sensor->V_MIN = UINT16_MAX;
 		sensor->V_MAX = 0;
-		for(uint8_t i = 0; i < N_OF_CELLS; i++){
+		for(uint8_t i = 0; i < NUMBER_OF_CELLS; i++){
 			if(sensor->CxV[i] != 0 && sensor->CxV[i] < sensor->V_MIN)
 				sensor->V_MIN = sensor->CxV[i];
 			if(sensor->CxV[i] > sensor->V_MAX)
@@ -363,7 +363,7 @@ void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor) {
 void LTC_SetBalanceFlag(LTC_config *config, LTC_sensor *sensor) {
 	sensor->DCC = 0;
 	if(sensor->V_DELTA > BALANCE_THRESHOLD_VOLTAGE) {
-		for (uint8_t i = 0; i < N_OF_CELLS; ++i) {
+		for (uint8_t i = 0; i < NUMBER_OF_CELLS; ++i) {
 			if((sensor->CxV[i] - sensor->V_MIN) > BALANCE_THRESHOLD_VOLTAGE) {
 				sensor->DCC |= 1 << i;
 			}

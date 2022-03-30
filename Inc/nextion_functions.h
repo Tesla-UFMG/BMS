@@ -8,7 +8,7 @@
 #ifndef NEXTION_FUNCTIONS_H_
 #define NEXTION_FUNCTIONS_H_
 
-#include "BMS.h"
+#include "bms.h"
 
 // NEXTION PAGES DEFINES
 #define N_PAGE0 0

@@ -20,7 +20,7 @@ void BMS_Init(BMS_struct *BMS) {
 	BMS->config = (LTC_config*) calloc(1 ,sizeof(LTC_config));
 	BMS->config->command = (LTC_command*) calloc(1 ,sizeof(LTC_command));
 
-	for(uint8_t i = 0; i < N_OF_SLAVES; i++){
+	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++){
 		BMS->sensor[i] = (LTC_sensor*) calloc(1, sizeof(LTC_sensor));
 		BMS->sensor[i]->ADDR = i;
 		LTC_Init(BMS->config);
@@ -67,12 +67,12 @@ void BMS_SetSafetyLimits(BMS_struct* BMS) {
 void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 	if (BMS_CONVERT&BMS_CONVERT_CELL) {
 		BMS->config->command->NAME = LTC_COMMAND_ADCV;
-		BMS->config->command->BROADCAST = TRUE;
+		BMS->config->command->BROADCAST = true;
 		LTC_SendCommand(BMS->config);
 
 		BMS->v_min = UINT16_MAX;
 		BMS->v_max = 0;
-		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
+		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++){
 			LTC_Read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
 			if(BMS->sensor[i]->V_MIN < BMS->v_min)
 				BMS->v_min = BMS->sensor[i]->V_MIN;
@@ -82,13 +82,13 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 	}
 	if (BMS_CONVERT&BMS_CONVERT_GPIO) {
 		BMS->config->command->NAME = LTC_COMMAND_ADAX;
-		BMS->config->command->BROADCAST = TRUE;
+		BMS->config->command->BROADCAST = true;
 		LTC_SendCommand(BMS->config);
 
 		BMS->t_max = 0;
-		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
+		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++){
 			LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
-			for(uint8_t j = 0; j < N_OF_THERMISTORS; j++){
+			for(uint8_t j = 0; j < NUMBER_OF_THERMISTORS; j++){
 				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
 					BMS->t_max = BMS->sensor[i]->GxV[j];
 			}
@@ -149,7 +149,7 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 
 	if(BMS->error != ERR_NO_ERROR){
 		charger_disable();
-		open_shutdown();
+		open_shutdown_circuit();
 		bms_indicator_light_turn(ON);
 		led_debug_turn(ON);
 	}

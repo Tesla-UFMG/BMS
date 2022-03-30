@@ -9,7 +9,6 @@
 #define LTC_H_
 
 #include "stdarg.h"
-#include "defines.h"
 
 #define LTC_MAX_SUPPORTED_CELLS	12
 #define LTC_MAX_SUPPORTED_GPIOS	5
