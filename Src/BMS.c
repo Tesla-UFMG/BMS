@@ -97,7 +97,7 @@ void BMS_set_thermistor_zeros(BMS_struct *BMS){
 		}
 	}
 
-	BMS_convert(BMS_CONVERT_GPIO, BMS);
+	BMS_Convert(BMS_CONVERT_GPIO, BMS);
 
 	for (int i = 0; i < N_OF_SLAVES; i++){
 		if(i!=1 && i!=4 && i!=7){
@@ -159,65 +159,47 @@ analogic values into digital values.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
-
+void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 	if (BMS_CONVERT&BMS_CONVERT_CELL) {
-
 		BMS->config->command->NAME = LTC_COMMAND_ADCV;
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_SendCommand(BMS->config);
 
-		BMS->v_min = RESET_V_MIN;
-		BMS->v_max = RESET_V_MAX;
-
+		BMS->v_min = UINT16_MAX;
+		BMS->v_max = 0;
 		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
-
 			LTC_Read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
-
 			if(BMS->sensor[i]->V_MIN < BMS->v_min)
 				BMS->v_min = BMS->sensor[i]->V_MIN;
 			if(BMS->sensor[i]->V_MAX > BMS->v_max)
 				BMS->v_max = BMS->sensor[i]->V_MAX;
 		}
-
 	}
 	if (BMS_CONVERT&BMS_CONVERT_GPIO) {
-
 		BMS->config->command->NAME = LTC_COMMAND_ADAX;
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_SendCommand(BMS->config);
 
-		BMS->t_max = RESET_T_MAX;
-
+		BMS->t_max = 0;
 		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
-
 			LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
-
 			for(uint8_t j = 0; j < N_OF_THERMISTORS; j++){
-
 				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
 					BMS->t_max = BMS->sensor[i]->GxV[j];
-
 			}
 		}
 	}
 	if (BMS_CONVERT&BMS_CONVERT_STAT) {
-
 		BMS->config->command->NAME = LTC_COMMAND_ADSTAT;
 		BMS->config->command->BROADCAST = TRUE;
 		LTC_SendCommand(BMS->config);
 
 		BMS->v_TS = 0;
-
 		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
-
 			LTC_Read(LTC_READ_STATUS, BMS->config, BMS->sensor[i]);
-
 			BMS->v_TS += BMS->sensor[i]->SOC;
 		}
-
 		BMS->v_TS /= (N_OF_PACKS / PACKS_IN_SERIES);
-
 	}
 }
 
@@ -233,7 +215,7 @@ the need of balancing the cells.
 *******************************************************/
 void BMS_monitoring(BMS_struct *BMS){
 
-	BMS_convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
+	BMS_Convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
 
 	BMS->charge_percent = 0;
 

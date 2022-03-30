@@ -60,7 +60,7 @@ void BMS_mode_selector(BMS_struct *BMS);
 
 void BMS_Init(BMS_struct *BMS);
 
-void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS);
+void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS);
 
 void BMS_monitoring(BMS_struct *BMS);
 
