@@ -23,6 +23,9 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "charger.h"
+#include "led.h"
+#include "shutdown_circuit.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -107,14 +110,13 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-
+  charger_disable();
+  open_shutdown_circuit();
+  bms_indicator_light_turn(ON);
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-
-		NVIC_SystemReset();
-
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
 }
@@ -125,7 +127,9 @@ void HardFault_Handler(void)
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
-
+  charger_disable();
+  open_shutdown_circuit();
+  bms_indicator_light_turn(ON);
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
@@ -140,7 +144,9 @@ void MemManage_Handler(void)
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
-
+  charger_disable();
+  open_shutdown_circuit();
+  bms_indicator_light_turn(ON);
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
   {
@@ -155,7 +161,9 @@ void BusFault_Handler(void)
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
-
+  charger_disable();
+  open_shutdown_circuit();
+  bms_indicator_light_turn(ON);
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {
@@ -308,7 +316,7 @@ void EXTI9_5_IRQHandler(void)
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(MODE_SELECT_Pin);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
-//  NVIC_SystemReset();
+  NVIC_SystemReset();
   /* USER CODE END EXTI9_5_IRQn 1 */
 }
 
@@ -380,9 +388,7 @@ void EXTI15_10_IRQHandler(void)
   HAL_GPIO_EXTI_IRQHandler(FLAG_RESET_Pin);
   HAL_GPIO_EXTI_IRQHandler(GLV_SAMPLE_Pin);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
-
   NVIC_SystemReset();
-
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
