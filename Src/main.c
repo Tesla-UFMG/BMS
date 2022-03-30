@@ -200,7 +200,7 @@ int main(void)
 
 	while (1)
 	{
-		BMS_monitoring(BMS);
+		BMS_Monitoring(BMS);
 		BMS_error(BMS);
 		BMS_can(BMS);
 		nexLoop(BMS);

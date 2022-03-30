@@ -203,6 +203,25 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 	}
 }
 
+void BMS_Balance(BMS_struct BMS) {
+	if(BMS->mode & BMS_BALANCING) {
+		for(uint8_t i = 0; i < TIME_BALANCING_SEC; i++) {
+			for(uint8_t j = 0; j < N_OF_SLAVES; j++) {
+				LTC_SetBalanceFlag(BMS->config, BMS->sensor[j]);
+				LTC_Balance(BMS->config, BMS->sensor[j]);
+			}
+			DWT_Delay_us(ONE_SEC_IN_MS);
+		}
+	}
+}
+
+void BMS_AIR_Status(BMS_struct BMS) {
+	if(HAL_GPIO_ReadPin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin) == GPIO_PIN_RESET)
+		BMS->AIR = AIR_OPEN;
+	else
+		BMS->AIR = AIR_CLOSED;
+}
+
 /*******************************************************
   Function void BMS_monitoring(BMS_struct*)
 
@@ -213,49 +232,10 @@ the need of balancing the cells.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void BMS_monitoring(BMS_struct *BMS){
-
+void BMS_Monitoring(BMS_struct *BMS){
 	BMS_Convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
-
-	BMS->charge_percent = 0;
-
-	if(BMS->mode & BMS_BALANCING){
-		for(uint8_t i = 0; i < TIME_BALANCING_SEC; i++){
-			for(uint8_t j = 0; j < N_OF_SLAVES; j++){
-
-				LTC_SetBalanceFlag(BMS->config, BMS->sensor[j]);
-
-				LTC_Balance(BMS->config, BMS->sensor[j]);
-
-	//			BMS->charge_percent += BMS->sensor[j]->TOTAL_CHARGE;
-			}
-			DWT_Delay_us(ONE_SEC_IN_MS);
-		}
-	}
-
-//	BMS->charge_percent /= N_OF_PACKS;
-
-//	BMS->charge_percent = 0,0641 * BMS->v_TS - 466,66;
-
-	if(BMS->charge < BMS->charge_min)
-		BMS->charge_min = BMS->charge;
-	if(BMS->charge > BMS->charge_max)
-		BMS->charge_max = BMS->charge;
-
-//	if(HAL_GPIO_ReadPin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin) == GPIO_PIN_RESET)
-//		BMS->AIR = AIR_OPEN;
-//	else
-//		BMS->AIR = AIR_CLOSED;
-
-	EE_WriteVariable(0x0, (uint16_t) (BMS->charge >> 16));
-	EE_WriteVariable(0x1, (uint16_t) BMS->charge);
-
-	EE_WriteVariable(0x2, (uint16_t) (BMS->charge_min >> 16));
-	EE_WriteVariable(0x3, (uint16_t) BMS->charge_min);
-
-	EE_WriteVariable(0x4, (uint16_t) (BMS->charge_max >> 16));
-	EE_WriteVariable(0x5, (uint16_t) BMS->charge_max);
-
+	BMS_Balance(BMS);
+	BMS_AIR_Status(BMS);
 }
 
 uint16_t flag = 0;
