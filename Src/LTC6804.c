@@ -161,6 +161,19 @@ void LTC_TransmitCommand(uint16_t command) {
 	LTC_SPI(pec);
 }
 
+void LTC_TransmitReceive(uint16_t command, uint16_t* tx_data, uint16_t* rx_data) {
+	if((command & 0x07FF) == LTC_COMMAND_WRCFG) {
+		uint16_t pec = LTC_PEC(tx_data, 3);
+		tx_data[3] = pec;
+	}
+	if((tx_data[0] & 0x07FF) < LTC_COMMAND_ADCV) {
+		for (uint8_t i = 0; i < 4; ++i) {
+			rx_data[i] = LTC_SPI(tx_data[i]);
+			bufferRx[i] = rx_data[i];
+		}
+	}
+}
+
 void LTC_transmit_recieve (uint16_t command, uint16_t* tx_data, uint16_t* rx_data){
 
 	uint16_t pec = LTC_PEC(&command, 1),
@@ -168,20 +181,7 @@ void LTC_transmit_recieve (uint16_t command, uint16_t* tx_data, uint16_t* rx_dat
 
 	LTC_WakeUp();
 	LTC_TransmitCommand(command);
-
-	//TRANSMIT/RECIEVE DATA ROUTINE:
-	for (uint8_t i = 0; i < 4; ++i)
-		buffer[i] = tx_data[i];
-
-	if((command & 0x07FF) == LTC_COMMAND_WRCFG){
-		pec = LTC_pec2(tx_data, 3, 1);
-		buffer[3] = pec;
-	}
-
-	if((buffer[0] & 0x07FF) < LTC_COMMAND_ADCV){
-		for (uint8_t i = 0; i < 4; ++i)
-			rx_data[i] = LTC_SPI(buffer[i]);
-	}
+	LTC_TransmitRecieve(command, tx_data, rx_data);
 	LTC_EndTramission();
 
 }
