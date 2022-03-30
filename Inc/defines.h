@@ -101,6 +101,8 @@
 #define TRUE 	1
 #define OUTPUT 	0
 #define INPUT 	1
+#define OFF		0
+#define ON		1
 
 //DEFINES SENSOR DE TENS�O:
 

@@ -184,7 +184,7 @@ int main(void)
 	HAL_TIM_Base_Start_IT(&htim4);
 
 	BMS = (BMS_struct*) calloc(1, sizeof(BMS_struct));
-	BMS_init(BMS);
+	BMS_Init(BMS);
 
 	DWT_Delay_us(50000);
 

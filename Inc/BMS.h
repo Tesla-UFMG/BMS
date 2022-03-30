@@ -58,7 +58,7 @@ typedef struct BMS_struct {
 
 void BMS_mode_selector(BMS_struct *BMS);
 
-void BMS_init(BMS_struct *BMS);
+void BMS_Init(BMS_struct *BMS);
 
 void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS);
 

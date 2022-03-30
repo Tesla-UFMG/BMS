@@ -126,13 +126,11 @@ needed for the BMS boot.
 
   Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void BMS_init(BMS_struct *BMS){
-
-
+void BMS_Init(BMS_struct *BMS) {
 	BMS->config = (LTC_config*) calloc(1 ,sizeof(LTC_config));
 	BMS->config->command = (LTC_command*) calloc(1 ,sizeof(LTC_command));
 
-	for(int i = 0; i < N_OF_SLAVES; i++){
+	for(uint8_t i = 0; i < N_OF_SLAVES; i++){
 		BMS->sensor[i] = (LTC_sensor*) calloc(1, sizeof(LTC_sensor));
 		BMS->sensor[i]->ADDR = i;
 		LTC_Init(BMS->config);
@@ -140,32 +138,16 @@ void BMS_init(BMS_struct *BMS){
 
 	BMS->error = ERR_NO_ERROR;
 	BMS->mode = BMS_MONITORING;
-//	BMS->v_min = 50000;
-//	BMS->v_max = 0;
 
-
-	uint16_t aux;
-	EE_ReadVariable(0x0, &aux);
-	BMS->charge = ((uint32_t)aux) << 16; 	//load upper bytes
-	EE_ReadVariable(0x1, &aux);
-	BMS->charge += aux;		//load lower bytes
-
-	EE_ReadVariable(0x2, &aux);
-	BMS->charge_min = ((uint32_t)aux) << 16; 	//load upper bytes
-	EE_ReadVariable(0x3, &aux);
-	BMS->charge_min += aux;		//load lower bytes
-
-	EE_ReadVariable(0x4, &aux);
-	BMS->charge_max = ((uint32_t)aux) << 16; 	//load upper bytes
-	EE_ReadVariable(0x5, &aux);
-	BMS->charge_max += aux;		//load lower bytes
+	open_shutdown();
+	bms_indicator_light_turn(OFF);
+	led_debug_turn(OFF);
+	if(BMS->mode == BMS_CHARGING)
+		chager_enable();
+	else
+		charger_disable();
 
 	LTC_Init(BMS->config);
-
-	BMS_initial_SOC(BMS);
-
-//	BMS_set_thermistor_zeros(BMS);
-
 }
 
 /*******************************************************
