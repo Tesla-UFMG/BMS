@@ -8,6 +8,7 @@
 /****************************************************************/
 
 #include <LTC6804.h>
+#include "ntc.h"
 #include "stdbool.h"
 
 extern SPI_HandleTypeDef hspi1;
@@ -295,37 +296,9 @@ void LTC_Init(LTC_config *config) {
 	LTC_SendCommand(config);
 }
 
-/*******************************************************
-The function converts the ADC value read by the LTC6804
-(on the voltage divider) into a resistance value of the thermistor.
-The resistance value is then converted to temperature in °C.
-The mathematical expression is presented below:
-
-	1/T = 1/T0 + 1/B * ln(R/R0)
-
-	T is the ambient temperature in Kelvins.
-	T0 is the reference temperature, also in Kelvin (usually 25°C = 298.15K).
-	B is the beta constant (datasheet).
-	R is the thermistor resistance at the ambient temperature.
-	R0 is the thermistor resistance at temperature T0.
-
-	T' = 10 * (T - 273)
-
-	T' is the ambient temperature in tenths of Celsius (to improve accuracy)
-	Example: T = 298 K => T' = 250 d°C (25,0°C)
-
- Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
- Version 2.0 - Initial release 20/10/2021 by Thiago Santos
-*******************************************************/
 static void LTC_T_convert(LTC_sensor* sensor){
-	float r;
 	for(uint8_t i = 0; i < N_OF_THERMISTORS; i++){
-		if(sensor->GxV[i] > 1000 && sensor->GxV[i] < sensor->REF - 1000){
-			r = (sensor->GxV[i]*10000) / (sensor->REF - sensor->GxV[i]);
-			sensor->GxV[i] = 10 * (1 / ( 1/(float)t0 + 1/(float)B * log(r/r0) ) - 273);
-		}else{
-			sensor->GxV[i] = 0;
-		}
+		sensor->GxV[i] = NTC_ConvertTemp(sensor->GxV[i], sensor->REF);
 	}
 }
 
