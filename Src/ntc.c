@@ -1,8 +1,8 @@
 /*
  * ntc.c
  *
- *  Created on: Mar 30, 2022
- *      Author: Usuário
+ *  Created on: Mar 17, 2022
+ *      Author: Thiago
  */
 
 #include "ntc.h"

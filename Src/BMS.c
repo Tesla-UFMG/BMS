@@ -151,7 +151,7 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 			retries[i] = 0;
 	}
 
-	if(BMS->error != ERR_NO_ERROR){
+	if(BMS->error != ERR_NO_ERROR) {
 		charger_disable();
 		open_shutdown_circuit();
 		bms_indicator_light_turn(ON);
