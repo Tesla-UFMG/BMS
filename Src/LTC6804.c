@@ -227,51 +227,37 @@ on the command about to use and its bits of interest.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-uint16_t LTC_make_command(LTC_command *command){
+uint16_t LTC_MakeCommand(LTC_command *command) {
+	switch(command->NAME) {
+		case LTC_COMMAND_ADCV:
+			return command->NAME | command->MD | command->DCP | command->CH;
+			break;
 
-	switch(command->NAME){
+		case LTC_COMMAND_ADOW:
+			return command->NAME | command->MD | command->PUP | command->DCP | command->CH;
+			break;
 
-	case LTC_COMMAND_ADCV:
+		case LTC_COMMAND_CVST:
+		case LTC_COMMAND_AXST:
+		case LTC_COMMAND_STATST:
+			return command->NAME | command->MD | command->ST;
+			break;
 
-		return command->NAME | command->MD | command->DCP | command->CH;
+		case LTC_COMMAND_ADAX	:
+			return command->NAME | command->MD | command->CHG;
+			break;
 
-		break;
+		case LTC_COMMAND_ADSTAT	:
+			return command->NAME | command->MD | command->CHST;
+			break;
 
-	case LTC_COMMAND_ADOW:
+		case LTC_COMMAND_ADCVAX	:
+			return command->NAME | command->MD | command->CHG;
+			break;
 
-		return command->NAME | command->MD | command->PUP | command->DCP | command->CH;
-
-		break;
-
-	case LTC_COMMAND_CVST:
-	case LTC_COMMAND_AXST:
-	case LTC_COMMAND_STATST:
-
-		return command->NAME | command->MD | command->ST;
-
-		break;
-
-	case LTC_COMMAND_ADAX	:
-
-		return command->NAME | command->MD | command->CHG;
-
-		break;
-
-	case LTC_COMMAND_ADSTAT	:
-
-		return command->NAME | command->MD | command->CHST;
-
-		break;
-
-	case LTC_COMMAND_ADCVAX	:
-
-		return command->NAME | command->MD | command->CHG;
-
-		break;
-
-	default:
-		return command->NAME;
-		break;
+		default:
+			return command->NAME;
+			break;
 	}
 }
 
@@ -346,25 +332,18 @@ void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data
 	case LTC_COMMAND_ADSTAT	:
 	case LTC_COMMAND_STATST	:
 	case LTC_COMMAND_ADCVAX	:
-
-		config->ADC_READY = FALSE;
-
+		config->ADC_READY = false;
 		break;
 
 	case LTC_COMMAND_PLADC	:
-
 		if(rx_data[0] == 0 || rx_data[1] == 0 || rx_data[2] == 0)
-			config->ADC_READY = FALSE;
+			config->ADC_READY = false;
 		else
-			config->ADC_READY = TRUE;
+			config->ADC_READY = true;
 		break;
 
 	case LTC_COMMAND_DIAGN	:
-
-		//transmit_command(config->command);
-
 		break;
-
 	case LTC_COMMAND_WRCOMM	:
 		break;
 	case LTC_COMMAND_RDCOMM	:
@@ -374,6 +353,53 @@ void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data
 	default:
 		break;
 	}
+}
+
+void LTC_ConfigCommandName(LTC_sensor sensor, LTC_config config) {
+	config->command->NAME |= (sensor->ADDR & (0x1111 * ~config->command->BROADCAST)) |
+			                 (~config->command->BROADCAST << 4) << 11;
+}
+
+void LTC_WriteConfigRegister(LTC_sensor *sensor, LTC_config *config, uint16_t *tx_data) {
+	tx_data[0] = (config->ADCOPT << 8) | (config->SWTRD << 9) | (config->REFON << 10) | (config->GPIO << 11) | (config->VUV);
+	tx_data[1] = (config->VUV >> 8) | (config->VOV << 4);
+	tx_data[2] |= ((sensor->DCC & 0xff) << 8) | ((sensor->DCC & 0xf00) >> 8) | ((config->DCTO & 0xf) << 4);
+}
+
+/*******************************************************
+ Function void LTC_send_command(LTC_config*, ...)
+
+V1.0:
+The function sends the command made in the LTC_make_command
+function and do the tasks accordingly to the command sent.
+
+ Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
+*******************************************************/
+void LTC_SendCommand(LTC_config *config, ...) {
+
+	uint16_t tx_data[4] = { 0, 0, 0, 0};
+	uint16_t rx_data[4] = { 0, 0, 0, 0};
+	LTC_sensor *sensor;
+
+	if(!config->command->BROADCAST){
+		va_list list;
+		va_start(list, 1);
+		sensor = va_arg(list, LTC_sensor*);
+		LTC_ConfigCommandName(sensor, config);
+		va_end(list);
+	}
+
+	if((config->command->NAME & 0x07FF) == LTC_COMMAND_WRCFG)
+		LTC_WriteConfigRegister(sensor, config, tx_data);
+
+	uint16_t command = LTC_MakeCommand(config->command);
+
+	LTC_WakeUp();
+	LTC_StartTrasmission();
+	LTC_TransmitCommand(command);
+	LTC_TransmitReceive(command, tx_data, rx_data);
+	LTC_EndTramission();
+	LTC_RecieveMessage(sensor, config, rx_data);
 }
 
 /*******************************************************
@@ -399,7 +425,7 @@ void LTC_init(LTC_config *config){
 
 	config->command->BROADCAST = TRUE;
 	config->command->NAME = LTC_COMMAND_WRCOMM;
-	LTC_send_command(config);
+	LTC_SendCommand(config);
 
 }
 
@@ -421,14 +447,14 @@ void LTC_balance_test(LTC_config *config, LTC_sensor *sensor){
 
 		config->command->BROADCAST = FALSE;
 		config->command->NAME = LTC_COMMAND_WRCFG;
-		LTC_send_command(config, sensor);
+		LTC_SendCommand(config, sensor);
 		sensor->DCC = sensor->DCC << 1;
 		DWT_Delay_us(500000);
 
 	}
 
 	sensor->DCC = 0;
-	LTC_send_command(config, sensor);
+	LTC_SendCommand(config, sensor);
 }
 
 //extern int16_t THERMISTOR_ZEROS[N_OF_PACKS][5];
@@ -491,7 +517,7 @@ void LTC_wait(LTC_config *config, LTC_sensor *sensor){
 
 		config->command->NAME = LTC_COMMAND_PLADC;
 		config->command->BROADCAST = FALSE;
-		LTC_send_command(config, sensor);
+		LTC_SendCommand(config, sensor);
 
 	}while(!config->ADC_READY);
 
@@ -518,13 +544,13 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 		LTC_wait(config, sensor);
 
 		config->command->NAME = LTC_COMMAND_RDCVA;
-		LTC_send_command(config, sensor);
+		LTC_SendCommand(config, sensor);
 		config->command->NAME = LTC_COMMAND_RDCVB;
-		LTC_send_command(config, sensor);
+		LTC_SendCommand(config, sensor);
 		config->command->NAME = LTC_COMMAND_RDCVC;
-		LTC_send_command(config, sensor);
+		LTC_SendCommand(config, sensor);
 		config->command->NAME = LTC_COMMAND_RDCVD;
-		LTC_send_command(config, sensor);
+		LTC_SendCommand(config, sensor);
 
 		sensor->V_MIN = MAX_CELL_V_DISCHARGE;
 		sensor->V_MAX = MIN_CELL_V;
@@ -546,9 +572,9 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 		if(sensor->ADDR != 1 || sensor->ADDR != 4 || sensor->ADDR != 7){
 
 			config->command->NAME = LTC_COMMAND_RDAUXA;
-			LTC_send_command(config, sensor);
+			LTC_SendCommand(config, sensor);
 			config->command->NAME = LTC_COMMAND_RDAUXB;
-			LTC_send_command(config, sensor);
+			LTC_SendCommand(config, sensor);
 			LTC_T_convert(sensor);
 
 		}
@@ -559,9 +585,9 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 		LTC_wait(config, sensor);
 
 		config->command->NAME = LTC_COMMAND_RDSTATA;
-		LTC_send_command(config, sensor);
+		LTC_SendCommand(config, sensor);
 		config->command->NAME = LTC_COMMAND_RDSTATB;
-		LTC_send_command(config, sensor);
+		LTC_SendCommand(config, sensor);
 
 	}
 	if (LTC_READ&LTC_READ_CONFIG){
@@ -569,7 +595,7 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 		LTC_wait(config, sensor);
 
 		config->command->NAME = LTC_COMMAND_RDCFG;
-		LTC_send_command(config, sensor);
+		LTC_SendCommand(config, sensor);
 
 	}
 }
@@ -611,7 +637,7 @@ void LTC_reset_balance_flag(LTC_config *config, LTC_sensor *sensor){
 
 	config->command->BROADCAST = FALSE;
 	config->command->NAME = LTC_COMMAND_WRCFG;
-	LTC_send_command(config, sensor);
+	LTC_SendCommand(config, sensor);
 
 }
 
@@ -628,7 +654,7 @@ void LTC_balance(LTC_config *config, LTC_sensor *sensor){
 
 	config->command->BROADCAST = FALSE;
 	config->command->NAME = LTC_COMMAND_WRCFG;
-	LTC_send_command(config, sensor);
+	LTC_SendCommand(config, sensor);
 
 }
 

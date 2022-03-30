@@ -183,7 +183,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 
 		BMS->config->command->NAME = LTC_COMMAND_ADCV;
 		BMS->config->command->BROADCAST = TRUE;
-		LTC_send_command(BMS->config);
+		LTC_SendCommand(BMS->config);
 
 		BMS->v_min = RESET_V_MIN;
 		BMS->v_max = RESET_V_MAX;
@@ -203,7 +203,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 
 		BMS->config->command->NAME = LTC_COMMAND_ADAX;
 		BMS->config->command->BROADCAST = TRUE;
-		LTC_send_command(BMS->config);
+		LTC_SendCommand(BMS->config);
 
 		BMS->t_max = RESET_T_MAX;
 
@@ -223,7 +223,7 @@ void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS){
 
 		BMS->config->command->NAME = LTC_COMMAND_ADSTAT;
 		BMS->config->command->BROADCAST = TRUE;
-		LTC_send_command(BMS->config);
+		LTC_SendCommand(BMS->config);
 
 		BMS->v_TS = 0;
 

@@ -234,7 +234,7 @@ typedef enum{
 void LTC_init(LTC_config *config);
 void LTC_balance_test(LTC_config *config, LTC_sensor *sensor);
 void LTC_sort(LTC_sensor *sensor, uint8_t left, uint8_t right);
-void LTC_send_command(LTC_config *config, ...);
+void LTC_SendCommand(LTC_config *config, ...);
 void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor);
 void LTC_set_balance_flag(LTC_config *config, LTC_sensor *sensor);
 void LTC_reset_balance_flag(LTC_config *config, LTC_sensor *sensor);
