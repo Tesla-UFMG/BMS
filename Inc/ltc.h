@@ -11,7 +11,9 @@
 #include "stdarg.h"
 #include "defines.h"
 
-#define LTC_PEC_SEED 16
+#define LTC_MAX_SUPPORTED_CELLS	12
+#define LTC_MAX_SUPPORTED_GPIOS	5
+#define LTC_PEC_SEED 			16
 
 typedef struct LTC_command{
 	uint16_t NAME;
@@ -45,14 +47,14 @@ typedef struct LTC_config{
 
 typedef struct LTC_sensor{
 	uint8_t ADDR;
-	uint8_t V_ERROR[N_OF_CELLS];
-	uint8_t T_ERROR[N_OF_THERMISTORS];
+	uint8_t V_ERROR[LTC_MAX_SUPPORTED_CELLS];
+	uint8_t T_ERROR[LTC_MAX_SUPPORTED_GPIOS];
 
 	//CELL REGISTERS A to D
-	uint16_t CxV[N_OF_CELLS]; 	// 12 * 16 bits - get CELL voltages
+	uint16_t CxV[LTC_MAX_SUPPORTED_CELLS]; 	// 12 * 16 bits - get CELL voltages
 
 	//AUXILIARY REGISTERS A & B
-	uint16_t GxV[N_OF_THERMISTORS]; 	// 5 * 16 bits - get GPIO voltages
+	uint16_t GxV[LTC_MAX_SUPPORTED_GPIOS]; 	// 5 * 16 bits - get GPIO voltages
 	uint16_t REF;		// 16 bits - get the second reference voltage
 
 	//STATUS REGISTER A & B
