@@ -17,18 +17,14 @@ static uint16_t pec_table[256];
 
 short CRC15_POLY = 0x4599;
 
-uint16_t LTC_pec (uint16_t *data , uint8_t len)
-{
+uint16_t LTC_PEC(uint16_t *data , uint8_t len) {
 	int32_t remainder, address;
-	remainder = 16;  //PEC seed
-
+	remainder = LTC_PEC_SEED;
 	for (uint8_t i = 0; i < len; i++){
-
-		address   = ((remainder >> 7) ^ ((data[i] >> 8) & 0xFF)) & 0xFF;    //calculate PEC table address
+		address   = ((remainder >> 7) ^ ((data[i] >> 8) & 0xFF)) & 0xFF; //calculate PEC table address
 		remainder = (remainder << 8 ) ^ PEC_TABLE[address];
-		address   = ((remainder >> 7) ^ (data[i] & 0xFF)) & 0xFF;    //calculate PEC table address
+		address   = ((remainder >> 7) ^ (data[i] & 0xFF)) & 0xFF;    	 //calculate PEC table address
 		remainder = (remainder << 8 ) ^ PEC_TABLE[address];
-
 	}
 	return (remainder * 2); //The CRC15 has a 0 in the LSB so the final value must be multiplied by 2
 }
@@ -155,7 +151,7 @@ routine, following the steps described in the LTC6804 datasheet.
 *******************************************************/
 void LTC_transmit_recieve (uint16_t command, uint16_t* tx_data, uint16_t* rx_data){
 
-	uint16_t pec = LTC_pec(&command, 1),
+	uint16_t pec = LTC_PEC(&command, 1),
 			buffer[4] = {command, pec, 0, 0}; //tx buffer
 
 	//WAKE UP ROUTINE

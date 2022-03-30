@@ -16,6 +16,7 @@
 #include "main.h"
 #include "math.h"
 
+#define LTC_PEC_SEED 16
 
 typedef struct LTC_command{
 
