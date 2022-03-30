@@ -9,8 +9,7 @@
 
 #include "BMS.h"
 
-static int8_t UV_retries, OV_retries, OT_retries;
-
+static int8_t retries[NUMBER_OF_ERRORS]
 static uint16_t safety_limits[NUMBER_OF_ERRORS];
 
 //uint8_t balance_enable = 1;
@@ -276,85 +275,25 @@ tion.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void BMS_error(BMS_struct *BMS){
+void BMS_ErrorTreatment(BMS_struct *BMS) {
+	retries[OVER_VOLTAGE]     += BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE]  ? 1 : -1;
+	retries[UNDER_VOLTAGE]    += BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE] ? 1 : -1;
+	retries[OVER_TEMPERATURE] += BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE] ? 1 : -1;
 
-	if(BMS->v_min < MIN_CELL_V)
-		flag |= ERR_UNDER_VOLTAGE;
-
-	if(BMS->v_max > MAX_CELL_V_DISCHARGE)
-		flag |= ERR_OVER_VOLTAGE;
-
-	if(BMS->t_max > MAX_TEMPERATURE)
-		flag |= ERR_OVER_TEMPERATURE;
-
-	if((flag & ERR_UNDER_VOLTAGE) == ERR_UNDER_VOLTAGE)
-		UV_retries++;
-	else
-		UV_retries--;
-
-	if((flag & ERR_OVER_VOLTAGE) == ERR_OVER_VOLTAGE)
-		OV_retries++;
-	else
-		OV_retries--;
-
-	if((flag & ERR_OVER_TEMPERATURE) == ERR_OVER_TEMPERATURE)
-		OT_retries++;
-	else
-		OT_retries--;
-
-	if(UV_retries > 20) UV_retries = 20;
-	if(OV_retries > 20) OV_retries = 20;
-	if(OT_retries > 20) OT_retries = 20;
-	if(UV_retries < 0) UV_retries = 0;
-	if(OV_retries < 0) OV_retries = 0;
-	if(OT_retries < 0) OT_retries = 0;
-
-
-	if(UV_retries == 20){
-		NextError[0] = 1;
-		BMS->error |= ERR_UNDER_VOLTAGE;
+	for(uint8_t i = 0; i < NUMBER_OF_ERRORS; i++) {
+		if(retries[i] > MAX_RETRIES) {
+			retries[i] = MAX_RETRIES;
+			BMS->error |= (1 << i);
+			error_flag[i] = true;
+		}else if(retries[i] < 0)
+			retries[i] = 0;
 	}
-	else if(UV_retries == 0){
-		NextError[0] = 0;
-		BMS->error &= ~ERR_UNDER_VOLTAGE;
-	}
-	if(OV_retries == 20){
-		NextError[1] = 1;
-		BMS->error |= ERR_OVER_VOLTAGE;
-	}
-	else if(OV_retries == 0){
-		NextError[1] = 0;
-		BMS->error &= ~ERR_OVER_VOLTAGE;
-	}
-	if(OT_retries == 20){
-		NextError[2] = 1;
-		BMS->error |= ERR_OVER_TEMPERATURE;
-	}
-	else if(OT_retries == 0){
-		NextError[2] = 0;
-		BMS->error &= ~ERR_OVER_TEMPERATURE;
-	}
-//	if(BMS->v_GLV < 13500){
-//		BMS->error |= ERR_GLV_VOLTAGE;
-//		NextError[4] = 1;
-//	}else if(BMS->v_GLV < 13500){
-//		BMS->error &= ~ERR_GLV_VOLTAGE;
-//		NextError[4] = 0;
-//	}
 
 	if(BMS->error != ERR_NO_ERROR){
-		if(BMS->mode != BMS_BALANCING)
-			HAL_GPIO_WritePin(AIR_ENABLE_GPIO_Port, AIR_ENABLE_Pin, RESET);
-
-		HAL_GPIO_WritePin(ERR_LED_GPIO_Port, ERR_LED_Pin, SET);
-		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, RESET);
-//		HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, RESET);
-	}else{
-		flag &= ERR_NO_ERROR;
-		HAL_GPIO_WritePin(AIR_ENABLE_GPIO_Port, AIR_ENABLE_Pin, SET);
-		HAL_GPIO_WritePin(ERR_LED_GPIO_Port, ERR_LED_Pin, RESET);
-		HAL_GPIO_WritePin(DEBUG_GPIO_Port, DEBUG_Pin, SET);
-//		HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, SET);
+		charger_disable();
+		open_shutdown();
+		bms_indicator_light_turn(ON);
+		led_debug_turn(ON);
 	}
 }
 

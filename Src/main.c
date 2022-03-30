@@ -201,7 +201,7 @@ int main(void)
 	while (1)
 	{
 		BMS_Monitoring(BMS);
-		BMS_error(BMS);
+		BMS_ErrorTreatment(BMS);
 		BMS_can(BMS);
 		nexLoop(BMS);
     /* USER CODE END WHILE */

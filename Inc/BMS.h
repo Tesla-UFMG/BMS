@@ -56,6 +56,14 @@ typedef struct BMS_struct {
 
 }BMS_struct;
 
+typedef enum{
+
+	OVER_VOLTAGE 	 = 0,
+	UNDER_VOLTAGE  	 = 1,
+	OVER_TEMPERATURE = 2
+
+}BMS_RETRIES;
+
 void BMS_mode_selector(BMS_struct *BMS);
 
 void BMS_Init(BMS_struct *BMS);
@@ -74,7 +82,7 @@ int BMS_balance(BMS_struct *BMS);
 
 int BMS_communication(BMS_struct *BMS);
 
-void BMS_error(BMS_struct *BMS);
+void BMS_ErrorTreatment(BMS_struct *BMS);
 
 void BMS_can(BMS_struct *BMS);
 
