@@ -130,14 +130,10 @@ void LTC_CS(uint8_t level){
 	DWT_Delay_us(10);
 }
 
-uint16_t LTC6804_spi(uint16_t Tx_data){
-
+uint16_t LTC_SPI(uint16_t Tx_data) {
 	uint16_t Rx_data = 0;
-
 	HAL_SPI_TransmitReceive(&hspi1,(uint8_t *) &Tx_data, (uint8_t *) &Rx_data, 1, 50);
-
 	return(BYTESWAP(Rx_data));
-
 }
 
 /*******************************************************
@@ -156,13 +152,13 @@ void LTC_transmit_recieve (uint16_t command, uint16_t* tx_data, uint16_t* rx_dat
 
 	//WAKE UP ROUTINE
 	LTC_CS(0);
-	LTC6804_spi(0);
+	LTC_SPI(0);
 	LTC_CS(1);
 
 	//SEND COMMAND ROUTINE:
 	LTC_CS(0);
-	LTC6804_spi(buffer[0]);
-	LTC6804_spi(buffer[1]);
+	LTC_SPI(buffer[0]);
+	LTC_SPI(buffer[1]);
 
 	//TRANSMIT/RECIEVE DATA ROUTINE:
 	for (uint8_t i = 0; i < 4; ++i)
@@ -175,7 +171,7 @@ void LTC_transmit_recieve (uint16_t command, uint16_t* tx_data, uint16_t* rx_dat
 
 	if((buffer[0] & 0x07FF) < LTC_COMMAND_ADCV){
 		for (uint8_t i = 0; i < 4; ++i)
-			rx_data[i] = LTC6804_spi(buffer[i]);
+			rx_data[i] = LTC_SPI(buffer[i]);
 	}
 	LTC_CS(1);
 
