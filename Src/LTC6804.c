@@ -275,134 +275,67 @@ uint16_t LTC_make_command(LTC_command *command){
 	}
 }
 
-/*******************************************************
- Function void LTC_send_command(LTC_config*, ...)
+void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data[4]) {
+	switch(config->command->NAME & 0x07FF) {
 
-V1.0:
-The function sends the command made in the LTC_make_command
-function and do the tasks accordingly to the command sent.
-
- Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
-*******************************************************/
-void LTC_send_command(LTC_config *config, ...){
-
-	uint16_t tx_data[3] = { 0, 0, 0},
-			 rx_data[3] = { 0, 0, 0};
-
-	LTC_sensor *sensor;
-
-	if(!config->command->BROADCAST){
-
-		va_list list;
-		va_start(list, 1);
-
-		sensor = va_arg(list, LTC_sensor*);
-		config->command->NAME  |= ((sensor->ADDR & (0x1111 * ~config->command->BROADCAST)) | ~config->command->BROADCAST << 4) << 11;
-
-		tx_data[2] |= ((sensor->DCC & 0xff) << 8) | ((sensor->DCC & 0xf00) >> 8);
-
-		va_end(list);
-	}
-
-	if((config->command->NAME & 0x07FF) == LTC_COMMAND_WRCFG){
-
-		tx_data[0] = (config->ADCOPT << 8) | (config->SWTRD << 9) | (config->REFON << 10) | (config->GPIO << 11) | (config->VUV);
-		tx_data[1] = (config->VUV >> 8) | (config->VOV << 4);
-		tx_data[2] |= ((config->DCTO & 0xf) << 4);
-		//		tx_data[2] = (config->DCTO << 12) | (config->DCC);
-
-	}
-
-	LTC_transmit_recieve(LTC_make_command(config->command), tx_data, rx_data);
-
-
-	switch(config->command->NAME & 0x07FF){
-
-	case LTC_COMMAND_RDCFG 	:
-
-		//		config->ADCOPT = rx_data[0] & 0x1;
-		//		config->SWTRD = (rx_data[0] >> 1) & 0x1;
-		//		config->REFON = (rx_data[0] >> 2) & 0x1;
-		//		config->GPIO =  (rx_data[0] >> 3) & 0x1F;
-		//		config->VUV =   (rx_data[0] >> 8) | (rx_data[1] & 0x000F);
-		//		config->VOV =   (rx_data[1] >> 4);
-		//		config->DCC =   (rx_data[2] & 0x0FFF);
-		//		config->DCTO =  (rx_data[2] >> 12);
-
+	case LTC_COMMAND_RDCFG:
+		config->ADCOPT = (rx_data[0] & 0x1);
+		config->SWTRD  = (rx_data[0] >> 1) & 0x1;
+		config->REFON  = (rx_data[0] >> 2) & 0x1;
+		config->GPIO   = (rx_data[0] >> 3) & 0x1F;
+		config->VUV    = (rx_data[0] >> 8) | (rx_data[1] & 0x000F);
+		config->VOV    = (rx_data[1] >> 4);
+		config->DCC    = (rx_data[2] & 0x0FFF);
+		config->DCTO   = (rx_data[2] >> 12);
 		break;
 
-	case LTC_COMMAND_RDCVA 	:
-
+	case LTC_COMMAND_RDCVA:
 		sensor->CxV[0] = rx_data[0];
 		sensor->CxV[1] = rx_data[1];
 		sensor->CxV[2] = rx_data[2];
-
 		break;
 
-	case LTC_COMMAND_RDCVB 	:
-
+	case LTC_COMMAND_RDCVB:
 		sensor->CxV[3] = rx_data[0];
-		if(sensor->ADDR == 1 || sensor->ADDR == 4 || sensor->ADDR == 7){
-			sensor->CxV[4] = rx_data[1];
-			sensor->CxV[5] = rx_data[2];
-		}
-
+		sensor->CxV[4] = rx_data[1];
+		sensor->CxV[5] = rx_data[2];
 		break;
 
-	case LTC_COMMAND_RDCVC 	:
-
-//		if(sensor->ADDR == 1){
-//			sensor->CxV[6] = (rx_data[0] + rx_data[1]) / 2;
-//			sensor->CxV[7] = sensor->CxV[6];
-//		}else{
-			sensor->CxV[6] = rx_data[0];
-			sensor->CxV[7] = rx_data[1];
-//		}
+	case LTC_COMMAND_RDCVC:
+		sensor->CxV[6] = rx_data[0];
+		sensor->CxV[7] = rx_data[1];
 		sensor->CxV[8] = rx_data[2];
-
 		break;
 
-	case LTC_COMMAND_RDCVD 	:
-
+	case LTC_COMMAND_RDCVD:
 		sensor->CxV[9]  = rx_data[0];
-		//sensor->CxV[10] = rx_data[1];
-		//sensor->CxV[11] = rx_data[2];
-
+		sensor->CxV[10] = rx_data[1];
+		sensor->CxV[11] = rx_data[2];
 		break;
 
-	case LTC_COMMAND_RDAUXA	:
-		if(sensor->ADDR != 1 && sensor->ADDR != 4 && sensor->ADDR != 7){
-			sensor->GxV[0] = rx_data[0];
-			sensor->GxV[1] = rx_data[1];
-			sensor->GxV[2] = rx_data[2];
-		}
+	case LTC_COMMAND_RDAUXA:
+		sensor->GxV[0] = rx_data[0];
+		sensor->GxV[1] = rx_data[1];
+		sensor->GxV[2] = rx_data[2];
 		break;
 
-	case LTC_COMMAND_RDAUXB	:
-		if(sensor->ADDR != 1 && sensor->ADDR != 4 && sensor->ADDR != 7){
-			sensor->GxV[3] = rx_data[0];
-			sensor->GxV[4] = rx_data[1];
-		}
-		sensor->REF =    rx_data[2];
-
+	case LTC_COMMAND_RDAUXB:
+		sensor->GxV[3] = rx_data[0];
+		sensor->GxV[4] = rx_data[1];
+		sensor->REF    = rx_data[2];
 		break;
 
 	case LTC_COMMAND_RDSTATA:
-
-		sensor->SOC =  rx_data[0] * 0.2;
+		sensor->SOC  = rx_data[0] * 0.2;
 		sensor->ITMP = rx_data[1] * 7.5;
-		sensor->VA =   rx_data[2];
-
+		sensor->VA   = rx_data[2];
 		break;
 
 	case LTC_COMMAND_RDSTATB:
-
 		sensor->VD = rx_data[0];
-
 		uint32_t flag = rx_data[1] | (uint32_t)rx_data[2] << 16;
-		for (int j = 0; j < 12; j++)
+		for (uint8_t j = 0; j < LTC_MAX_SUPPORTED_CELLS; j++)
 			sensor->V_ERROR[j] = (flag >> (j * 2)) & 0x3;
-
 		break;
 
 	case LTC_COMMAND_ADCV	:
