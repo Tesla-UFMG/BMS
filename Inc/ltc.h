@@ -1,28 +1,21 @@
-/****************************************************************/
-/**					Team Formula Tesla UFMG - 2019				*/
-/** Microcontroller: STM32F103XXXX								*/
-/** Compiler: AC6 - STM worbench								*/
-/** Author: Henrique, Rodolfo, Heuller, Wellington				*/
-/** License: Free - Open Source									*/
-/** 															*/
-/****************************************************************/
+/*
+ * ltc.h
+ *
+ *  Created on: 15 de mar de 2022
+ *      Author: Thiago
+ */
 
-#ifndef LTC_2_H
-#define LTC_2_H
+#ifndef LTC_H_
+#define LTC_H_
 
-#include <stdarg.h>
-#include "dwt_stm32_delay.h"
+#include "stdarg.h"
 #include "defines.h"
-#include "main.h"
-#include "math.h"
 
 #define LTC_PEC_SEED 16
 
 typedef struct LTC_command{
-
 	uint16_t NAME;
 	uint8_t BROADCAST;
-
 
 	//COMMAND SETTINGS
 	uint16_t MD;		// set the ADC mode
@@ -32,14 +25,11 @@ typedef struct LTC_command{
 	uint16_t CHST;		// set STAT channels to convert
 	uint16_t PUP;		// set if pull up or pull down is enabled in ADOW
 	uint16_t ST;		// set the self test mode
-
 }LTC_command;
 
 typedef struct LTC_config{
-
 	LTC_command *command;
-
-	uint8_t ORDER:1; 	// 1 bit - set printing order, 0 = normal, 1 = lowest to highest;
+	uint8_t ORDER:1; 	// 1 bit - set printing order -> 0 = normal, 1 = lowest to highest
 
 	//CONFIGURATION REGISTER
 	uint8_t GPIO:5; 	// 5 bits - set individual gpio modes
@@ -50,12 +40,10 @@ typedef struct LTC_config{
 	uint16_t VOV; 		// 12 bits - set the over  voltage limit
 	uint8_t DCTO:4; 	// 4 bits - set the duration of discharge
 	uint8_t ADC_READY;
-
 }LTC_config;
 
 
 typedef struct LTC_sensor{
-
 	uint8_t ADDR;
 	uint8_t V_ERROR[N_OF_CELLS];
 	uint8_t T_ERROR[N_OF_THERMISTORS];
@@ -77,54 +65,7 @@ typedef struct LTC_sensor{
 	uint16_t V_MAX;
 	uint16_t V_MIN;
 	uint16_t V_DELTA;
-	uint16_t CHARGE[N_OF_CELLS];
-	uint16_t TOTAL_CHARGE;
-
-
 }LTC_sensor;
-
-//typedef enum{
-//
-//	//GPIO set individual GPIO modes:
-//	//Write: 0 -> GPIOx Pin Pull-Down ON; 1 -> GPIOx Pin Pull-Down OFF
-//	//Read:  0 -> GPIOx Pin at Logic 0;   1 -> GPIOx Pin at Logic 1
-//	CONFIG_GPIO  = 0b00000001,
-//
-//	//REFON - set the reference configuration:
-//	//0 - Reference Shuts Down after Conversions
-//	//1 - Reference Remains Powered Up Until Watchdog Timeout
-//	CONFIG_REFON = 0b00000010,
-//
-//	//SWTRD:
-//	//0 -> SWTEN Pin at Logic 0
-//	//1 -> SWTEN Pin at Logic 1
-//	CONFIG_SWTRD = 0b00000100,
-//
-//	//ADCOP - set the ADC configuration:
-//	//0 -> Selects Modes 27kHz, 7kHz or 26Hz with MD[1:0] Bits in ADC Conversion Commands
-//	//1 -> Selects Modes 14kHz, 3kHz or 2kHz with MD[1:0] Bits in ADC Conversion Commands.
-//	CONFIG_ADCOP = 0b00001000,
-//
-//	//VUV - Undervoltage Comparison Voltage:
-//	//Comparison voltage = (VUV + 1) � 16 � 100�V
-//	CONFIG_VUV 	 = 0b00010000,
-//
-//	//VOV - Overvoltage Comparison Voltage:
-//	//Comparison voltage = (VOV + 1) � 16 � 100�V
-//	CONFIG_VOV 	 = 0b00100000,
-//
-//	//DCC - Discharge Cell x:
-//	//1 -> Turn ON  Shorting Switch for Cell x
-//	//0 -> Turn OFF Shorting Switch for Cell x
-//	CONFIG_DCC 	 = 0b01000000,
-//
-//	//DCTO -  Discharge TimeOut Value:
-//	// Value    :	0 |  1  |  2  |	 3  |  4  |  5  |  6  |  7  |  8  |  9  |  A  |  B  |  C  |  D  |  E  |  F  |
-//	// Time(Min):	0 | 0.5 |  1  |  2  |  3  |  4  |  5  |  10 |  15 |	 20 |  30 |	 40 |  60 |  75 |  90 |	120 |
-//	CONFIG_DCTO  = 0b10000000
-//
-//}LTC_CONFIGURATIONS;
-
 
 #define LTC_COMMAND_WRCFG 	0b00000000001	// Write Configuration Register Group
 #define LTC_COMMAND_RDCFG 	0b00000000010	// Read Configuration Register Group
@@ -225,16 +166,11 @@ typedef enum{
 
 }LTC_CHST;
 
-
 void LTC_Init(LTC_config *config);
-void LTC_balance_test(LTC_config *config, LTC_sensor *sensor);
-void LTC_sort(LTC_sensor *sensor, uint8_t left, uint8_t right);
 void LTC_SendCommand(LTC_config *config, ...);
 void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor);
 void LTC_SetBalanceFlag(LTC_config *config, LTC_sensor *sensor);
 void LTC_ResetBalanceFlag(LTC_config *config, LTC_sensor *sensor);
 void LTC_Balance(LTC_config *config, LTC_sensor *sensor);
-void LTC_open_wire(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor);
 
-
-#endif
+#endif /* LTC_H_ */

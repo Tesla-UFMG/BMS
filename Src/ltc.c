@@ -1,21 +1,37 @@
-/****************************************************************/
-/**					Team Formula Tesla UFMG - 2019				*/
-/** Microcontroller: STM32F103XXXX								*/
-/** Compiler: AC6 - STM worbench								*/
-/** Author: Henrique, Rodolfo, Heuller, Wellington				*/
-/** License: Free - Open Source									*/
-/** 															*/
-/****************************************************************/
+/*
+ * ltc.c
+ *
+ *  Created on: 15 de mar de 2022
+ *      Author: Thiago
+ */
 
-#include <LTC6804.h>
+#include "ltc.h"
 #include "ntc.h"
+#include "main.h"
+#include "dwt_stm32_delay.h"
+#include "math.h"
 #include "stdbool.h"
-
-extern SPI_HandleTypeDef hspi1;
 
 #define BYTESWAP(word) ((word >> 8) + (word << 8))
 
+extern SPI_HandleTypeDef hspi1;
 static uint16_t pec_table[256];
+
+void LTC_Init(LTC_config *config) {
+	config->GPIO = 0x1F;
+	config->REFON = 0;
+	config->SWTRD = 0;
+	config->ADCOPT = 0;
+	config->VUV = 0;
+	config->VOV = 0;
+	config->DCTO = 0;
+	config->command->MD = MD_FILTRED;
+	//config->command->DCP = DCP_PERMITED;
+
+	config->command->BROADCAST = true;
+	config->command->NAME = LTC_COMMAND_WRCOMM;
+	LTC_SendCommand(config);
+}
 
 uint16_t LTC_PEC(uint16_t *data , uint8_t len) {
 	int32_t remainder, address;
@@ -278,22 +294,6 @@ void LTC_SendCommand(LTC_config *config, ...) {
 	LTC_TransmitReceive(command, tx_data, rx_data);
 	LTC_EndTramission();
 	LTC_RecieveMessage(sensor, config, rx_data);
-}
-
-void LTC_Init(LTC_config *config) {
-	config->GPIO = 0x1F;
-	config->REFON = 0;
-	config->SWTRD = 0;
-	config->ADCOPT = 0;
-	config->VUV = 0;
-	config->VOV = 0;
-	config->DCTO = 0;
-	config->command->MD = MD_FILTRED;
-	//config->command->DCP = DCP_PERMITED;
-
-	config->command->BROADCAST = true;
-	config->command->NAME = LTC_COMMAND_WRCOMM;
-	LTC_SendCommand(config);
 }
 
 void LTC_ConvertTemp(LTC_sensor* sensor) {
