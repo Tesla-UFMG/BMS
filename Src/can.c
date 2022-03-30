@@ -9,18 +9,18 @@
 #include "main.h"
 #include "stm32f1xx.h"
 
-extern CAN_HandleTypeDef hcan1;
+extern CAN_HandleTypeDef hcan;
 
 static uint8_t can_buffer[8];
 static CAN_TxHeaderTypeDef TxHeader;
 static uint32_t TxMailbox;
 
 void CAN_Init() {
-	if (HAL_CAN_Start(&hcan1) != HAL_OK) {
+	if (HAL_CAN_Start(&hcan) != HAL_OK) {
 	  /* Start Error */
 	  Error_Handler();
 	}
-	if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_TX_MAILBOX_EMPTY) != HAL_OK) {
+	if (HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_TX_MAILBOX_EMPTY) != HAL_OK) {
 	  /* Notification Error */
 	  Error_Handler();
 	}
@@ -44,7 +44,7 @@ void CAN_Buffer(uint16_t word1, uint16_t word2, uint16_t word3, uint16_t word4) 
 
 void CAN_Transmit(uint32_t id) {
     TxHeader.StdId = id;
-    if(HAL_CAN_AddTxMessage(&hcan1, &TxHeader, can_buffer, &TxMailbox) != HAL_OK) {
+    if(HAL_CAN_AddTxMessage(&hcan, &TxHeader, can_buffer, &TxMailbox) != HAL_OK) {
     	Error_Handler();
     }
     HAL_Delay(20);
