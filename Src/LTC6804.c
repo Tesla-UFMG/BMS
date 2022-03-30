@@ -149,17 +149,18 @@ routine, following the steps described in the LTC6804 datasheet.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-
+void LTC_WakeUp() {
+	LTC_StartTrasmission();
+	LTC_SPI(0);
+	LTC_EndTramission();
+}
 
 void LTC_transmit_recieve (uint16_t command, uint16_t* tx_data, uint16_t* rx_data){
 
 	uint16_t pec = LTC_PEC(&command, 1),
 			buffer[4] = {command, pec, 0, 0}; //tx buffer
 
-	//WAKE UP ROUTINE
-	LTC_StartTrasmission();
-	LTC_SPI(0);
-	LTC_EndTramission();
+	LTC_WakeUp();
 
 	//SEND COMMAND ROUTINE:
 	LTC_StartTrasmission();
