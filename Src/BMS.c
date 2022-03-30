@@ -261,7 +261,7 @@ void BMS_monitoring(BMS_struct *BMS){
 
 				LTC_SetBalanceFlag(BMS->config, BMS->sensor[j]);
 
-				LTC_balance(BMS->config, BMS->sensor[j]);
+				LTC_Balance(BMS->config, BMS->sensor[j]);
 
 	//			BMS->charge_percent += BMS->sensor[j]->TOTAL_CHARGE;
 			}

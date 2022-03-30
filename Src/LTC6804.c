@@ -532,7 +532,7 @@ difference between them.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
+void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor) {
 	config->command->BROADCAST = false;
 	if (LTC_READ&LTC_READ_CELL) {
 		LTC_Wait(config, sensor);
@@ -591,17 +591,15 @@ is at a level which it should be balanced.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void LTC_set_balance_flag(LTC_config *config, LTC_sensor *sensor){
-
+void LTC_SetBalanceFlag(LTC_config *config, LTC_sensor *sensor) {
 	sensor->DCC = 0;
-
-	if(sensor->V_DELTA > 10)
+	if(sensor->V_DELTA > BALANCE_THRESHOLD_VOLTAGE) {
 		for (uint8_t i = 0; i < N_OF_CELLS; ++i) {
-			if((sensor->CxV[i] - sensor->V_MIN) > sensor->V_DELTA * 0.4){
+			if((sensor->CxV[i] - sensor->V_MIN) > BALANCE_THRESHOLD_VOLTAGE) {
 				sensor->DCC |= 1 << i;
 			}
 		}
-
+	}
 }
 
 /*******************************************************
@@ -613,18 +611,10 @@ function.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void LTC_reset_balance_flag(LTC_config *config, LTC_sensor *sensor){
-
-	sensor->DCC = 0;
-
-	config->command->BROADCAST = FALSE;
-	config->command->NAME = LTC_COMMAND_WRCFG;
-	LTC_SendCommand(config, sensor);
-
-}
+void LTC_ResetBalanceFlag(LTC_config *config, LTC_sensor *sensor) { sensor->DCC = 0; }
 
 /*******************************************************
- Function void LTC_balance(LTC_config*, LTC_sensor*)
+ Function void LTC_Balance(LTC_config*, LTC_sensor*)
 
 V1.0:
 The function is an auxiliary function for setting up
@@ -632,12 +622,10 @@ the cells' balance.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void LTC_balance(LTC_config *config, LTC_sensor *sensor){
-
+void LTC_Balance(LTC_config *config, LTC_sensor *sensor) {
 	config->command->BROADCAST = FALSE;
 	config->command->NAME = LTC_COMMAND_WRCFG;
 	LTC_SendCommand(config, sensor);
-
 }
 
 uint16_t SOC_LOOKUP[11] = {
