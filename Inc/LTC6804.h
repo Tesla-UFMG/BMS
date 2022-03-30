@@ -231,7 +231,7 @@ typedef enum{
 }LTC_CHST;
 
 
-void LTC_init(LTC_config *config);
+void LTC_Init(LTC_config *config);
 void LTC_balance_test(LTC_config *config, LTC_sensor *sensor);
 void LTC_sort(LTC_sensor *sensor, uint8_t left, uint8_t right);
 void LTC_SendCommand(LTC_config *config, ...);

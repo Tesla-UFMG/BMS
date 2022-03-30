@@ -412,8 +412,7 @@ configuration.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void LTC_init(LTC_config *config){
-
+void LTC_Init(LTC_config *config) {
 	config->GPIO = 0x1F;
 	config->REFON = 0;
 	config->SWTRD = 0;
@@ -424,10 +423,9 @@ void LTC_init(LTC_config *config){
 	config->command->MD = MD_FILTRED;
 	//config->command->DCP = DCP_PERMITED;
 
-	config->command->BROADCAST = TRUE;
+	config->command->BROADCAST = true;
 	config->command->NAME = LTC_COMMAND_WRCOMM;
 	LTC_SendCommand(config);
-
 }
 
 /*******************************************************

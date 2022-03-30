@@ -135,7 +135,7 @@ void BMS_init(BMS_struct *BMS){
 	for(int i = 0; i < N_OF_SLAVES; i++){
 		BMS->sensor[i] = (LTC_sensor*) calloc(1, sizeof(LTC_sensor));
 		BMS->sensor[i]->ADDR = i;
-		LTC_init(BMS->config);
+		LTC_Init(BMS->config);
 	}
 
 	BMS->error = ERR_NO_ERROR;
@@ -160,7 +160,7 @@ void BMS_init(BMS_struct *BMS){
 	EE_ReadVariable(0x5, &aux);
 	BMS->charge_max += aux;		//load lower bytes
 
-	LTC_init(BMS->config);
+	LTC_Init(BMS->config);
 
 	BMS_initial_SOC(BMS);
 
