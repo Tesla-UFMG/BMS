@@ -1,16 +1,12 @@
-/****************************************************************************
- *					Team Formula Tesla UFMG - 2017
- * File:   defines.h
- * PIC: 24FJ64GA004 Family
- * Compiler: XC16 v1.3
- * Author: Patrick Garcia (Botze), Pedro Ivan Ribeiro (Somalia)
- * Contributors: Eric Drumond
- * License: Free - Open Source
- * Created on 28 de Mar�o de 2017, 15:43
- ****************************************************************************/
-#ifndef DEFINES_H
-#define DEFINES_H
+/*
+ * constants.h
+ *
+ *  Created on: 18 de mar de 2022
+ *      Author: Thiago
+ */
 
+#ifndef CONSTANTS_H_
+#define CONSTANTS_H_
 
 //GENERAL DEFINES
 #define NUMBER_OF_PACKS				1//6
@@ -77,4 +73,4 @@
 #define CHANELLS_PER_CURRENT_SENSOR		2
 #define THRESHOLD_CURRENT_mA			3000
 
-#endif
+#endif /* CONSTANTS_H_ */
