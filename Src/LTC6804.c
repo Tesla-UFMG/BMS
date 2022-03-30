@@ -296,7 +296,7 @@ void LTC_Init(LTC_config *config) {
 	LTC_SendCommand(config);
 }
 
-static void LTC_T_convert(LTC_sensor* sensor){
+void LTC_ConvertTemp(LTC_sensor* sensor) {
 	for(uint8_t i = 0; i < N_OF_THERMISTORS; i++){
 		sensor->GxV[i] = NTC_ConvertTemp(sensor->GxV[i], sensor->REF);
 	}
@@ -342,7 +342,7 @@ void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor) {
 		config->command->NAME = LTC_COMMAND_RDAUXB;
 		LTC_SendCommand(config, sensor);
 
-		LTC_T_convert(sensor);
+		LTC_ConvertTemp(sensor);
 	}
 	if (LTC_READ&LTC_READ_STATUS) {
 		LTC_Wait(config, sensor);
