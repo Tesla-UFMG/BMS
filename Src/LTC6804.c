@@ -511,16 +511,12 @@ whether the ADC is ready or not.
 
  Version 1.0 - Initial release 01/01/2018 by Tesla UFMG
 *******************************************************/
-void LTC_wait(LTC_config *config, LTC_sensor *sensor){
-
+void LTC_Wait(LTC_config *config, LTC_sensor *sensor){
 	do{
-
 		config->command->NAME = LTC_COMMAND_PLADC;
 		config->command->BROADCAST = FALSE;
 		LTC_SendCommand(config, sensor);
-
 	}while(!config->ADC_READY);
-
 }
 
 /*******************************************************
@@ -541,7 +537,7 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 
 	if (LTC_READ&LTC_READ_CELL) {
 
-		LTC_wait(config, sensor);
+		LTC_Wait(config, sensor);
 
 		config->command->NAME = LTC_COMMAND_RDCVA;
 		LTC_SendCommand(config, sensor);
@@ -567,7 +563,7 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 	}
 	if (LTC_READ&LTC_READ_GPIO) {
 
-		LTC_wait(config, sensor);
+		LTC_Wait(config, sensor);
 
 		if(sensor->ADDR != 1 || sensor->ADDR != 4 || sensor->ADDR != 7){
 
@@ -582,7 +578,7 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 	}
 	if (LTC_READ&LTC_READ_STATUS) {
 
-		LTC_wait(config, sensor);
+		LTC_Wait(config, sensor);
 
 		config->command->NAME = LTC_COMMAND_RDSTATA;
 		LTC_SendCommand(config, sensor);
@@ -592,7 +588,7 @@ void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor){
 	}
 	if (LTC_READ&LTC_READ_CONFIG){
 
-		LTC_wait(config, sensor);
+		LTC_Wait(config, sensor);
 
 		config->command->NAME = LTC_COMMAND_RDCFG;
 		LTC_SendCommand(config, sensor);
