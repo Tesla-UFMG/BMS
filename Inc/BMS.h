@@ -26,12 +26,11 @@ typedef struct BMS_struct {
 	LTC_config *config;
 //	DHAB_sensor *dhabSensor[N_OF_DHAB];
 
-	uint16_t v_GLV;
-	uint16_t v_TS;
-	uint16_t v_min;  	//of the bank
-	uint16_t v_max; 	//of the bank
-	uint16_t v_delta;   //of the bank
-	uint16_t t_max;		//of the bank
+	uint16_t tractiveSystemVoltage;
+	uint16_t maxCellVoltage;
+	uint16_t minCellVoltage;
+	uint16_t deltaVoltage;
+	uint16_t maxCellTemperature;
 
 	//CURRENT
 	float current[4];

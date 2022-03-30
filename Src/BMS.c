@@ -74,14 +74,14 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 		BMS->config->command->BROADCAST = true;
 		LTC_SendCommand(BMS->config);
 
-		BMS->v_min = UINT16_MAX;
-		BMS->v_max = 0;
-		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++){
+		BMS->minCellVoltage = UINT16_MAX;
+		BMS->maxCellVoltage = 0;
+		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
 			LTC_Read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
-			if(BMS->sensor[i]->V_MIN < BMS->v_min)
-				BMS->v_min = BMS->sensor[i]->V_MIN;
-			if(BMS->sensor[i]->V_MAX > BMS->v_max)
-				BMS->v_max = BMS->sensor[i]->V_MAX;
+			if(BMS->sensor[i]->V_MIN < BMS->minCellVoltage)
+				BMS->minCellVoltage = BMS->sensor[i]->V_MIN;
+			if(BMS->sensor[i]->V_MAX > BMS->maxCellVoltage)
+				BMS->maxCellVoltage = BMS->sensor[i]->V_MAX;
 		}
 	}
 	if (BMS_CONVERT&BMS_CONVERT_GPIO) {
@@ -89,49 +89,49 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 		BMS->config->command->BROADCAST = true;
 		LTC_SendCommand(BMS->config);
 
-		BMS->t_max = 0;
-		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++){
+		BMS->maxCellTemperature = 0;
+		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
 			LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
 			for(uint8_t j = 0; j < NUMBER_OF_THERMISTORS; j++){
-				if(BMS->sensor[i]->GxV[j] > BMS->t_max)
-					BMS->t_max = BMS->sensor[i]->GxV[j];
+				if(BMS->sensor[i]->GxV[j] > BMS->maxCellTemperature)
+					BMS->maxCellTemperature = BMS->sensor[i]->GxV[j];
 			}
 		}
 	}
 	if (BMS_CONVERT&BMS_CONVERT_STAT) {
 		BMS->config->command->NAME = LTC_COMMAND_ADSTAT;
-		BMS->config->command->BROADCAST = TRUE;
+		BMS->config->command->BROADCAST = true;
 		LTC_SendCommand(BMS->config);
 
-		BMS->v_TS = 0;
-		for(uint8_t i = 0; i < N_OF_SLAVES; i++){
+		BMS->tractiveSystemVoltage = 0;
+		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
 			LTC_Read(LTC_READ_STATUS, BMS->config, BMS->sensor[i]);
-			BMS->v_TS += BMS->sensor[i]->SOC;
+			BMS->tractiveSystemVoltage += BMS->sensor[i]->SOC;
 		}
-		BMS->v_TS /= (N_OF_PACKS / PACKS_IN_SERIES);
+		BMS->tractiveSystemVoltage /= (NUMBER_OF_PACKS / NUMBER_OF_PACKS_IN_SERIES);
 	}
 }
 
-void BMS_Balance(BMS_struct BMS) {
+void BMS_Balance(BMS_struct* BMS) {
 	if(BMS->mode & BMS_BALANCING) {
 		for(uint8_t i = 0; i < TIME_BALANCING_SEC; i++) {
-			for(uint8_t j = 0; j < N_OF_SLAVES; j++) {
+			for(uint8_t j = 0; j < NUMBER_OF_SLAVES; j++) {
 				LTC_SetBalanceFlag(BMS->config, BMS->sensor[j]);
 				LTC_Balance(BMS->config, BMS->sensor[j]);
 			}
-			DWT_Delay_us(ONE_SEC_IN_MS);
+			DWT_Delay_us(ONE_SEC_IN_US);
 		}
 	}
 }
 
-void BMS_AIR_Status(BMS_struct BMS) {
+void BMS_AIR_Status(BMS_struct* BMS) {
 	if(HAL_GPIO_ReadPin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin) == GPIO_PIN_RESET)
 		BMS->AIR = AIR_OPEN;
 	else
 		BMS->AIR = AIR_CLOSED;
 }
 
-void BMS_Monitoring(BMS_struct *BMS){
+void BMS_Monitoring(BMS_struct* BMS){
 	BMS_Convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
 	BMS_Balance(BMS);
 	BMS_AIR_Status(BMS);

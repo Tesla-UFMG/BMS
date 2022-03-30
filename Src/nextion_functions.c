@@ -203,11 +203,11 @@ void nexLoop(BMS_struct *BMS){
 //			flag_information_to_send = -1;
 //		}
 //		flag_information_to_send++;
-	NexXfloatSetValue(0, BMS->v_max/100);
-	NexXfloatSetValue(1, BMS->v_min/100);
-	NexXfloatSetValue(2, BMS->v_TS);
+	NexXfloatSetValue(0, BMS->maxCellVoltage/100);
+	NexXfloatSetValue(1, BMS->minCellVoltage/100);
+	NexXfloatSetValue(2, BMS->tractiveSystemVoltage);
 	NexVariableSetValue(2, BMS->AIR);
-	NexXfloatSetValue(3, BMS->t_max);
+	NexXfloatSetValue(3, BMS->maxCellTemperature);
 
 //	NexPageShow(N_PAGE0);
 
