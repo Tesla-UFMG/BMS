@@ -61,10 +61,11 @@ DMA_HandleTypeDef hdma_usart3_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+static const float current_zero[ADC_BUFFER_SIZE];
+static const float current_gain[ADC_BUFFER_SIZE];
+static int32_t adc_buffer[ADC_BUFFER_SIZE];
 
 BMS_struct* BMS;
-int32_t adc_buffer[NUMBER_OF_CURRENT_SENSORS*CHANELLS_PER_CURRENT_SENSOR];
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,20 +86,16 @@ static void MX_USART3_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-#define FILTER_GAIN 255
-
 float filter(float old, float new){
 	return (FILTER_GAIN * old + new) / (FILTER_GAIN + 1);
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
-	for(uint8_t i = 0; i < N_OF_DHAB; i++) {
+	for(uint8_t i = 0; i < NUMBER_OF_CURRENT_SENSORS; i++) {
 		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i+1]);
-		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i+1] * CURRENT_GAIN[i]) - CURRENT_ZERO[i]);
+		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i+1] * current_gain[i]) - current_zero[i]);
 	}
 }
-
 /* USER CODE END 0 */
 
 /**
