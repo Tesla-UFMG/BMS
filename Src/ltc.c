@@ -270,8 +270,8 @@ void LTC_WriteConfigRegister(LTC_sensor *sensor, LTC_config *config, uint16_t *t
 
 void LTC_SendCommand(LTC_config *config, ...) {
 
-	uint16_t tx_data[4] = { 0, 0, 0, 0};
-	uint16_t rx_data[4] = { 0, 0, 0, 0};
+	uint16_t tx_data[4] = {0, 0, 0, 0};
+	uint16_t rx_data[4] = {0, 0, 0, 0};
 	LTC_sensor *sensor;
 
 	if(!config->command->BROADCAST){
@@ -301,7 +301,7 @@ void LTC_ConvertTemp(LTC_sensor* sensor) {
 	}
 }
 
-void LTC_Wait(LTC_config *config, LTC_sensor *sensor){
+void LTC_Wait(LTC_config *config, LTC_sensor *sensor) {
 	do{
 		config->command->NAME = LTC_COMMAND_PLADC;
 		config->command->BROADCAST = false;

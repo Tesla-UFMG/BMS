@@ -138,7 +138,7 @@ void BMS_AIR_Status(BMS_struct* BMS) {
 		BMS->AIR = AIR_CLOSED;
 }
 
-void BMS_Monitoring(BMS_struct* BMS){
+void BMS_Monitoring(BMS_struct* BMS) {
 	BMS_Convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
 	BMS_Balance(BMS);
 	BMS_AIR_Status(BMS);
@@ -150,7 +150,7 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 	retries[OVER_TEMPERATURE] += BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE] ? 1 : -1;
 
 	for(uint8_t i = 0; i < NUMBER_OF_ERRORS; i++) {
-		if(retries[i] > MAX_RETRIES) {
+		if(retries[i] >= MAX_RETRIES) {
 			retries[i] = MAX_RETRIES;
 			BMS->error |= (1 << i);
 			error_flag[i] = true;
