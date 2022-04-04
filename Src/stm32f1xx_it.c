@@ -24,6 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "charger.h"
+#include "constants.h"
+#include "dma_usart.h"
 #include "led.h"
 #include "shutdown_circuit.h"
 /* USER CODE END Includes */
