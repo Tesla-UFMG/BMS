@@ -1,7 +1,7 @@
 
 
 
-#include "nextion_functions.h"
+#include "display.h"
 #include "stm32f1xx.h"
 
 extern UART_HandleTypeDef huart3;
@@ -11,8 +11,13 @@ uint8_t stat = 0;
 extern uint16_t balance_timer;
 uint8_t flag_information_to_send = 0;
 //NextionPage_e previous_page = PAGE0;
-//NextionPage_e actual_page = PAGE0;
+//NextionPage_e actual_page   = PAGE0;
 //NextionAdvice_e actual_advice = NO_ADVICE;
+
+void display_init() {
+	nexInit();
+	NexPageShow(0);
+}
 
 void uart3MessageReceived(BMS_struct *BMS)
 {
