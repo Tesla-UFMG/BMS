@@ -9,7 +9,7 @@
 #include "can.h"
 #include "charger.h"
 #include "constants.h"
-#include "dwt_stm32_delay.h"
+#include "dwt_delay.h"
 #include "main.h"
 #include "led.h"
 #include "shutdown_circuit.h"

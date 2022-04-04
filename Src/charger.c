@@ -5,9 +5,9 @@
  *      Author: Thiago
  */
 
+#include <dwt_delay.h>
 #include "charger.h"
 #include "main.h"
-#include "dwt_stm32_delay.h"
 
 void charger_enable() {
 	HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, SET);
