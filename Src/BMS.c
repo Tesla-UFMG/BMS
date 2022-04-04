@@ -114,12 +114,19 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 
 void BMS_Balance(BMS_struct* BMS) {
 	if(BMS->mode & BMS_BALANCING) {
-		for(uint8_t i = 0; i < TIME_BALANCING_SEC; i++) {
+		if(BMS->error == ERR_NO_ERROR) {
+			for(uint8_t i = 0; i < TIME_BALANCING_SEC; i++) {
+				for(uint8_t j = 0; j < NUMBER_OF_SLAVES; j++) {
+					LTC_SetBalanceFlag(BMS->config, BMS->sensor[j]);
+					LTC_Balance(BMS->config, BMS->sensor[j]);
+				}
+				DWT_Delay_us(ONE_SEC_IN_US);
+			}
+		}else{
 			for(uint8_t j = 0; j < NUMBER_OF_SLAVES; j++) {
-				LTC_SetBalanceFlag(BMS->config, BMS->sensor[j]);
+				LTC_ResetBalanceFlag(BMS->config, BMS->sensor[j]);
 				LTC_Balance(BMS->config, BMS->sensor[j]);
 			}
-			DWT_Delay_us(ONE_SEC_IN_US);
 		}
 	}
 }
