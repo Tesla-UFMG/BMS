@@ -23,6 +23,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "bms.h"
 #include "charger.h"
 #include "constants.h"
 #include "dma_usart.h"
@@ -57,25 +58,10 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-#include "DMA_USART.h"
-#include "can.h"
-#include "nextion_functions.h"
-
-
-extern ADC_HandleTypeDef hadc1;
 extern UART_HandleTypeDef huart3;
-extern BMS_struct *BMS;
-
-uint16_t len = 0;
+extern BMS_struct* BMS;
 uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];	/* Local DMA buffer for circular DMA */
 uint8_t uart_message[DMA_RX_BUFFER_SIZE];
-
-//extern int16_t ADC_BUF[5];
-uint16_t balance_timer, coulomb_counter_timer;
-
-
-
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -348,17 +334,6 @@ void TIM4_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim4);
   /* USER CODE BEGIN TIM4_IRQn 1 */
 
-
-	if(coulomb_counter_timer >= 10){
-
-		if ((BMS->current[0] + BMS->current[2] + BMS->current[3]) > 30 ||(BMS->current[0] + BMS->current[2] + BMS->current[3]) < - 30){
-				BMS->charge += (int32_t)(((float)(BMS->current[0] + BMS->current[2] + BMS->current[3])/10));
-		}
-		coulomb_counter_timer = 0;
-	}
-	coulomb_counter_timer++;
-
-
   /* USER CODE END TIM4_IRQn 1 */
 }
 
@@ -372,10 +347,8 @@ void USART3_IRQHandler(void)
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
-	USART_IrqHandler(&huart3, &hdma_usart3_rx);
-
-	uart3MessageReceived(BMS);
-
+  USART_IrqHandler(&huart3, &hdma_usart3_rx);
+  uart3MessageReceived(BMS);
   /* USER CODE END USART3_IRQn 1 */
 }
 
