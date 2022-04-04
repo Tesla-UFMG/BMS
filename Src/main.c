@@ -91,7 +91,7 @@ float filter(float old, float new){
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
-	for(uint8_t i = 0; i < NUMBER_OF_CURRENT_SENSORS; i++) {
+	for(uint8_t i = 0; i < ADC_BUFFER_SIZE; i++) {
 		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i+1]);
 		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i+1] * current_gain[i]) - current_zero[i]);
 	}

@@ -33,8 +33,8 @@ typedef struct BMS_struct {
 	uint16_t maxCellTemperature;
 
 	//CURRENT
-	float current[4];
-	float c_adc[4];
+	float current[ADC_BUFFER_SIZE];
+	float c_adc[ADC_BUFFER_SIZE];
 
 	//AIR
 	uint8_t AIR;
