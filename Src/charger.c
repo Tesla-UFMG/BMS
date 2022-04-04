@@ -9,7 +9,7 @@
 #include "main.h"
 #include "dwt_stm32_delay.h"
 
-void chager_enable() {
+void charger_enable() {
 	HAL_GPIO_WritePin(CHARGE_ENABLE_GPIO_Port, CHARGE_ENABLE_Pin, SET);
 	DWT_Delay_us(100);
 }

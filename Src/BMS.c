@@ -38,7 +38,7 @@ void BMS_Init(BMS_struct *BMS) {
 	bms_indicator_light_turn(OFF);
 	led_debug_turn(OFF);
 	if(BMS->mode == BMS_CHARGING)
-		chager_enable();
+		charger_enable();
 	else
 		charger_disable();
 

@@ -8,7 +8,7 @@
 #ifndef CHARGER_H_
 #define CHARGER_H_
 
-void chager_enable();
-void chager_disable();
+void charger_enable();
+void charger_disable();
 
 #endif /* CHARGER_H_ */
