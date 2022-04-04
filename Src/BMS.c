@@ -24,7 +24,9 @@ void BMS_Init(BMS_struct *BMS) {
 	BMS->config = (LTC_config*) calloc(1 ,sizeof(LTC_config));
 	BMS->config->command = (LTC_command*) calloc(1 ,sizeof(LTC_command));
 
-	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++){
+	LTC_PEC_InitTable();
+
+	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
 		BMS->sensor[i] = (LTC_sensor*) calloc(1, sizeof(LTC_sensor));
 		BMS->sensor[i]->ADDR = i;
 		LTC_Init(BMS->config);
