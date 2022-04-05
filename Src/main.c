@@ -149,9 +149,8 @@ int main(void)
   BMS_Init(BMS);
 
   DWT_Delay_us(50000);
-  nexInit();
-  NexPageShow(0);
 
+  display_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -161,7 +160,7 @@ int main(void)
     /* USER CODE END WHILE */
 	BMS_Monitoring(BMS);
 	BMS_ErrorTreatment(BMS);
-	nexLoop(BMS);
+	display_show(BMS);
     /* USER CODE BEGIN 3 */
 
 	}

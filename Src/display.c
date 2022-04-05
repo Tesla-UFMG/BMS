@@ -79,7 +79,7 @@ int cmpfunc (const void * a, const void * b) {
 	return ( *(uint16_t*)a - *(uint16_t*)b );
 }
 
-void nexLoop(BMS_struct *BMS){
+void display_show(BMS_struct *BMS){
 
 	actual_page = N_PAGE0;
 
