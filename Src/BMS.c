@@ -169,7 +169,7 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 }
 
 void BMS_Datalloger(BMS_struct* BMS) {
-	uint32_t can_id = INITIAL_CAN_ID;
+	uint32_t can_id = CAN_ID_PACKS_INITIAL;
 	LTC_sensor* sensor;
 	for(uint8_t i = 0; i < NUMBER_OF_PACKS; i++) {
 		sensor = BMS->sensor[i];

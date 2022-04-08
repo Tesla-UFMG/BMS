@@ -48,10 +48,9 @@ uint16_t LTC_PEC(uint16_t *data , uint8_t len) {
 
 uint16_t LTC_PEC2(uint16_t* data, uint8_t size) {
 	uint16_t aux, in0, pec = 16;
-	int i, j;
-	for(i = 0; i < size; i++) {
+	for(int i = 0; i < size; i++) {
 		data[i] = BYTESWAP(data[i]);
-		for(j = 15; j >= 0; j--) {
+		for(int j = 15; j >= 0; j--) {
 			aux = 0x00;
 			in0 =  ((data[i] >> j) & 0x01) ^ ((pec >> 14) & 0x01);
 			aux =  in0;
