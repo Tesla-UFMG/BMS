@@ -167,3 +167,29 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 		led_debug_turn(ON);
 	}
 }
+
+void BMS_Datalloger(BMS_struct* BMS) {
+	uint32_t can_id = INITIAL_CAN_ID;
+	LTC_sensor* sensor;
+	for(uint8_t i = 0; i < NUMBER_OF_PACKS; i++) {
+		sensor = BMS->sensor[i];
+		for(uint8_t j = 0; j < NUMBER_OF_CELLS/CAN_BUFFER_SIZE; j++) {
+			CAN_Buffer(sensor->CxV[j*CAN_BUFFER_SIZE],
+					   sensor->CxV[j*CAN_BUFFER_SIZE + 1],
+					   sensor->CxV[j*CAN_BUFFER_SIZE + 2],
+					   sensor->CxV[j*CAN_BUFFER_SIZE + 3]);
+			CAN_Transmit(can_id);
+			can_id++;
+		}
+		CAN_Buffer(sensor->GxV[0], sensor->GxV[1], sensor->GxV[2], sensor->GxV[3]);
+		CAN_Transmit(can_id);
+		can_id++;
+		CAN_Buffer(sensor->GxV[4], sensor->SOC, sensor->REF, sensor->DCC);
+		CAN_Transmit(can_id);
+		can_id++;
+	}
+	CAN_Buffer(BMS->maxCellTemperature, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature);
+	CAN_Transmit(CAN_ID_GENERAL1);
+	CAN_Buffer(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage);
+	CAN_Transmit(CAN_ID_GENERAL2);
+}

@@ -96,46 +96,79 @@ typedef struct LTC_sensor{
 #define LTC_COMMAND_RDCOMM	0b11100100010	// Read COMM Register Group    ***** NOT IMPLEMENTED
 #define LTC_COMMAND_STCOMM	0b11100100011	// Start I2C/SPI Communication ***** NOT IMPLEMENTED
 
-typedef enum{
-
+typedef enum {
 	LTC_READ_CELL 	= 0b0001,
 	LTC_READ_GPIO  	= 0b0010,
 	LTC_READ_STATUS = 0b0100,
 	LTC_READ_CONFIG = 0b1000,
-
 }LTC_READ;
 
-typedef enum{
+typedef enum {
+	ALL_GPIOS_WRITE	= 0,
+	ALL_GPIOS_READ 	= 0x1F,
+}LTC_GPIO;
 
+typedef enum {
+	REFERENCE_REMAINS_UNTIL_WATCHDOG_TIMEOUT = 1,
+	REFERENCE_SHUTS_DOWN_AFTER_CONVERSIONS 	 = 0,
+}LTC_REFON;
+
+typedef enum {
+	SOFTWARE_TIMER_ENABLE_PIN_LOW  = 0,
+	SOFTWARE_TIMER_ENABLE_PIN_HIGH = 1,
+}LTC_SWTRD;
+
+typedef enum {
+	SELECT_ADC_MODES_FAST   = 0,
+	SELECT_ADC_MODES_NORMAL = 1,
+}LTC_ADCOPT;
+
+typedef enum {
+	DEFULT_VOLTAGE = 0x000,
+}LTC_COMPARISON_VOLTAGE;
+
+
+typedef enum {
+	DISCHARGE_DISABLE = 0x0,
+	DISCHARGE_30SEC   = 0x1,
+	DISCHARGE_1MIN    = 0x2,
+	DISCHARGE_2MIN    = 0x3,
+	DISCHARGE_3MIN    = 0x4,
+	DISCHARGE_4MIN    = 0x5,
+	DISCHARGE_5MIN    = 0x6,
+	DISCHARGE_10MIN   = 0x7,
+	DISCHARGE_15MIN   = 0x8,
+	DISCHARGE_20MIN   = 0x9,
+	DISCHARGE_30MIN   = 0xA,
+	DISCHARGE_40MIN   = 0xB,
+	DISCHARGE_60MIN   = 0xC,
+	DISCHARGE_75MIN   = 0xD,
+	DISCHARGE_90MIN   = 0xE,
+	DISCHARGE_120MIN  = 0xF,
+}LTC_DCTO;
+
+typedef enum {
 	MD_FAST 	= 0b0010000000,	//	27kHz or 14kHz
 	MD_NORMAL 	= 0b0100000000,	//	 7kHz or  3kHz
 	MD_FILTRED  = 0b0110000000,	//	 26Hz or  2kHz
-
 }LTC_MD;
 
-typedef enum{
-
+typedef enum {
 	DCP_PERMITED 	 = 0b00000010000,
 	DCP_NOT_PERMITED = 0b00000000000,
-
 }LTC_DCP;
 
-typedef enum{
-
+typedef enum {
 	PUP_PULL_UP 	= 0b00001000000,
 	PUP_PULL_DOWN 	= 0b00000000000,
-
 }LTC_PUP;
 
-typedef enum{
-
+typedef enum {
 	ST_01 	= 0b00000100000,
 	ST_02 	= 0b00001000000,
-
 }LTC_ST;
 
-typedef enum{
-
+typedef enum {
 	CH_ALL	= 0b00000000000,
 	CH_1_7 	= 0b00000000001,
 	CH_2_8  = 0b00000000010,
@@ -143,11 +176,9 @@ typedef enum{
 	CH_4_10 = 0b00000000100,
 	CH_5_11 = 0b00000000101,
 	CH_6_12	= 0b00000000110,
-
 }LTC_CH;
 
-typedef enum{
-
+typedef enum {
 	CHG_ALL		= 0b00000000000,
 	CHG_GPIO1	= 0b00000000001,
 	CHG_GPIO2	= 0b00000000010,
@@ -155,17 +186,14 @@ typedef enum{
 	CHG_GPIO4  	= 0b00000000100,
 	CHG_GPIO5 	= 0b00000000101,
 	CHG_2REF	= 0b00000000110,
-
 }LTC_CHG;
 
-typedef enum{
-
+typedef enum {
 	CHST_ALL 	= 0b00000000000,
 	CHST_SOC 	= 0b00000000001,
 	CHST_ITMP 	= 0b00000000010,
 	CHST_VA 	= 0b00000000011,
 	CHST_VD		= 0b00000000100,
-
 }LTC_CHST;
 
 void LTC_Init(LTC_config *config);

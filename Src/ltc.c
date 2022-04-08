@@ -19,18 +19,18 @@ extern SPI_HandleTypeDef hspi1;
 static uint16_t pec_table[256];
 
 void LTC_Init(LTC_config *config) {
-	config->GPIO = 0x1F;
-	config->REFON = 0;
-	config->SWTRD = 0;
-	config->ADCOPT = 0;
-	config->VUV = 0;
-	config->VOV = 0;
-	config->DCTO = 0;
-	config->command->MD = MD_FILTRED;
-	//config->command->DCP = DCP_PERMITED;
+	config->GPIO   = ALL_GPIOS_READ;
+	config->REFON  = REFERENCE_SHUTS_DOWN_AFTER_CONVERSIONS;
+	config->SWTRD  = SOFTWARE_TIMER_ENABLE_PIN_LOW;
+	config->ADCOPT = SELECT_ADC_MODES_FAST;
+	config->VUV    = DEFULT_VOLTAGE;
+	config->VOV    = DEFULT_VOLTAGE;
+	config->DCTO   = DISCHARGE_DISABLE;
 
-	config->command->BROADCAST = true;
+	config->command->MD   = MD_FILTRED;
+	config->command->DCP  = DCP_PERMITED;
 	config->command->NAME = LTC_COMMAND_WRCOMM;
+	config->command->BROADCAST = true;
 	LTC_SendCommand(config);
 }
 
