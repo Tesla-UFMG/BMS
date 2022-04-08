@@ -15,12 +15,8 @@
 typedef struct BMS_struct {
 
 	//GENERAL
-	uint16_t error;
-	uint8_t communication_mode;
 	uint8_t mode;
-	uint8_t discharging;
-	uint8_t opperating_packs;
-	uint8_t status;
+	uint16_t error;
 
 	LTC_sensor *sensor[NUMBER_OF_SLAVES];
 	LTC_config *config;
