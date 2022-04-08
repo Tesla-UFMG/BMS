@@ -22,6 +22,7 @@
 
 uint8_t actual_page;
 
+void display_init();
 void uart3MessageReceived(BMS_struct *BMS);
 uint8_t nexSetPageError(BMS_struct *BMS);
 void display_show(BMS_struct *BMS);

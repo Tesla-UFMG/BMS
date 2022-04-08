@@ -2,14 +2,16 @@
 
 
 #include "display.h"
+#include "nextion.h"
+#include "stdbool.h"
 #include "stm32f1xx.h"
 
 extern UART_HandleTypeDef huart3;
 
 extern uint8_t uart_user_message[256];	/* Buffer received for user access */
-uint8_t stat = 0;
-extern uint16_t balance_timer;
-uint8_t flag_information_to_send = 0;
+extern bool error_flag[NUMBER_OF_ERRORS];
+
+//uint8_t flag_information_to_send = 0;
 //NextionPage_e previous_page = PAGE0;
 //NextionPage_e actual_page   = PAGE0;
 //NextionAdvice_e actual_advice = NO_ADVICE;
@@ -85,24 +87,16 @@ void display_show(BMS_struct *BMS){
 
 	HAL_UART_DMAPause(&huart3);
 
-//	if(NextError[0] == 1){
+//	if(error_flag[0]){
 //		NexScrollingTextSetText(0, "Under Voltage");
 //		NexScrollingTextSetPic(0, 11);
 //	}
-//	else if(NextError[1] == 1){
+//	else if(error_flag[1]){
 //		NexScrollingTextSetText(0, "Over Voltage");
 //		NexScrollingTextSetPic(0, 11);
 //	}
-//	else if(NextError[2] == 1){
+//	else if(error_flag[2]){
 //		NexScrollingTextSetText(0, "Over Temperature");
-//		NexScrollingTextSetPic(0, 11);
-//	}
-//	else if(NextError[3] == 1){
-//		NexScrollingTextSetText(0, "Comm Error");
-//		NexScrollingTextSetPic(0, 11);
-//	}
-//	else if(NextError[4] == 1){
-//		NexScrollingTextSetText(0, "GLV Low Voltage");
 //		NexScrollingTextSetPic(0, 11);
 //	}
 //	else{
@@ -217,7 +211,6 @@ void display_show(BMS_struct *BMS){
 //	NexPageShow(N_PAGE0);
 
 	HAL_UART_DMAResume(&huart3);
-
 }
 
 
