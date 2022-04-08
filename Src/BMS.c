@@ -84,6 +84,7 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 			if(BMS->sensor[i]->V_MAX > BMS->maxCellVoltage)
 				BMS->maxCellVoltage = BMS->sensor[i]->V_MAX;
 		}
+		BMS->deltaVoltage = BMS->maxCellVoltage - BMS->minCellVoltage;
 	}
 	if (BMS_CONVERT&BMS_CONVERT_GPIO) {
 		BMS->config->command->NAME = LTC_COMMAND_ADAX;
