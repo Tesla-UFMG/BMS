@@ -160,6 +160,7 @@ int main(void)
     /* USER CODE END WHILE */
 	BMS_Monitoring(BMS);
 	BMS_ErrorTreatment(BMS);
+	BMS_Datalloger(BMS);
 	display_show(BMS);
     /* USER CODE BEGIN 3 */
 
