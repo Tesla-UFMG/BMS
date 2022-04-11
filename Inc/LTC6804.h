@@ -10,9 +10,11 @@
 #ifndef LTC_2_H
 #define LTC_2_H
 
-#include "stm32f1xx_hal.h"
-#include <math.h>
-
+#include <stdarg.h>
+#include "dwt_stm32_delay.h"
+#include "defines.h"
+#include "main.h"
+#include "math.h"
 
 
 typedef struct LTC_command{
@@ -23,11 +25,11 @@ typedef struct LTC_command{
 
 	//COMMAND SETTINGS
 	uint16_t MD;		// set the ADC mode
-	uint16_t DCP;	// set if discharge is permitted during discharge
+	uint16_t DCP;		// set if discharge is permitted during discharge
 	uint16_t CH;		// set CELL channels to convert
-	uint16_t CHG;	// set GPIO channels to convert
-	uint16_t CHST;	// set STAT channels to convert
-	uint16_t PUP;	// set if pull up or pull down is enabled in ADOW
+	uint16_t CHG;		// set GPIO channels to convert
+	uint16_t CHST;		// set STAT channels to convert
+	uint16_t PUP;		// set if pull up or pull down is enabled in ADOW
 	uint16_t ST;		// set the self test mode
 
 }LTC_command;
@@ -44,7 +46,7 @@ typedef struct LTC_config{
 	uint8_t SWTRD:1;	// 1 bit - set the under voltage limit
 	uint8_t ADCOPT:1;	// 1 bit - set the ADC mode
 	uint16_t VUV:12; 	// 12 bits - set the under voltage limit
-	uint16_t VOV; 	// 12 bits - set the over  voltage limit
+	uint16_t VOV; 		// 12 bits - set the over  voltage limit
 	uint8_t DCTO:4; 	// 4 bits - set the duration of discharge
 	uint8_t ADC_READY;
 
@@ -54,14 +56,14 @@ typedef struct LTC_config{
 typedef struct LTC_sensor{
 
 	uint8_t ADDR;
-	uint8_t V_ERROR[12];
-	uint8_t T_ERROR[5];
+	uint8_t V_ERROR[N_OF_CELLS];
+	uint8_t T_ERROR[N_OF_THERMISTORS];
 
 	//CELL REGISTERS A to D
-	uint16_t CxV[12]; 	// 12 * 16 bits - get CELL voltages
+	uint16_t CxV[N_OF_CELLS]; 	// 12 * 16 bits - get CELL voltages
 
 	//AUXILIARY REGISTERS A & B
-	uint16_t GxV[5]; 	// 5 * 16 bits - get GPIO voltages
+	uint16_t GxV[N_OF_THERMISTORS]; 	// 5 * 16 bits - get GPIO voltages
 	uint16_t REF;		// 16 bits - get the second reference voltage
 
 	//STATUS REGISTER A & B
@@ -69,12 +71,12 @@ typedef struct LTC_sensor{
 	uint16_t ITMP; 		// 16 bits - get the internal temperature
 	uint16_t VA; 		// 16 bits - get the analog voltage
 	uint16_t VD; 		// 16 bits - get the digital voltage
-	uint16_t DCC;  	// 12 bits - set which cell to discharge
+	uint16_t DCC;  		// 12 bits - set which cell to discharge
 
 	uint16_t V_MAX;
 	uint16_t V_MIN;
 	uint16_t V_DELTA;
-	uint16_t CHARGE[12];
+	uint16_t CHARGE[N_OF_CELLS];
 	uint16_t TOTAL_CHARGE;
 
 
@@ -103,11 +105,11 @@ typedef struct LTC_sensor{
 //	CONFIG_ADCOP = 0b00001000,
 //
 //	//VUV - Undervoltage Comparison Voltage:
-//	//Comparison voltage = (VUV + 1) • 16 • 100µV
+//	//Comparison voltage = (VUV + 1) ï¿½ 16 ï¿½ 100ï¿½V
 //	CONFIG_VUV 	 = 0b00010000,
 //
 //	//VOV - Overvoltage Comparison Voltage:
-//	//Comparison voltage = (VOV + 1) • 16 • 100µV
+//	//Comparison voltage = (VOV + 1) ï¿½ 16 ï¿½ 100ï¿½V
 //	CONFIG_VOV 	 = 0b00100000,
 //
 //	//DCC - Discharge Cell x:
@@ -149,6 +151,11 @@ typedef struct LTC_sensor{
 #define LTC_COMMAND_WRCOMM	0b11100100001	// Write COMM Register Group   ***** NOT IMPLEMENTED
 #define LTC_COMMAND_RDCOMM	0b11100100010	// Read COMM Register Group    ***** NOT IMPLEMENTED
 #define LTC_COMMAND_STCOMM	0b11100100011	// Start I2C/SPI Communication ***** NOT IMPLEMENTED
+
+//Temperature conversion parameters NTC B57164K0103
+#define B 	4300	// Beta parameter
+#define t0	298		// 25ÂºC in Kelvins
+#define r0	10000	// resistance at 25ÂºC
 
 typedef enum{
 

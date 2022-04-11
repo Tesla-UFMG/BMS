@@ -9,7 +9,6 @@
 #define EEPROM_H_
 
 #include "flash.h"
-#include "stm32f1xx_hal.h"
 
 /* EEPROM start address in Flash */
 
