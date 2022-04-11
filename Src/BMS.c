@@ -75,15 +75,18 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 		BMS->config->command->BROADCAST = true;
 		LTC_SendCommand(BMS->config);
 
-		BMS->minCellVoltage = UINT16_MAX;
-		BMS->maxCellVoltage = 0;
+
+		uint16_t aux_minCellVoltage = UINT16_MAX;
+		uint16_t aux_maxCellVoltage = 0;
 		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
 			LTC_Read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
-			if(BMS->sensor[i]->V_MIN < BMS->minCellVoltage)
-				BMS->minCellVoltage = BMS->sensor[i]->V_MIN;
-			if(BMS->sensor[i]->V_MAX > BMS->maxCellVoltage)
-				BMS->maxCellVoltage = BMS->sensor[i]->V_MAX;
+			if(BMS->sensor[i]->V_MIN < aux_minCellVoltage)
+				aux_minCellVoltage = BMS->sensor[i]->V_MIN;
+			if(BMS->sensor[i]->V_MAX > aux_maxCellVoltage)
+				aux_maxCellVoltage = BMS->sensor[i]->V_MAX;
 		}
+		BMS->maxCellVoltage = aux_maxCellVoltage;
+		BMS->minCellVoltage = aux_minCellVoltage;
 		BMS->deltaVoltage = BMS->maxCellVoltage - BMS->minCellVoltage;
 	}
 	if (BMS_CONVERT&BMS_CONVERT_GPIO) {
@@ -91,14 +94,15 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 		BMS->config->command->BROADCAST = true;
 		LTC_SendCommand(BMS->config);
 
-		BMS->maxCellTemperature = 0;
+		uint16_t aux_maxCellTemperature = 0;
 		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
 			LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
 			for(uint8_t j = 0; j < NUMBER_OF_THERMISTORS; j++){
-				if(BMS->sensor[i]->GxV[j] > BMS->maxCellTemperature)
-					BMS->maxCellTemperature = BMS->sensor[i]->GxV[j];
+				if(BMS->sensor[i]->GxV[j] > aux_maxCellTemperature)
+					aux_maxCellTemperature = BMS->sensor[i]->GxV[j];
 			}
 		}
+		BMS->maxCellTemperature = aux_maxCellTemperature;
 	}
 	if (BMS_CONVERT&BMS_CONVERT_STAT) {
 		BMS->config->command->NAME = LTC_COMMAND_ADSTAT;
