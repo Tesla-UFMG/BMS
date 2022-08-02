@@ -11,9 +11,11 @@
 #include "stdint.h"
 #include "stdarg.h"
 
-#define LTC_MAX_SUPPORTED_CELLS	12
-#define LTC_MAX_SUPPORTED_GPIOS	5
-#define LTC_PEC_SEED 			16
+#define LTC_MAX_SUPPORTED_CELLS		12
+#define LTC_MAX_SUPPORTED_GPIOS		5
+#define LTC_PEC_SEED 				16
+#define LTC_PEC_TABLE_LENGTH		256
+#define	 SPI_BUFFER_LENGTH			4
 
 typedef struct LTC_command{
 	uint16_t NAME;

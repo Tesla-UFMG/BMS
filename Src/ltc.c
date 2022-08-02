@@ -16,7 +16,7 @@
 #define BYTESWAP(word) ((word >> 8) + (word << 8))
 
 extern SPI_HandleTypeDef hspi1;
-static uint16_t pec_table[256];
+static uint16_t pec_table[LTC_PEC_TABLE_LENGTH];
 
 void LTC_Init(LTC_config *config) {
 	config->GPIO   = ALL_GPIOS_READ;
@@ -37,7 +37,7 @@ void LTC_Init(LTC_config *config) {
 uint16_t LTC_PEC(uint16_t *data , uint8_t len) {
 	int32_t remainder, address;
 	remainder = LTC_PEC_SEED;
-	for (uint8_t i = 0; i < len; i++){
+	for (uint8_t i = 0; i < len; i++) {
 		address   = ((remainder >> 7) ^ ((data[i] >> 8) & 0xFF)) & 0xFF; //calculate PEC table address
 		remainder = (remainder << 8 ) ^ pec_table[address];
 		address   = ((remainder >> 7) ^ (data[i] & 0xFF)) & 0xFF;    	 //calculate PEC table address
@@ -47,7 +47,8 @@ uint16_t LTC_PEC(uint16_t *data , uint8_t len) {
 }
 
 uint16_t LTC_PEC2(uint16_t* data, uint8_t size) {
-	uint16_t aux, in0, pec = 16;
+	uint16_t aux, in0;
+	uint16_t pec = LTC_PEC_SEED;
 	for(int i = 0; i < size; i++) {
 		data[i] = BYTESWAP(data[i]);
 		for(int j = 15; j >= 0; j--) {
@@ -76,7 +77,7 @@ uint16_t LTC_PEC2(uint16_t* data, uint8_t size) {
 
 void LTC_PEC_InitTable() {
 	uint16_t remainder;
-	for(int i = 0; i < 256; i++) {
+	for(int i = 0; i < LTC_PEC_TABLE_LENGTH; i++) {
 		remainder = i << 7;
 		for(int bit = 8; bit > 0; --bit) {
 			if(remainder & 0x4000) {
@@ -123,7 +124,7 @@ void LTC_TransmitReceive(uint16_t command, uint16_t* tx_data, uint16_t* rx_data)
 		tx_data[3] = pec;
 	}
 	if((tx_data[0] & 0x07FF) < LTC_COMMAND_ADCV) {
-		for (uint8_t i = 0; i < 4; ++i) {
+		for (uint8_t i = 0; i < SPI_BUFFER_LENGTH; ++i) {
 			rx_data[i] = LTC_SPI(tx_data[i]);
 		}
 	}
@@ -324,8 +325,8 @@ void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor) {
 
 		sensor->V_MIN = UINT16_MAX;
 		sensor->V_MAX = 0;
-		for(uint8_t i = 0; i < NUMBER_OF_CELLS; i++){
-			if(sensor->CxV[i] != 0 && sensor->CxV[i] < sensor->V_MIN)
+		for(uint8_t i = 0; i < NUMBER_OF_CELLS; i++) {
+			if(sensor->CxV[i] < sensor->V_MIN)
 				sensor->V_MIN = sensor->CxV[i];
 			if(sensor->CxV[i] > sensor->V_MAX)
 				sensor->V_MAX = sensor->CxV[i];
