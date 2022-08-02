@@ -26,9 +26,15 @@ The mathematical expression is presented below:
 	T' is the ambient temperature in tenths of Celsius (to improve accuracy)
 	Example: T = 298 K => T' = 250 d°C (25,0°C)
 *******************************************************/
-void NTC_ConvertTemp(uint16_t gpio_voltage, uint16_t reference_voltage) {
-	float r;
-	uint16_t temperature_ddegC;
-	r = ( gpio_voltage*10000) / (reference_voltage - gpio_voltage);
-	temperature_ddegC = 10 * (1 / ( 1/(float)t0 + 1/(float)B * log(r/r0) ) - 273);
+uint16_t NTC_ConvertTemp(uint16_t gpio_voltage, uint16_t reference_voltage) {
+	if(reference_voltage - gpio_voltage != 0) {
+		float r;
+		uint16_t temperature_ddegC;
+		r = ( gpio_voltage*10000) / (reference_voltage - gpio_voltage);
+		temperature_ddegC = 10 * (1 / ( 1/(float)t0 + 1/(float)B * log(r/r0) ) - 273);
+		return temperature_ddegC;
+	}else {
+		return 0;
+	}
+
 }
