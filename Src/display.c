@@ -206,7 +206,7 @@ void display_show(BMS_struct *BMS){
 	NexXfloatSetValue(1, BMS->minCellVoltage/100);
 	NexXfloatSetValue(2, BMS->tractiveSystemVoltage);
 	NexVariableSetValue(2, BMS->AIR);
-	NexXfloatSetValue(3, BMS->maxCellTemperature);
+	NexXfloatSetValue(3, BMS->maxCellTemperature*10);
 
 //	NexPageShow(N_PAGE0);
 
