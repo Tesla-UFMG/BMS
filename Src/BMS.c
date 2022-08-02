@@ -71,10 +71,7 @@ void BMS_SetSafetyLimits(BMS_struct* BMS) {
 
 void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 	if (BMS_CONVERT&BMS_CONVERT_CELL) {
-		BMS->config->command->NAME = LTC_COMMAND_ADCV;
-		BMS->config->command->BROADCAST = true;
-		LTC_SendCommand(BMS->config);
-
+		LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADCV);
 
 		uint16_t aux_minCellVoltage = UINT16_MAX;
 		uint16_t aux_maxCellVoltage = 0;
@@ -90,9 +87,7 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 		BMS->deltaVoltage = BMS->maxCellVoltage - BMS->minCellVoltage;
 	}
 	if (BMS_CONVERT&BMS_CONVERT_GPIO) {
-		BMS->config->command->NAME = LTC_COMMAND_ADAX;
-		BMS->config->command->BROADCAST = true;
-		LTC_SendCommand(BMS->config);
+		LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADCV);
 
 		uint16_t aux_maxCellTemperature = 0;
 		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
@@ -105,9 +100,7 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 		BMS->maxCellTemperature = aux_maxCellTemperature;
 	}
 	if (BMS_CONVERT&BMS_CONVERT_STAT) {
-		BMS->config->command->NAME = LTC_COMMAND_ADSTAT;
-		BMS->config->command->BROADCAST = true;
-		LTC_SendCommand(BMS->config);
+		LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADCV);
 
 		BMS->tractiveSystemVoltage = 0;
 		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
@@ -116,6 +109,46 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 		}
 		BMS->tractiveSystemVoltage /= (NUMBER_OF_PACKS / NUMBER_OF_PACKS_IN_SERIES);
 	}
+}
+
+void BMS_ElectricalManagement(BMS_struct *BMS) {
+	LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADCV);
+	uint16_t aux_minCellVoltage = UINT16_MAX;
+	uint16_t aux_maxCellVoltage = 0;
+	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
+		LTC_Read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
+		if(BMS->sensor[i]->V_MIN < aux_minCellVoltage)
+			aux_minCellVoltage = BMS->sensor[i]->V_MIN;
+		if(BMS->sensor[i]->V_MAX > aux_maxCellVoltage)
+			aux_maxCellVoltage = BMS->sensor[i]->V_MAX;
+	}
+	BMS->maxCellVoltage = aux_maxCellVoltage;
+	BMS->minCellVoltage = aux_minCellVoltage;
+	BMS->deltaVoltage = BMS->maxCellVoltage - BMS->minCellVoltage;
+}
+
+void BMS_ThermalManagement(BMS_struct *BMS) {
+	LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADCV);
+	uint16_t aux_maxCellTemperature = 0;
+	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
+		LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
+		for(uint8_t j = 0; j < NUMBER_OF_THERMISTORS; j++){
+			if(BMS->sensor[i]->GxV[j] > aux_maxCellTemperature)
+				aux_maxCellTemperature = BMS->sensor[i]->GxV[j];
+		}
+	}
+	BMS->maxCellTemperature = aux_maxCellTemperature;
+}
+
+void BMS_SafetyManagement(BMS_struct *BMS) {
+	LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADCV);
+	BMS->tractiveSystemVoltage = 0;
+	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
+		LTC_Read(LTC_READ_STATUS, BMS->config, BMS->sensor[i]);
+		BMS->tractiveSystemVoltage += BMS->sensor[i]->SOC;
+	}
+	BMS->tractiveSystemVoltage /= (NUMBER_OF_PACKS / NUMBER_OF_PACKS_IN_SERIES);
+	BMS_CheckContactorsStatus(BMS);
 }
 
 void BMS_Balance(BMS_struct* BMS) {
@@ -137,7 +170,7 @@ void BMS_Balance(BMS_struct* BMS) {
 	}
 }
 
-void BMS_AIR_Status(BMS_struct* BMS) {
+void BMS_CheckContactorsStatus(BMS_struct* BMS) {
 	if(HAL_GPIO_ReadPin(AIR_AUX_PLUS_GPIO_Port, AIR_AUX_PLUS_Pin) == GPIO_PIN_RESET)
 		BMS->AIR = AIR_OPEN;
 	else
@@ -145,9 +178,10 @@ void BMS_AIR_Status(BMS_struct* BMS) {
 }
 
 void BMS_Monitoring(BMS_struct* BMS) {
-	BMS_Convert(BMS_CONVERT_CELL|BMS_CONVERT_GPIO|BMS_CONVERT_STAT, BMS);
+	BMS_ElectricalManagement(BMS);
+	BMS_ThermalManagement(BMS);
+	BMS_SafetyManagement(BMS);
 	BMS_Balance(BMS);
-	BMS_AIR_Status(BMS);
 }
 
 void BMS_ErrorTreatment(BMS_struct *BMS) {

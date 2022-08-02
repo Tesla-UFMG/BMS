@@ -26,12 +26,9 @@ void LTC_Init(LTC_config *config) {
 	config->VUV    = DEFULT_VOLTAGE;
 	config->VOV    = DEFULT_VOLTAGE;
 	config->DCTO   = DISCHARGE_DISABLE;
-
-	config->command->MD   = MD_FILTRED;
-	config->command->DCP  = DCP_PERMITED;
-	config->command->NAME = LTC_COMMAND_WRCOMM;
-	config->command->BROADCAST = true;
-	LTC_SendCommand(config);
+	config->command->MD  = MD_FILTRED;
+	config->command->DCP = DCP_PERMITED;
+	LTC_SendBroadcastCommand(config, LTC_COMMAND_WRCOMM);
 }
 
 uint16_t LTC_PEC(uint16_t *data , uint8_t len) {
@@ -305,9 +302,7 @@ void LTC_ConvertTemp(LTC_sensor* sensor) {
 
 void LTC_Wait(LTC_config *config, LTC_sensor *sensor) {
 	do{
-		config->command->NAME = LTC_COMMAND_PLADC;
-		config->command->BROADCAST = false;
-		LTC_SendCommand(config, sensor);
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_PLADC);
 	}while(!config->ADC_READY);
 }
 
@@ -315,15 +310,10 @@ void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor) {
 	config->command->BROADCAST = false;
 	if (LTC_READ&LTC_READ_CELL) {
 		LTC_Wait(config, sensor);
-
-		config->command->NAME = LTC_COMMAND_RDCVA;
-		LTC_SendCommand(config, sensor);
-		config->command->NAME = LTC_COMMAND_RDCVB;
-		LTC_SendCommand(config, sensor);
-		config->command->NAME = LTC_COMMAND_RDCVC;
-		LTC_SendCommand(config, sensor);
-		config->command->NAME = LTC_COMMAND_RDCVD;
-		LTC_SendCommand(config, sensor);
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDCVA);
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDCVB);
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDCVC);
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDCVD);
 
 		sensor->V_MIN = UINT16_MAX;
 		sensor->V_MAX = 0;
@@ -337,27 +327,18 @@ void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor) {
 	}
 	if (LTC_READ&LTC_READ_GPIO) {
 		LTC_Wait(config, sensor);
-
-		config->command->NAME = LTC_COMMAND_RDAUXA;
-		LTC_SendCommand(config, sensor);
-		config->command->NAME = LTC_COMMAND_RDAUXB;
-		LTC_SendCommand(config, sensor);
-
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDAUXA);
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDAUXB);
 		LTC_ConvertTemp(sensor);
 	}
 	if (LTC_READ&LTC_READ_STATUS) {
 		LTC_Wait(config, sensor);
-
-		config->command->NAME = LTC_COMMAND_RDSTATA;
-		LTC_SendCommand(config, sensor);
-		config->command->NAME = LTC_COMMAND_RDSTATB;
-		LTC_SendCommand(config, sensor);
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDSTATA);
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDSTATB);
 	}
 	if (LTC_READ&LTC_READ_CONFIG){
 		LTC_Wait(config, sensor);
-
-		config->command->NAME = LTC_COMMAND_RDCFG;
-		LTC_SendCommand(config, sensor);
+		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDCFG);
 	}
 }
 
@@ -375,7 +356,5 @@ void LTC_SetBalanceFlag(LTC_config *config, LTC_sensor *sensor) {
 void LTC_ResetBalanceFlag(LTC_config *config, LTC_sensor *sensor) { sensor->DCC = 0; }
 
 void LTC_Balance(LTC_config *config, LTC_sensor *sensor) {
-	config->command->BROADCAST = false;
-	config->command->NAME = LTC_COMMAND_WRCFG;
-	LTC_SendCommand(config, sensor);
+	LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_WRCFG);
 }
