@@ -258,8 +258,7 @@ void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data
 }
 
 void LTC_ConfigCommandName(LTC_sensor* sensor, LTC_config* config) {
-	config->command->NAME |= (sensor->ADDR & (0x1111 * ~config->command->BROADCAST)) |
-			                 (~config->command->BROADCAST << 4) << 11;
+	config->command->NAME |= ((sensor->ADDR & (0x1111 * ~config->command->BROADCAST)) | ~config->command->BROADCAST << 4) << 11;
 }
 
 void LTC_WriteConfigRegister(LTC_sensor *sensor, LTC_config *config, uint16_t *tx_data) {
