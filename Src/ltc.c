@@ -267,30 +267,33 @@ void LTC_WriteConfigRegister(LTC_sensor *sensor, LTC_config *config, uint16_t *t
 	tx_data[2] |= ((sensor->DCC & 0xff) << 8) | ((sensor->DCC & 0xf00) >> 8) | ((config->DCTO & 0xf) << 4);
 }
 
-void LTC_SendCommand(LTC_config *config, ...) {
-
-	uint16_t tx_data[4] = {0, 0, 0, 0};
-	uint16_t rx_data[4] = {0, 0, 0, 0};
-	LTC_sensor *sensor;
-
-	if(!config->command->BROADCAST){
-		va_list list;
-		va_start(list, 1);
-		sensor = va_arg(list, LTC_sensor*);
-		LTC_ConfigCommandName(sensor, config);
-		va_end(list);
-	}
-
-	if((config->command->NAME & 0x07FF) == LTC_COMMAND_WRCFG)
-		LTC_WriteConfigRegister(sensor, config, tx_data);
-
+void LTC_Communication(LTC_config *config, uint16_t* tx_data, uint16_t* rx_data) {
 	uint16_t command = LTC_MakeCommand(config->command);
-
 	LTC_WakeUp();
 	LTC_StartTrasmission();
 	LTC_TransmitCommand(command);
 	LTC_TransmitReceive(command, tx_data, rx_data);
 	LTC_EndTramission();
+}
+
+void LTC_SendBroadcastCommand(LTC_config *config, uint16_t command_name) {
+	uint16_t tx_data[4] = {0, 0, 0, 0};
+	uint16_t rx_data[4] = {0, 0, 0, 0};
+	config->command->NAME = command_name;
+	LTC_Communication(config, tx_data, rx_data);
+}
+
+void LTC_SendAddressedCommand(LTC_config *config, LTC_sensor *sensor, uint16_t command_name) {
+	uint16_t tx_data[4] = {0, 0, 0, 0};
+	uint16_t rx_data[4] = {0, 0, 0, 0};
+
+	config->command->NAME = command_name;
+	LTC_ConfigCommandName(sensor, config);
+
+	if((config->command->NAME & 0x07FF) == LTC_COMMAND_WRCFG)
+		LTC_WriteConfigRegister(sensor, config, tx_data);
+
+	LTC_Communication(config, tx_data, rx_data);
 	LTC_ReceiveMessage(sensor, config, rx_data);
 }
 
