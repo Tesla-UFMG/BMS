@@ -85,7 +85,7 @@ static void MX_USART3_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-float filter(float old, float new){
+float filter(float old, float new) {
 	return (FILTER_GAIN * old + new) / (FILTER_GAIN + 1);
 }
 
@@ -163,8 +163,7 @@ int main(void)
 	BMS_Datalloger(BMS);
 	display_show(BMS);
     /* USER CODE BEGIN 3 */
-
-	}
+  }
   /* USER CODE END 3 */
 }
 
