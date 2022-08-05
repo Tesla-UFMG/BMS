@@ -212,22 +212,28 @@ void BMS_Datalloger(BMS_struct* BMS) {
 	for(uint8_t i = 0; i < NUMBER_OF_PACKS; i++) {
 		sensor = BMS->sensor[i];
 		for(uint8_t j = 0; j < NUMBER_OF_CELLS/CAN_BUFFER_SIZE; j++) {
-			CAN_Buffer(sensor->CxV[j*CAN_BUFFER_SIZE],
+			CAN_Transmit(sensor->CxV[j*CAN_BUFFER_SIZE],
 					   sensor->CxV[j*CAN_BUFFER_SIZE + 1],
 					   sensor->CxV[j*CAN_BUFFER_SIZE + 2],
-					   sensor->CxV[j*CAN_BUFFER_SIZE + 3]);
-			CAN_Transmit(can_id);
+					   sensor->CxV[j*CAN_BUFFER_SIZE + 3],
+					   can_id);
 			can_id++;
 		}
-		CAN_Buffer(sensor->GxV[0], sensor->GxV[1], sensor->GxV[2], sensor->GxV[3]);
-		CAN_Transmit(can_id);
+		CAN_Transmit(sensor->GxV[0], sensor->GxV[1], sensor->GxV[2], sensor->GxV[3], can_id);
 		can_id++;
-		CAN_Buffer(sensor->GxV[4], sensor->SOC, sensor->REF, sensor->DCC);
-		CAN_Transmit(can_id);
+		CAN_Transmit(sensor->GxV[4], sensor->SOC, sensor->REF, sensor->DCC, can_id);
 		can_id++;
 	}
-	CAN_Buffer(BMS->maxCellTemperature, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature);
-	CAN_Transmit(CAN_ID_GENERAL1);
-	CAN_Buffer(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage);
-	CAN_Transmit(CAN_ID_GENERAL2);
+	CAN_Transmit(BMS->maxCellTemperature, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, 50);
+	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, 51);
+	CAN_Transmit(16800, 50, 1, 2, 52);
+	CAN_Transmit(3, BMS->tractiveSystemVoltage/10, 4, BMS->maxCellTemperature, 53);
+	CAN_Transmit(BMS->minCellVoltage/100, 5, float2uint16(BMS->current[0]), float2uint16(BMS->current[1]), 54);
+	CAN_Transmit(float2uint16(BMS->current[2]), float2uint16(BMS->current[3]), 6, 7, 55);
+}
+
+uint16_t float2uint16(float f) {
+	uint16_t gain   = 100;
+	uint16_t offset = UINT16_MAX/2;
+	return (uint16_t) (gain*f + offset);
 }

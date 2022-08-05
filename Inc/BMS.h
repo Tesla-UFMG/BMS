@@ -56,5 +56,6 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS);
 void BMS_Balance(BMS_struct *BMS);
 void BMS_AIR_status(BMS_struct *BMS);
 void BMS_ErrorTreatment(BMS_struct *BMS);
+uint16_t float2uint16(float f);
 
 #endif
