@@ -60,8 +60,8 @@ DMA_HandleTypeDef hdma_usart3_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-static const float current_zero[ADC_BUFFER_SIZE];
-static const float current_gain[ADC_BUFFER_SIZE];
+static const float current_zero[ADC_BUFFER_SIZE] = {30.42034498,239.1549633 ,26.41619284, 29.51695};
+static const float current_gain[ADC_BUFFER_SIZE] = {0.01448599958, 0.113385857,0.01318529399, 0.01389};
 static int32_t adc_buffer[ADC_BUFFER_SIZE];
 
 BMS_struct* BMS;
