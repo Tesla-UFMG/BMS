@@ -130,14 +130,17 @@ void BMS_ElectricalManagement(BMS_struct *BMS) {
 void BMS_ThermalManagement(BMS_struct *BMS) {
 	LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADCV);
 	uint16_t aux_maxCellTemperature = 0;
+	int sumCellTemperature = 0;
 	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
 		LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
 		for(uint8_t j = 0; j < NUMBER_OF_THERMISTORS; j++){
 			if(BMS->sensor[i]->GxV[j] > aux_maxCellTemperature)
 				aux_maxCellTemperature = BMS->sensor[i]->GxV[j];
+			sumCellTemperature += BMS->sensor[i]->GxV[j];
 		}
 	}
 	BMS->maxCellTemperature = aux_maxCellTemperature;
+	BMS->averageCellTemperature = sumCellTemperature / (NUMBER_OF_SLAVES*NUMBER_OF_THERMISTORS);
 }
 
 void BMS_SafetyManagement(BMS_struct *BMS) {

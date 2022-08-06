@@ -27,6 +27,7 @@ typedef struct BMS_struct {
 	uint16_t minCellVoltage;
 	uint16_t deltaVoltage;
 	uint16_t maxCellTemperature;
+	uint16_t averageCellTemperature;
 
 	//CURRENT
 	float current[ADC_BUFFER_SIZE];
