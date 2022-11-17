@@ -91,16 +91,19 @@ void Error_Handler(void);
 #define FLAG_RESET_Pin GPIO_PIN_10
 #define FLAG_RESET_GPIO_Port GPIOA
 #define FLAG_RESET_EXTI_IRQn EXTI15_10_IRQn
+#define GLV_SAMPLE_Pin GPIO_PIN_15
+#define GLV_SAMPLE_GPIO_Port GPIOA
+#define GLV_SAMPLE_EXTI_IRQn EXTI15_10_IRQn
 #define AIR_ENABLE_Pin GPIO_PIN_3
 #define AIR_ENABLE_GPIO_Port GPIOB
 #define CHARGE_ENABLE_Pin GPIO_PIN_4
 #define CHARGE_ENABLE_GPIO_Port GPIOB
-#define ERR_LED_Pin GPIO_PIN_7
-#define ERR_LED_GPIO_Port GPIOB
-#define AIR_AUX_PLUS_Pin GPIO_PIN_6
-#define AIR_AUX_PLUS_GPIO_Port GPIOB
 #define AIR_AUX_MINUS_Pin GPIO_PIN_5
 #define AIR_AUX_MINUS_GPIO_Port GPIOB
+#define AIR_AUX_PLUS_Pin GPIO_PIN_6
+#define AIR_AUX_PLUS_GPIO_Port GPIOB
+#define ERROR_LED_Pin GPIO_PIN_7
+#define ERROR_LED_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
@@ -110,5 +113,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

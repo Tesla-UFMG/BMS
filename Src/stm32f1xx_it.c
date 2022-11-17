@@ -23,6 +23,12 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "bms.h"
+#include "charger.h"
+#include "constants.h"
+#include "dma_usart.h"
+#include "led.h"
+#include "shutdown_circuit.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,25 +58,10 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-#include "DMA_USART.h"
-#include "can.h"
-#include "nextion_functions.h"
-
-
-extern ADC_HandleTypeDef hadc1;
 extern UART_HandleTypeDef huart3;
-extern BMS_struct *BMS;
-
-uint16_t len = 0;
+extern BMS_struct* BMS;
 uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];	/* Local DMA buffer for circular DMA */
 uint8_t uart_message[DMA_RX_BUFFER_SIZE];
-
-//extern int16_t ADC_BUF[5];
-uint16_t balance_timer, coulomb_counter_timer;
-
-
-
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -107,14 +98,13 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-
+  charger_disable();
+  open_shutdown_circuit();
+  bms_indicator_light_turn(ON);
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-
-		NVIC_SystemReset();
-
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
 }
@@ -125,7 +115,9 @@ void HardFault_Handler(void)
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
-
+  charger_disable();
+  open_shutdown_circuit();
+  bms_indicator_light_turn(ON);
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
@@ -140,7 +132,9 @@ void MemManage_Handler(void)
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
-
+  charger_disable();
+  open_shutdown_circuit();
+  bms_indicator_light_turn(ON);
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
   {
@@ -155,7 +149,9 @@ void BusFault_Handler(void)
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
-
+  charger_disable();
+  open_shutdown_circuit();
+  bms_indicator_light_turn(ON);
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {
@@ -306,9 +302,9 @@ void EXTI9_5_IRQHandler(void)
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
 
   /* USER CODE END EXTI9_5_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
+  HAL_GPIO_EXTI_IRQHandler(MODE_SELECT_Pin);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
-//  NVIC_SystemReset();
+  NVIC_SystemReset();
   /* USER CODE END EXTI9_5_IRQn 1 */
 }
 
@@ -338,17 +334,6 @@ void TIM4_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim4);
   /* USER CODE BEGIN TIM4_IRQn 1 */
 
-
-	if(coulomb_counter_timer >= 10){
-
-		if ((BMS->current[0] + BMS->current[2] + BMS->current[3]) > 30 ||(BMS->current[0] + BMS->current[2] + BMS->current[3]) < - 30){
-				BMS->charge += (int32_t)(((float)(BMS->current[0] + BMS->current[2] + BMS->current[3])/10));
-		}
-		coulomb_counter_timer = 0;
-	}
-	coulomb_counter_timer++;
-
-
   /* USER CODE END TIM4_IRQn 1 */
 }
 
@@ -362,10 +347,8 @@ void USART3_IRQHandler(void)
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
-	USART_IrqHandler(&huart3, &hdma_usart3_rx);
-
-	uart3MessageReceived(BMS);
-
+  USART_IrqHandler(&huart3, &hdma_usart3_rx);
+  uart3MessageReceived(BMS);
   /* USER CODE END USART3_IRQn 1 */
 }
 
@@ -377,15 +360,14 @@ void EXTI15_10_IRQHandler(void)
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
 
   /* USER CODE END EXTI15_10_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
+  HAL_GPIO_EXTI_IRQHandler(FLAG_RESET_Pin);
+  HAL_GPIO_EXTI_IRQHandler(GLV_SAMPLE_Pin);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
-
   NVIC_SystemReset();
-
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

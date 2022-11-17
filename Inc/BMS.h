@@ -1,85 +1,62 @@
-/****************************************************************/
-/**					Team Formula Tesla UFMG - 2018				*/
-/** Microcontroller: STM32F103XXXX								*/
-/** Compiler: AC6 - STM worbench								*/
-/** Author: Henrique, Eric, Virginia							*/
-/** License: Free - Open Source									*/
-/** 															*/
-/****************************************************************/
+/*
+ * bms.h
+ *
+ *  Created on: 17 de mar de 2022
+ *      Author: Thiago
+ */
+
 #ifndef BMS_H
 #define BMS_H
 
-#include "LTC6804.h"
-#include "DHAB_s125.h"
-#include "eeprom.h"
-#include "can.h"
-#include "defines.h"
-
-uint8_t NextError[5];
+#include "ltc.h"
+#include "constants.h"
+#include "stdlib.h"
 
 typedef struct BMS_struct {
 
 	//GENERAL
-	uint16_t error;
-	uint8_t communication_mode;
 	uint8_t mode;
-	uint8_t discharging;
-	uint8_t opperating_packs;
-	uint8_t status;
+	uint16_t error;
 
-	LTC_sensor *sensor[N_OF_SLAVES];
+	LTC_sensor *sensor[NUMBER_OF_SLAVES];
 	LTC_config *config;
-	DHAB_sensor *dhabSensor[N_OF_DHAB];
+//	DHAB_sensor *dhabSensor[N_OF_DHAB];
 
-	uint16_t v_GLV;
-	uint16_t v_TS;
-	uint16_t v_min;  	//of the bank
-	uint16_t v_max; 	//of the bank
-	uint16_t v_delta;   //of the bank
-	uint16_t t_max;		//of the bank
+	uint16_t tractiveSystemVoltage;
+	uint16_t maxCellVoltage;
+	uint16_t minCellVoltage;
+	uint16_t deltaVoltage;
+	uint16_t maxCellTemperature;
+	uint16_t averageCellTemperature;
 
 	//CURRENT
-	float current[4];
-	float c_adc[4];
-
-	//CHARGE_PERCENTAGE
-	int32_t charge;
-	float charge_percent;
-	int32_t charge_max;
-	int32_t charge_min;
-	float charge_variation_percent;
-	float discharge_percent;
-	float discharge_variation_percent;
+	float current[ADC_BUFFER_SIZE];
+	float c_adc[ADC_BUFFER_SIZE];
 
 	//AIR
 	uint8_t AIR;
-
 }BMS_struct;
 
-void BMS_mode_selector(BMS_struct *BMS);
+typedef enum{
 
-void BMS_init(BMS_struct *BMS);
+	OVER_VOLTAGE 	 = 0,
+	UNDER_VOLTAGE  	 = 1,
+	OVER_TEMPERATURE = 2
 
-void BMS_convert(uint8_t BMS_CONVERT, BMS_struct *BMS);
+}BMS_RETRIES;
 
-void BMS_monitoring(BMS_struct *BMS);
+#define BMS_CONVERT_CELL 	1
+#define BMS_CONVERT_GPIO	2
+#define BMS_CONVERT_STAT	4
+#define BMS_CONVERT_CONFIG	8
 
-uint8_t BMS_AIR_status(BMS_struct *BMS);
-
-void BMS_charging(BMS_struct BMS);
-
-void BMS_discharging(BMS_struct BMS);
-
-int BMS_balance(BMS_struct *BMS);
-
-int BMS_communication(BMS_struct *BMS);
-
-void BMS_error(BMS_struct *BMS);
-
-void BMS_can(BMS_struct *BMS);
-
-void BMS_uart(BMS_struct *BMS);
-
-void BMS_initial_SOC(BMS_struct *BMS);
+void BMS_Init(BMS_struct *BMS);
+void BMS_SetSafetyLimits(BMS_struct* BMS);
+void BMS_Monitoring(BMS_struct *BMS);
+void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS);
+void BMS_Balance(BMS_struct *BMS);
+void BMS_AIR_status(BMS_struct *BMS);
+void BMS_ErrorTreatment(BMS_struct *BMS);
+uint16_t float2uint16(float f);
 
 #endif

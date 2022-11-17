@@ -8,7 +8,7 @@
 #ifndef NEXTION_FUNCTIONS_H_
 #define NEXTION_FUNCTIONS_H_
 
-#include "BMS.h"
+#include "bms.h"
 
 // NEXTION PAGES DEFINES
 #define N_PAGE0 0
@@ -22,8 +22,9 @@
 
 uint8_t actual_page;
 
+void display_init();
 void uart3MessageReceived(BMS_struct *BMS);
 uint8_t nexSetPageError(BMS_struct *BMS);
-void nexLoop(BMS_struct *BMS);
+void display_show(BMS_struct *BMS);
 
 #endif /* NEXTION_FUNCTIONS_H_ */

@@ -1,54 +1,24 @@
-/**
-  ******************************************************************************
-  * @file    can.h
-  * @brief   This file contains all the function prototypes for
-  *          the can.c file
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __CAN_H__
-#define __CAN_H__
+/*
+ * can.h
+ *
+ *  Created on: Mar 17, 2022
+ *      Author: Thiago
+ */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef CAN_H_
+#define CAN_H_
 
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "stdint.h"
 
-/* USER CODE BEGIN Includes */
+#define CAN_BUFFER_SIZE	4
 
-extern void Error_Handler();
+#define CAN_ID_PACKS_INITIAL	260
+#define CAN_ID_GENERAL1			51
+#define CAN_ID_GENERAL2 		52
 
-/* USER CODE END Includes */
+void CAN_Init();
+void CAN_AddToBuffer(uint16_t word1, uint16_t word2, uint16_t word3, uint16_t word4);
+void CAN_SendMessage(uint32_t id);
+void CAN_Transmit(uint16_t word0, uint16_t word1, uint16_t word2, uint16_t word3, uint32_t id);
 
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
-
-void MX_CAN_Init(void);
-
-/* USER CODE BEGIN Prototypes */
-
-void CAN_Transmit(uint8_t vet[8], uint32_t id);
-
-/* USER CODE END Prototypes */
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __CAN_H__ */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif /* CAN_H_ */

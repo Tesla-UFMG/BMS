@@ -1,27 +1,25 @@
-/****************************************************************/
-/**					Team Formula Tesla UFMG - 2019				*/
-/** Microcontroller: STM32F103XXXX								*/
-/** Compiler: AC6 - STM worbench								*/
-/** Author: Henrique, Rodolfo, Heuller, Wellington				*/
-/** License: Free - Open Source									*/
-/** 															*/
-/****************************************************************/
+/*
+ * ltc.h
+ *
+ *  Created on: 15 de mar de 2022
+ *      Author: Thiago
+ */
 
-#ifndef LTC_2_H
-#define LTC_2_H
+#ifndef LTC_H_
+#define LTC_H_
 
-#include <stdarg.h>
-#include "dwt_stm32_delay.h"
-#include "defines.h"
-#include "main.h"
-#include "math.h"
+#include "stdint.h"
+#include "stdarg.h"
 
+#define LTC_MAX_SUPPORTED_CELLS		12
+#define LTC_MAX_SUPPORTED_GPIOS		5
+#define LTC_PEC_SEED 				16
+#define LTC_PEC_TABLE_LENGTH		256
+#define	 SPI_BUFFER_LENGTH			4
 
 typedef struct LTC_command{
-
 	uint16_t NAME;
 	uint8_t BROADCAST;
-
 
 	//COMMAND SETTINGS
 	uint16_t MD;		// set the ADC mode
@@ -31,14 +29,11 @@ typedef struct LTC_command{
 	uint16_t CHST;		// set STAT channels to convert
 	uint16_t PUP;		// set if pull up or pull down is enabled in ADOW
 	uint16_t ST;		// set the self test mode
-
 }LTC_command;
 
 typedef struct LTC_config{
-
 	LTC_command *command;
-
-	uint8_t ORDER:1; 	// 1 bit - set printing order, 0 = normal, 1 = lowest to highest;
+	uint8_t ORDER:1; 	// 1 bit - set printing order -> 0 = normal, 1 = lowest to highest
 
 	//CONFIGURATION REGISTER
 	uint8_t GPIO:5; 	// 5 bits - set individual gpio modes
@@ -49,21 +44,19 @@ typedef struct LTC_config{
 	uint16_t VOV; 		// 12 bits - set the over  voltage limit
 	uint8_t DCTO:4; 	// 4 bits - set the duration of discharge
 	uint8_t ADC_READY;
-
 }LTC_config;
 
 
 typedef struct LTC_sensor{
-
 	uint8_t ADDR;
-	uint8_t V_ERROR[N_OF_CELLS];
-	uint8_t T_ERROR[N_OF_THERMISTORS];
+	uint8_t V_ERROR[LTC_MAX_SUPPORTED_CELLS];
+	uint8_t T_ERROR[LTC_MAX_SUPPORTED_GPIOS];
 
 	//CELL REGISTERS A to D
-	uint16_t CxV[N_OF_CELLS]; 	// 12 * 16 bits - get CELL voltages
+	uint16_t CxV[LTC_MAX_SUPPORTED_CELLS]; 	// 12 * 16 bits - get CELL voltages
 
 	//AUXILIARY REGISTERS A & B
-	uint16_t GxV[N_OF_THERMISTORS]; 	// 5 * 16 bits - get GPIO voltages
+	uint16_t GxV[LTC_MAX_SUPPORTED_GPIOS]; 	// 5 * 16 bits - get GPIO voltages
 	uint16_t REF;		// 16 bits - get the second reference voltage
 
 	//STATUS REGISTER A & B
@@ -76,54 +69,7 @@ typedef struct LTC_sensor{
 	uint16_t V_MAX;
 	uint16_t V_MIN;
 	uint16_t V_DELTA;
-	uint16_t CHARGE[N_OF_CELLS];
-	uint16_t TOTAL_CHARGE;
-
-
 }LTC_sensor;
-
-//typedef enum{
-//
-//	//GPIO set individual GPIO modes:
-//	//Write: 0 -> GPIOx Pin Pull-Down ON; 1 -> GPIOx Pin Pull-Down OFF
-//	//Read:  0 -> GPIOx Pin at Logic 0;   1 -> GPIOx Pin at Logic 1
-//	CONFIG_GPIO  = 0b00000001,
-//
-//	//REFON - set the reference configuration:
-//	//0 - Reference Shuts Down after Conversions
-//	//1 - Reference Remains Powered Up Until Watchdog Timeout
-//	CONFIG_REFON = 0b00000010,
-//
-//	//SWTRD:
-//	//0 -> SWTEN Pin at Logic 0
-//	//1 -> SWTEN Pin at Logic 1
-//	CONFIG_SWTRD = 0b00000100,
-//
-//	//ADCOP - set the ADC configuration:
-//	//0 -> Selects Modes 27kHz, 7kHz or 26Hz with MD[1:0] Bits in ADC Conversion Commands
-//	//1 -> Selects Modes 14kHz, 3kHz or 2kHz with MD[1:0] Bits in ADC Conversion Commands.
-//	CONFIG_ADCOP = 0b00001000,
-//
-//	//VUV - Undervoltage Comparison Voltage:
-//	//Comparison voltage = (VUV + 1) � 16 � 100�V
-//	CONFIG_VUV 	 = 0b00010000,
-//
-//	//VOV - Overvoltage Comparison Voltage:
-//	//Comparison voltage = (VOV + 1) � 16 � 100�V
-//	CONFIG_VOV 	 = 0b00100000,
-//
-//	//DCC - Discharge Cell x:
-//	//1 -> Turn ON  Shorting Switch for Cell x
-//	//0 -> Turn OFF Shorting Switch for Cell x
-//	CONFIG_DCC 	 = 0b01000000,
-//
-//	//DCTO -  Discharge TimeOut Value:
-//	// Value    :	0 |  1  |  2  |	 3  |  4  |  5  |  6  |  7  |  8  |  9  |  A  |  B  |  C  |  D  |  E  |  F  |
-//	// Time(Min):	0 | 0.5 |  1  |  2  |  3  |  4  |  5  |  10 |  15 |	 20 |  30 |	 40 |  60 |  75 |  90 |	120 |
-//	CONFIG_DCTO  = 0b10000000
-//
-//}LTC_CONFIGURATIONS;
-
 
 #define LTC_COMMAND_WRCFG 	0b00000000001	// Write Configuration Register Group
 #define LTC_COMMAND_RDCFG 	0b00000000010	// Read Configuration Register Group
@@ -152,51 +98,79 @@ typedef struct LTC_sensor{
 #define LTC_COMMAND_RDCOMM	0b11100100010	// Read COMM Register Group    ***** NOT IMPLEMENTED
 #define LTC_COMMAND_STCOMM	0b11100100011	// Start I2C/SPI Communication ***** NOT IMPLEMENTED
 
-//Temperature conversion parameters NTC B57164K0103
-#define B 	4300	// Beta parameter
-#define t0	298		// 25ºC in Kelvins
-#define r0	10000	// resistance at 25ºC
-
-typedef enum{
-
+typedef enum {
 	LTC_READ_CELL 	= 0b0001,
 	LTC_READ_GPIO  	= 0b0010,
 	LTC_READ_STATUS = 0b0100,
 	LTC_READ_CONFIG = 0b1000,
-
 }LTC_READ;
 
-typedef enum{
+typedef enum {
+	ALL_GPIOS_WRITE	= 0,
+	ALL_GPIOS_READ 	= 0x1F,
+}LTC_GPIO;
 
+typedef enum {
+	REFERENCE_REMAINS_UNTIL_WATCHDOG_TIMEOUT = 1,
+	REFERENCE_SHUTS_DOWN_AFTER_CONVERSIONS 	 = 0,
+}LTC_REFON;
+
+typedef enum {
+	SOFTWARE_TIMER_ENABLE_PIN_LOW  = 0,
+	SOFTWARE_TIMER_ENABLE_PIN_HIGH = 1,
+}LTC_SWTRD;
+
+typedef enum {
+	SELECT_ADC_MODES_FAST   = 0,
+	SELECT_ADC_MODES_NORMAL = 1,
+}LTC_ADCOPT;
+
+typedef enum {
+	DEFULT_VOLTAGE = 0x000,
+}LTC_COMPARISON_VOLTAGE;
+
+
+typedef enum {
+	DISCHARGE_DISABLE = 0x0,
+	DISCHARGE_30SEC   = 0x1,
+	DISCHARGE_1MIN    = 0x2,
+	DISCHARGE_2MIN    = 0x3,
+	DISCHARGE_3MIN    = 0x4,
+	DISCHARGE_4MIN    = 0x5,
+	DISCHARGE_5MIN    = 0x6,
+	DISCHARGE_10MIN   = 0x7,
+	DISCHARGE_15MIN   = 0x8,
+	DISCHARGE_20MIN   = 0x9,
+	DISCHARGE_30MIN   = 0xA,
+	DISCHARGE_40MIN   = 0xB,
+	DISCHARGE_60MIN   = 0xC,
+	DISCHARGE_75MIN   = 0xD,
+	DISCHARGE_90MIN   = 0xE,
+	DISCHARGE_120MIN  = 0xF,
+}LTC_DCTO;
+
+typedef enum {
 	MD_FAST 	= 0b0010000000,	//	27kHz or 14kHz
 	MD_NORMAL 	= 0b0100000000,	//	 7kHz or  3kHz
 	MD_FILTRED  = 0b0110000000,	//	 26Hz or  2kHz
-
 }LTC_MD;
 
-typedef enum{
-
+typedef enum {
 	DCP_PERMITED 	 = 0b00000010000,
 	DCP_NOT_PERMITED = 0b00000000000,
-
 }LTC_DCP;
 
-typedef enum{
-
+typedef enum {
 	PUP_PULL_UP 	= 0b00001000000,
 	PUP_PULL_DOWN 	= 0b00000000000,
-
 }LTC_PUP;
 
-typedef enum{
-
+typedef enum {
 	ST_01 	= 0b00000100000,
 	ST_02 	= 0b00001000000,
-
 }LTC_ST;
 
-typedef enum{
-
+typedef enum {
 	CH_ALL	= 0b00000000000,
 	CH_1_7 	= 0b00000000001,
 	CH_2_8  = 0b00000000010,
@@ -204,11 +178,9 @@ typedef enum{
 	CH_4_10 = 0b00000000100,
 	CH_5_11 = 0b00000000101,
 	CH_6_12	= 0b00000000110,
-
 }LTC_CH;
 
-typedef enum{
-
+typedef enum {
 	CHG_ALL		= 0b00000000000,
 	CHG_GPIO1	= 0b00000000001,
 	CHG_GPIO2	= 0b00000000010,
@@ -216,29 +188,21 @@ typedef enum{
 	CHG_GPIO4  	= 0b00000000100,
 	CHG_GPIO5 	= 0b00000000101,
 	CHG_2REF	= 0b00000000110,
-
 }LTC_CHG;
 
-typedef enum{
-
+typedef enum {
 	CHST_ALL 	= 0b00000000000,
 	CHST_SOC 	= 0b00000000001,
 	CHST_ITMP 	= 0b00000000010,
 	CHST_VA 	= 0b00000000011,
 	CHST_VD		= 0b00000000100,
-
 }LTC_CHST;
 
+void LTC_Init(LTC_config *config);
+void LTC_SendCommand(LTC_config *config, ...);
+void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor);
+void LTC_SetBalanceFlag(LTC_config *config, LTC_sensor *sensor);
+void LTC_ResetBalanceFlag(LTC_config *config, LTC_sensor *sensor);
+void LTC_Balance(LTC_config *config, LTC_sensor *sensor);
 
-void LTC_init(LTC_config *config);
-void LTC_balance_test(LTC_config *config, LTC_sensor *sensor);
-void LTC_sort(LTC_sensor *sensor, uint8_t left, uint8_t right);
-void LTC_send_command(LTC_config *config, ...);
-void LTC_read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor);
-void LTC_set_balance_flag(LTC_config *config, LTC_sensor *sensor);
-void LTC_reset_balance_flag(LTC_config *config, LTC_sensor *sensor);
-void LTC_balance(LTC_config *config, LTC_sensor *sensor);
-void LTC_open_wire(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor);
-
-
-#endif
+#endif /* LTC_H_ */
