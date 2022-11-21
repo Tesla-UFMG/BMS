@@ -5,7 +5,7 @@
  *      Author: Guilherme Amorim
  */
 
-#include <DMA_USART.h>
+#include <dma_usart.h>
 
 uint8_t uart_user_message[DMA_RX_BUFFER_SIZE];	/* Buffer received for user access */
 uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];	/* Local DMA buffer for circular DMA */
