@@ -5,26 +5,39 @@
  *      Author: Rodolfo Lessa
  */
 
-#ifndef NEXTION_FUNCTIONS_H_
-#define NEXTION_FUNCTIONS_H_
+#ifndef DISPLAY_H_
+#define DISPLAY_H_
 
 #include "bms.h"
 
 // NEXTION PAGES DEFINES
-#define N_PAGE0 0
-#define N_PAGE1 1
-#define N_PAGE2 2
-#define N_PAGE3 3
-#define N_PAGE4 4
-#define N_PAGE5 5
-#define N_PAGE6 6
-#define N_PAGE7 7
+typedef enum
+{
+	PAGE0 = 0,
+	PAGE1,
+	PAGE2,
+	PAGE3,
+	PAGE4
+} NextionPage_e;
+	
+typedef struct
+{
+	uint16_t actual;
+	uint16_t previous;
+} NextionData_t;
 
-uint8_t actual_page;
+typedef enum
+{
+	NO_ADVICE,
+	GLV,
+	BSE
+} NextionAdvice_e;
+
+// uint8_t actual_page;
 
 void display_init();
-void uart3MessageReceived(BMS_struct *BMS);
+// void uart3MessageReceived(BMS_struct *BMS);
 uint8_t nexSetPageError(BMS_struct *BMS);
 void display_show(BMS_struct *BMS);
 
-#endif /* NEXTION_FUNCTIONS_H_ */
+#endif /* DISPLAY_H_ */

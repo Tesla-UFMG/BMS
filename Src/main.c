@@ -26,6 +26,7 @@
 #include "bms.h"
 #include "constants.h"
 #include "display.h"
+#include "timer_handler.h"
 #include "dwt_delay.h"
 /* USER CODE END Includes */
 
@@ -152,16 +153,20 @@ int main(void)
 
   display_init();
   /* USER CODE END 2 */
-
+  static uint32_t canTimer;
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-	BMS_Monitoring(BMS);
-	BMS_ErrorTreatment(BMS);
-	BMS_Datalloger(BMS);
-	display_show(BMS);
+    BMS_Monitoring(BMS);
+    BMS_ErrorTreatment(BMS);
+    if (timer_wait_ms(canTimer, 100))
+    {
+      BMS_Datalloger(BMS);
+      timer_restart(&canTimer);
+    }
+    display_show(BMS);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
