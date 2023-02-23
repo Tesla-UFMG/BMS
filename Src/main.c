@@ -161,6 +161,7 @@ int main(void)
     /* USER CODE END WHILE */
     BMS_Monitoring(BMS);
     BMS_ErrorTreatment(BMS);
+
     if (timer_wait_ms(canTimer, 100))
     {
       BMS_Datalloger(BMS);
