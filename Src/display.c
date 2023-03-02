@@ -92,63 +92,63 @@ void display_show(BMS_struct *BMS)
 		}
 		else if(actual_page == PAGE2)
 		{
-            NexXfloatSetValue(0, BMS->sensor[1]->CxV[0]/(100));
-            NexXfloatSetValue(1, BMS->sensor[1]->CxV[1]/(100));
-            NexXfloatSetValue(2, BMS->sensor[1]->CxV[2]/(100));
-            NexXfloatSetValue(3, BMS->sensor[1]->CxV[3]/(100));
-            NexXfloatSetValue(4, BMS->sensor[1]->CxV[4]/(100));
-            NexXfloatSetValue(5, BMS->sensor[1]->CxV[5]/(100));
-            NexXfloatSetValue(6, BMS->sensor[1]->CxV[6]/(100));
-            NexXfloatSetValue(7, BMS->sensor[1]->CxV[7]/(100));
-            NexXfloatSetValue(8, BMS->sensor[1]->CxV[8]/(100));
-            NexXfloatSetValue(9, BMS->sensor[1]->CxV[9]/(100));
-            NexXfloatSetValue(10,BMS->sensor[1]->CxV[10]/(100));
-            NexXfloatSetValue(11,BMS->sensor[1]->CxV[11]/(100));
-            NexXfloatSetValue(12, BMS->sensor[1]->GxV[0]*10);
-            NexXfloatSetValue(13, BMS->sensor[1]->GxV[1]*10);
-            NexXfloatSetValue(14, BMS->sensor[1]->GxV[2]*10);
-            NexXfloatSetValue(15, BMS->sensor[1]->GxV[3]*10);
-            NexXfloatSetValue(16, BMS->sensor[1]->GxV[4]*10);
+		        NexXfloatSetValue(0, BMS->sensor[1]->CxV[0]/(100));
+		        NexXfloatSetValue(1, BMS->sensor[1]->CxV[1]/(100));
+		        NexXfloatSetValue(2, BMS->sensor[1]->CxV[2]/(100));
+		        NexXfloatSetValue(3, BMS->sensor[1]->CxV[3]/(100));
+		        NexXfloatSetValue(4, BMS->sensor[1]->CxV[4]/(100));
+		        NexXfloatSetValue(5, BMS->sensor[1]->CxV[5]/(100));
+		        NexXfloatSetValue(6, BMS->sensor[1]->CxV[6]/(100));
+		        NexXfloatSetValue(7, BMS->sensor[1]->CxV[7]/(100));
+		        NexXfloatSetValue(8, BMS->sensor[1]->CxV[8]/(100));
+		        NexXfloatSetValue(9, BMS->sensor[1]->CxV[9]/(100));
+		        NexXfloatSetValue(10,BMS->sensor[1]->CxV[10]/(100));
+		        NexXfloatSetValue(11,BMS->sensor[1]->CxV[11]/(100));
+		        NexXfloatSetValue(12, BMS->sensor[1]->GxV[0]*10);
+		        NexXfloatSetValue(13, BMS->sensor[1]->GxV[1]*10);
+		        NexXfloatSetValue(14, BMS->sensor[1]->GxV[2]*10);
+		        NexXfloatSetValue(15, BMS->sensor[1]->GxV[3]*10);
+		        NexXfloatSetValue(16, BMS->sensor[1]->GxV[4]*10);
 		}
 		else if(actual_page == PAGE3)
 		{
-            NexXfloatSetValue(0, BMS->sensor[2]->CxV[0]/(100));
-            NexXfloatSetValue(1, BMS->sensor[2]->CxV[1]/(100));
-            NexXfloatSetValue(2, BMS->sensor[2]->CxV[2]/(100));
-            NexXfloatSetValue(3, BMS->sensor[2]->CxV[3]/(100));
-            NexXfloatSetValue(4, BMS->sensor[2]->CxV[4]/(100));
-            NexXfloatSetValue(5, BMS->sensor[2]->CxV[5]/(100));
-            NexXfloatSetValue(6, BMS->sensor[2]->CxV[6]/(100));
-            NexXfloatSetValue(7, BMS->sensor[2]->CxV[7]/(100));
-            NexXfloatSetValue(8, BMS->sensor[2]->CxV[8]/(100));
-            NexXfloatSetValue(9, BMS->sensor[2]->CxV[9]/(100));
-            NexXfloatSetValue(10,BMS->sensor[2]->CxV[10]/(100));
-            NexXfloatSetValue(11,BMS->sensor[2]->CxV[11]/(100));
-            NexXfloatSetValue(12, BMS->sensor[2]->GxV[0]*10);
-            NexXfloatSetValue(13, BMS->sensor[2]->GxV[1]*10);
-            NexXfloatSetValue(14, BMS->sensor[2]->GxV[2]*10);
-            NexXfloatSetValue(15, BMS->sensor[2]->GxV[3]*10);
-            NexXfloatSetValue(16, BMS->sensor[2]->GxV[4]*10);
+            		NexXfloatSetValue(0, BMS->sensor[2]->CxV[0]/(100));
+            		NexXfloatSetValue(1, BMS->sensor[2]->CxV[1]/(100));
+			NexXfloatSetValue(2, BMS->sensor[2]->CxV[2]/(100));
+			NexXfloatSetValue(3, BMS->sensor[2]->CxV[3]/(100));
+			NexXfloatSetValue(4, BMS->sensor[2]->CxV[4]/(100));
+			NexXfloatSetValue(5, BMS->sensor[2]->CxV[5]/(100));
+			NexXfloatSetValue(6, BMS->sensor[2]->CxV[6]/(100));
+			NexXfloatSetValue(7, BMS->sensor[2]->CxV[7]/(100));
+			NexXfloatSetValue(8, BMS->sensor[2]->CxV[8]/(100));
+			NexXfloatSetValue(9, BMS->sensor[2]->CxV[9]/(100));
+			NexXfloatSetValue(10,BMS->sensor[2]->CxV[10]/(100));
+			NexXfloatSetValue(11,BMS->sensor[2]->CxV[11]/(100));
+			NexXfloatSetValue(12, BMS->sensor[2]->GxV[0]*10);
+			NexXfloatSetValue(13, BMS->sensor[2]->GxV[1]*10);
+			NexXfloatSetValue(14, BMS->sensor[2]->GxV[2]*10);
+			NexXfloatSetValue(15, BMS->sensor[2]->GxV[3]*10);
+			NexXfloatSetValue(16, BMS->sensor[2]->GxV[4]*10);
 		}
 		else if(actual_page == PAGE4)
 		{
-            NexXfloatSetValue(0, BMS->sensor[3]->CxV[0]/(100));
-            NexXfloatSetValue(1, BMS->sensor[3]->CxV[1]/(100));
-            NexXfloatSetValue(2, BMS->sensor[3]->CxV[2]/(100));
-            NexXfloatSetValue(3, BMS->sensor[3]->CxV[3]/(100));
-            NexXfloatSetValue(4, BMS->sensor[3]->CxV[4]/(100));
-            NexXfloatSetValue(5, BMS->sensor[3]->CxV[5]/(100));
-            NexXfloatSetValue(6, BMS->sensor[3]->CxV[6]/(100));
-            NexXfloatSetValue(7, BMS->sensor[3]->CxV[7]/(100));
-            NexXfloatSetValue(8, BMS->sensor[3]->CxV[8]/(100));
-            NexXfloatSetValue(9, BMS->sensor[3]->CxV[9]/(100));
-            NexXfloatSetValue(10,BMS->sensor[3]->CxV[10]/(100));
-            NexXfloatSetValue(11,BMS->sensor[3]->CxV[11]/(100));
-            NexXfloatSetValue(12, BMS->sensor[3]->GxV[0]*10);
-            NexXfloatSetValue(13, BMS->sensor[3]->GxV[1]*10);
-            NexXfloatSetValue(14, BMS->sensor[3]->GxV[2]*10);
-            NexXfloatSetValue(15, BMS->sensor[3]->GxV[3]*10);
-            NexXfloatSetValue(16, BMS->sensor[3]->GxV[4]*10);
+			NexXfloatSetValue(0, BMS->sensor[3]->CxV[0]/(100));
+			NexXfloatSetValue(1, BMS->sensor[3]->CxV[1]/(100));
+			NexXfloatSetValue(2, BMS->sensor[3]->CxV[2]/(100));
+			NexXfloatSetValue(3, BMS->sensor[3]->CxV[3]/(100));
+			NexXfloatSetValue(4, BMS->sensor[3]->CxV[4]/(100));
+			NexXfloatSetValue(5, BMS->sensor[3]->CxV[5]/(100));
+			NexXfloatSetValue(6, BMS->sensor[3]->CxV[6]/(100));
+			NexXfloatSetValue(7, BMS->sensor[3]->CxV[7]/(100));
+			NexXfloatSetValue(8, BMS->sensor[3]->CxV[8]/(100));
+			NexXfloatSetValue(9, BMS->sensor[3]->CxV[9]/(100));
+			NexXfloatSetValue(10,BMS->sensor[3]->CxV[10]/(100));
+			NexXfloatSetValue(11,BMS->sensor[3]->CxV[11]/(100));
+			NexXfloatSetValue(12, BMS->sensor[3]->GxV[0]*10);
+			NexXfloatSetValue(13, BMS->sensor[3]->GxV[1]*10);
+			NexXfloatSetValue(14, BMS->sensor[3]->GxV[2]*10);
+			NexXfloatSetValue(15, BMS->sensor[3]->GxV[3]*10);
+			NexXfloatSetValue(16, BMS->sensor[3]->GxV[4]*10);
 		}
 	}
 	timer_restart(&updateTimer);
