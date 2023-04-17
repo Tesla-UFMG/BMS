@@ -86,15 +86,29 @@ static void MX_USART3_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+
 float filter(float old, float new) {
 	return (FILTER_GAIN * old + new) / (FILTER_GAIN + 1);
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
+	uint32_t actual_time;
+	uint32_t past_time;
+	uint32_t delta_time;
+	past_time = HAL_GetTick();
+
 	for(uint8_t i = 0; i < ADC_BUFFER_SIZE; i++) {
 		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i+1]);
 		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i+1] * current_gain[i]) - current_zero[i]);
 	}
+
+	actual_time = HAL_GetTick();
+	delta_time = (actual_time - past_time)/3600000; //Converting A/ms to A/h
+
+	// Integer Calculation
+	BMS->integration = (BMS->current[1]+BMS->current[2]) * delta_time; //SENSOR_01 Definir quais canais usar
+	BMS->totalIntegration += BMS->integration;
 }
 /* USER CODE END 0 */
 
@@ -156,6 +170,7 @@ int main(void)
   static uint32_t canTimer;
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */

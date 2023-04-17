@@ -35,6 +35,12 @@ typedef struct BMS_struct {
 
 	//AIR
 	uint8_t AIR;
+
+	//SoC of accumulator
+	uint8_t socValue;
+	float remainingCharge;
+	float totalIntegration;
+	float integration;
 }BMS_struct;
 
 typedef enum{
@@ -49,6 +55,7 @@ typedef enum{
 #define BMS_CONVERT_GPIO	2
 #define BMS_CONVERT_STAT	4
 #define BMS_CONVERT_CONFIG	8
+#define ACCUMULATOR_TOTAL_CHARGE 40 //[A/h]
 
 void BMS_Init(BMS_struct *BMS);
 void BMS_SetSafetyLimits(BMS_struct* BMS);
@@ -57,6 +64,8 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS);
 void BMS_Balance(BMS_struct *BMS);
 void BMS_AIR_status(BMS_struct *BMS);
 void BMS_ErrorTreatment(BMS_struct *BMS);
+void BMS_SoC_Calculation(BMS_struct *BMS);
+void BMS_Initial_Charge(BMS_struct *BMS);
 uint16_t float2uint16(float f);
 
 #endif

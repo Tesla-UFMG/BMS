@@ -240,3 +240,15 @@ uint16_t float2uint16(float f) {
 	uint16_t offset = UINT16_MAX/2;
 	return (uint16_t) (gain*f + offset);
 }
+
+void BMS_SoC_Calculation(BMS_struct *BMS) {
+	BMS->remainingCharge -= BMS->totalIntegration/*Integrador da Malu*/;
+	BMS->socValue = (BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*10;
+	BMS->socValue *= 10; //Converting to percent
+}
+
+void BMS_Initial_Charge(BMS_struct *BMS) {
+	BMS->remainingCharge = (ACCUMULATOR_TOTAL_CHARGE - BMS->totalIntegration/*Integrador da Malu*/);
+	BMS->socValue = ((BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*10);
+	BMS->socValue *= 10; //Converting to percent
+}
