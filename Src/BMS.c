@@ -19,6 +19,9 @@ static int8_t retries[NUMBER_OF_ERRORS];
 static uint16_t safety_limits[NUMBER_OF_ERRORS];
 bool error_flag[NUMBER_OF_ERRORS];
 
+//FLASH MEMORY
+__attribute__((section(".flash_var_float"))) float remainingChargeFlash = 0.0f;
+__attribute__((section(".flash_var_int"))) uint32_t socValueFlash = 0;
 
 void BMS_Init(BMS_struct *BMS) {
 	BMS->config = (LTC_config*) calloc(1 ,sizeof(LTC_config));
@@ -251,4 +254,59 @@ void BMS_Initial_Charge(BMS_struct *BMS) {
 	BMS->remainingCharge = (ACCUMULATOR_TOTAL_CHARGE - BMS->totalIntegration/*Integrador da Malu*/);
 	BMS->socValue = ((BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*10);
 	BMS->socValue *= 10; //Converting to percent
+}
+
+void BMS_WriteF_Flash(uint32_t address, float value){
+	uint32_t data = *(uint32_t*)(&value);
+
+	HAL_FLASH_Unlock();
+    FLASH_EraseInitTypeDef eraseInitStruct;
+    uint32_t sectorError = 0;
+    eraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
+    eraseInitStruct.PageAddress = address;
+    eraseInitStruct.NbPages = 1;
+    HAL_StatusTypeDef halStatus = HAL_FLASHEx_Erase(&eraseInitStruct, &sectorError);
+
+    if (halStatus == HAL_OK) {
+        halStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, data);
+    }
+
+    HAL_FLASH_Lock();
+
+    if (halStatus != HAL_OK) {
+        // Tratar o erro de acordo com a sua necessidade
+    }
+}
+
+void BMS_WriteI_Flash(uint32_t address, int value){
+    uint32_t data = value;
+
+    HAL_FLASH_Unlock();
+    FLASH_EraseInitTypeDef eraseInitStruct;
+    uint32_t sectorError = 0;
+    eraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
+    eraseInitStruct.PageAddress = address;
+    eraseInitStruct.NbPages = 1;
+    HAL_StatusTypeDef halStatus = HAL_FLASHEx_Erase(&eraseInitStruct, &sectorError);
+
+    if (halStatus == HAL_OK) {
+        halStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, data);
+    }
+
+    HAL_FLASH_Lock();
+
+    if (halStatus != HAL_OK) {
+        // Tratar o erro de acordo com a sua necessidade
+    }
+}
+
+int BMS_ReadI_Flash(uint32_t address) {
+    int value = *(int*)address;
+    return value;
+}
+
+float BMS_ReadF_Flash(uint32_t address) {
+    uint32_t data = *(uint32_t*)address;
+    float value = *(float*)(&data);
+    return value;
 }

@@ -87,26 +87,19 @@ static void MX_USART3_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
 float filter(float old, float new) {
 	return (FILTER_GAIN * old + new) / (FILTER_GAIN + 1);
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
-	uint32_t actual_time;
-	uint32_t past_time;
-	uint32_t delta_time;
-	past_time = HAL_GetTick();
 
 	for(uint8_t i = 0; i < ADC_BUFFER_SIZE; i++) {
 		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i+1]);
 		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i+1] * current_gain[i]) - current_zero[i]);
 	}
 
-	actual_time = HAL_GetTick();
-	delta_time = (actual_time - past_time)/3600000; //Converting A/ms to A/h
-
 	// Integer Calculation
+	float delta_time = 0.001; // 1ms
 	BMS->integration = (BMS->current[1]+BMS->current[2]) * delta_time; //SENSOR_01 Definir quais canais usar
 	BMS->totalIntegration += BMS->integration;
 }
@@ -168,13 +161,15 @@ int main(void)
   display_init();
   /* USER CODE END 2 */
   static uint32_t canTimer;
+  static uint32_t SoCTimer;
+
+  BMS_Initial_Charge(BMS);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  while (1)
-  {
-    /* USER CODE END WHILE */
-    BMS_Monitoring(BMS);
+  while (1){
+
+	BMS_Monitoring(BMS);
     BMS_ErrorTreatment(BMS);
 
     if (timer_wait_ms(canTimer, 100))
@@ -182,9 +177,17 @@ int main(void)
       BMS_Datalloger(BMS);
       timer_restart(&canTimer);
     }
+
+    if (timer_wait_ms(SoCTimer, 1000))
+    {
+      BMS_SoC_Calculation(BMS);
+      timer_restart(&SoCTimer);
+    }
     display_show(BMS);
-    /* USER CODE BEGIN 3 */
   }
+  /* USER CODE END WHILE */
+
+  /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }
 
