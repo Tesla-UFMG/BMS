@@ -28,6 +28,7 @@
 #include "display.h"
 #include "timer_handler.h"
 #include "dwt_delay.h"
+#include "soc_save.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,6 +95,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 	for(uint8_t i = 0; i < ADC_BUFFER_SIZE; i++) {
 		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i+1]);
 		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i+1] * current_gain[i]) - current_zero[i]);
+		DWT_Delay_us(4000);
+
+		// Integer Calculation
+		float delta_time = 0.004; // 4ms
+		BMS->integration = (BMS->current[1]+BMS->current[2]) * delta_time; //SENSOR_01 Definir quais canais usar
+		BMS->totalIntegration += BMS->integration;
 	}
 }
 /* USER CODE END 0 */
@@ -154,8 +161,20 @@ int main(void)
   display_init();
   /* USER CODE END 2 */
   static uint32_t canTimer;
+  static uint32_t SoCTimer;
+
+  BMS_Initial_Charge(BMS);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  //TESTE
+  uint32_t soc_teste = 40;
+  uint32_t rmc_teste = 3520;
+  uint32_t read_soc = 0;
+  uint32_t read_rmc = 0;
+
+  soc_save(soc_teste,rmc_teste);
+  soc_read(&read_soc,&read_rmc);
   while (1)
   {
     /* USER CODE END WHILE */
@@ -166,6 +185,12 @@ int main(void)
     {
       BMS_Datalloger(BMS);
       timer_restart(&canTimer);
+    }
+
+    if (timer_wait_ms(SoCTimer, 1000))
+    {
+      BMS_SoC_Calculation(BMS);
+      timer_restart(&SoCTimer);
     }
     display_show(BMS);
     /* USER CODE BEGIN 3 */
