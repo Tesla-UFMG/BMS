@@ -103,6 +103,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 	BMS->integration = (BMS->current[1]+BMS->current[2]) * delta_time; //SENSOR_01 Definir quais canais usar
 	BMS->totalIntegration += BMS->integration;
 }
+static uint32_t soc_teste = 1000;
+  static uint32_t rmc_teste = 5000;
+  static uint32_t read_soc = 0;
+  static uint32_t read_rmc = 0;
+
 /* USER CODE END 0 */
 
 /**
@@ -168,13 +173,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   //TESTE
-  uint32_t soc_teste = 40;
-  uint32_t rmc_teste = 3520;
-  uint32_t read_soc = 0;
-  uint32_t read_rmc = 0;
+  soc_teste = 40;
+  rmc_teste = 3520;
+  read_soc = 0;
+  read_rmc = 0;
 
-  soc_save(soc_teste,rmc_teste);
-  soc_read(&read_soc,&read_rmc);
+  soc_save(soc_teste, rmc_teste);
+  soc_read(&read_soc, &read_rmc);
   while (1)
   {
     /* USER CODE END WHILE */

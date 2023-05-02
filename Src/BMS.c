@@ -20,6 +20,7 @@ static uint16_t safety_limits[NUMBER_OF_ERRORS];
 bool error_flag[NUMBER_OF_ERRORS];
 
 
+
 void BMS_Init(BMS_struct *BMS) {
 	BMS->config = (LTC_config*) calloc(1 ,sizeof(LTC_config));
 	BMS->config->command = (LTC_command*) calloc(1 ,sizeof(LTC_command));
@@ -227,7 +228,7 @@ void BMS_Datalloger(BMS_struct* BMS) {
 		CAN_Transmit(sensor->GxV[4], sensor->SOC, sensor->REF, sensor->DCC, can_id);
 		can_id++;
 	}
-	CAN_Transmit(BMS->maxCellTemperature, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, 50);
+	CAN_Transmit(BMS->maxCellVoltage, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, 50);
 	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, 51);
 	CAN_Transmit(16800, 50, 0, 0, 52);
 	CAN_Transmit(0, BMS->tractiveSystemVoltage/10, BMS->averageCellTemperature, BMS->maxCellTemperature, 53);

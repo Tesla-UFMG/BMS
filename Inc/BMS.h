@@ -41,6 +41,12 @@ typedef struct BMS_struct {
 	float remainingCharge;
 	float totalIntegration;
 	float integration;
+
+	  //TESTE
+	  uint32_t soc_teste;
+	  uint32_t rmc_teste;
+	  uint32_t read_soc;
+	  uint32_t read_rmc;
 }BMS_struct;
 
 typedef enum{
