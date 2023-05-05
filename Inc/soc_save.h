@@ -9,9 +9,9 @@
 #define SOC_SAVE_H_
 
 #include "stdint.h"
-#define SOC_DATA_FLASH_ADDRESS 0x08005C10
+#define SOC_DATA_FLASH_ADDRESS 0x08007FFF
 #define WORDS_READ_TWO 2
-#define FLASH_WORD_SIZE 8
+#define FLASH_WORD_SIZE 2
 
 enum {
 	SOC_VALUE,

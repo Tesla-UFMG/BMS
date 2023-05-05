@@ -131,7 +131,7 @@ void Flash_Read_Data (uint32_t StartPageAddress, uint32_t *RxBuf, uint16_t numbe
 		*RxBuf = *(__IO uint32_t *)StartPageAddress;
 		StartPageAddress += 4;
 		RxBuf++;
-		if (!(numberofwords--)) break;
+		if (!(--numberofwords)) break;
 	}
 }
 void Convert_To_Str (uint32_t *Data, char *Buf)
