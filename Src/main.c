@@ -177,8 +177,8 @@ int main(void)
 
   BMS->soc_teste = 10;
   BMS->rmc_teste = 14;
-  soc_save(soc_teste, rmc_teste);
-  soc_read(&read_soc, &read_rmc);
+  soc_save(BMS->soc_teste, BMS->rmc_teste);
+  soc_read(&BMS->read_soc, &BMS->read_rmc);
 
   while (1)
   {
