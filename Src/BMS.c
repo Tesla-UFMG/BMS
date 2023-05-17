@@ -253,3 +253,51 @@ void BMS_Initial_Charge(BMS_struct *BMS) {
 	BMS->socValue = ((BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*10);
 	BMS->socValue *= 10; //Converting to percent
 }
+
+void BMS_Truncated_SoC_Calculation(BMS_struct *BMS)
+{
+	if(BMS->socPrecisionValue >= 90)
+		{
+			BMS->SocTruncatedValue = 100;
+		}
+		else if(BMS->socPrecisionValue >= 80)
+		{
+			BMS->socTruncatedValue = 90;
+		}
+		else if(BMS->socPrecisionValue >= 70)
+		{
+			BMS->SocTruncatedValue = 80;
+		}
+		else if(BMS->socPrecisionValue >= 60)
+		{
+			BMS->SocTruncatedValue = 70;
+		}
+		else if(BMS->socPrecisionValue >= 50)
+		{
+			BMS->SocTruncatedValue = 60;
+		}
+		else if(BMS->socPrecisionValue >= 40)
+		{
+			BMS->SocTruncatedValue = 50;
+		}
+		else if(BMS->socPrecisionValue >= 30)
+		{
+			BMS->SocTruncatedValue = 40;
+		}
+		else if(BMS->socPrecisionValue >= 20)
+		{
+			BMS->SocTruncatedValue = 30;
+		}
+		else if(BMS->socPrecisionValue >= 10)
+		{
+			BMS->SocTruncatedValue = 20;
+		}
+		else if(BMS->socPrecisionValue > 0)
+		{
+			BMS->SocTruncatedValue = 10;
+		}
+		else if(BMS->socPrecisionValue = 0)
+		{
+			BMS->SocTruncatedValue = 0;
+		}
+}

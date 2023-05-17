@@ -37,10 +37,11 @@ typedef struct BMS_struct {
 	uint8_t AIR;
 
 	//SoC of accumulator
-	uint32_t socValue;
+	uint32_t socPrecisionValue;
 	float remainingCharge;
 	float totalIntegration;
 	float integration;
+	uint_16_t socTruncatedValue;
 
 	  //TESTE
 	  uint32_t soc_teste;
@@ -72,6 +73,7 @@ void BMS_AIR_status(BMS_struct *BMS);
 void BMS_ErrorTreatment(BMS_struct *BMS);
 void BMS_SoC_Calculation(BMS_struct *BMS);
 void BMS_Initial_Charge(BMS_struct *BMS);
+void BMS_Truncated_SoC_Calculation(BMS_struct *BMS);
 uint16_t float2uint16(float f);
 
 #endif

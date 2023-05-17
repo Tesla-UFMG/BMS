@@ -96,12 +96,16 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i+1]);
 		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i+1] * current_gain[i]) - current_zero[i]);
 	}
-	DWT_Delay_us(4000);
+	DWT_Delay_us(1);
 
 	// Integer Calculation
-	float delta_time = 0.004; // 4ms
+	float delta_time = 0.000001; // 4ms
 	BMS->integration = (BMS->current[1]+BMS->current[2]) * delta_time; //SENSOR_01 Definir quais canais usar
 	BMS->totalIntegration += BMS->integration;
+
+	BMS_Initial_Charge(BMS);
+	BMS_SoC_Calculation(BMS);
+	BMS_Truncated_SoC_Calculation(BMS);
 }
 //static uint32_t soc_teste = 1000;
 //  static uint32_t rmc_teste = 5000;

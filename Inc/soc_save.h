@@ -9,7 +9,7 @@
 #define SOC_SAVE_H_
 
 #include "stdint.h"
-#define SOC_DATA_FLASH_ADDRESS 0x08007FFF
+#define SOC_DATA_FLASH_ADDRESS 0x0800fc00
 #define WORDS_READ_TWO 2
 #define FLASH_WORD_SIZE 2
 
