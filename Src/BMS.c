@@ -128,7 +128,7 @@ void BMS_ElectricalManagement(BMS_struct *BMS) {
 }
 
 void BMS_ThermalManagement(BMS_struct *BMS) {
-	LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADCV);
+	LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADAX);
 	uint16_t aux_maxCellTemperature = 0;
 	int sumCellTemperature = 0;
 	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {

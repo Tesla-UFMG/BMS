@@ -283,6 +283,9 @@ void LTC_SendBroadcastCommand(LTC_config *config, uint16_t command_name) {
 void LTC_SendAddressedCommand(LTC_config *config, LTC_sensor *sensor, uint16_t command_name) {
 	uint16_t tx_data[4] = {0, 0, 0, 0};
 	uint16_t rx_data[4] = {0, 0, 0, 0};
+	volatile uint16_t pitstop = 0;
+	volatile uint16_t verify;
+	volatile uint16_t verify2;
 
 	config->command->NAME = command_name;
 	LTC_ConfigCommandName(sensor, config);
@@ -291,7 +294,23 @@ void LTC_SendAddressedCommand(LTC_config *config, LTC_sensor *sensor, uint16_t c
 		LTC_WriteConfigRegister(sensor, config, tx_data);
 
 	LTC_Communication(config, tx_data, rx_data);
+
+	volatile uint16_t regTest = rx_data[3]; //optimized, ok
+	verify = LTC_PEC(rx_data,3);
+	verify2 = LTC_PEC2(rx_data,3);
+
+	if( rx_data[3] == LTC_PEC2(rx_data,3)){ //LTC_PEC(rx_data,3)){
+
+			pitstop = 1;
+			//LTC_ReceiveMessage(sensor, config, rx_data);
+		}
+
+	if ( (pitstop = 1) ) {
+
 	LTC_ReceiveMessage(sensor, config, rx_data);
+
+	}
+
 }
 
 void LTC_ConvertTemp(LTC_sensor* sensor) {
