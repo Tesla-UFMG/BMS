@@ -18,6 +18,8 @@ uint8_t TxData[8];
 uint8_t RxData[8];
 uint32_t TxMailbox;
 
+CanIdData_t can_vector[CAN_IDS_NUMBER];
+
 void CAN_CofigFilter() {
 	sFilterConfig.FilterBank = 0;
 	sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
@@ -75,4 +77,12 @@ void CAN_Transmit(uint16_t word0, uint16_t word1, uint16_t word2, uint16_t word3
 	CAN_SendMessage(id);
 }
 
-
+void canMessageReceived(uint16_t id, uint8_t* data)
+{
+	if(id > CAN_IDS_NUMBER - 1)	return;
+  uint16_t* data_word = (uint16_t*)data;
+  can_vector[id].word_0 = data_word[0];
+  can_vector[id].word_1 = data_word[1];
+  can_vector[id].word_2 = data_word[2];
+  can_vector[id].word_3 = data_word[3];
+}

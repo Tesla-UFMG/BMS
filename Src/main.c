@@ -18,7 +18,6 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <dma_usart.h>
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -66,6 +65,14 @@ static const float current_gain[ADC_BUFFER_SIZE] = {0.01448599958, 0.113385857,0
 static int32_t adc_buffer[ADC_BUFFER_SIZE];
 
 BMS_struct* BMS;
+
+extern CAN_FilterTypeDef sFilterConfig;
+extern CAN_TxHeaderTypeDef TxHeader;
+extern CAN_RxHeaderTypeDef RxHeader;
+extern uint8_t TxData[8];
+extern uint8_t RxData[8];
+extern uint32_t TxMailbox;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -153,21 +160,13 @@ int main(void)
 
   display_init();
   /* USER CODE END 2 */
-  static uint32_t canTimer;
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-    BMS_Monitoring(BMS);
-    BMS_ErrorTreatment(BMS);
 
-    if (timer_wait_ms(canTimer, 100))
-    {
-      BMS_Datalloger(BMS);
-      timer_restart(&canTimer);
-    }
-    display_show(BMS);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -335,7 +334,36 @@ static void MX_CAN_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN_Init 2 */
+    sFilterConfig.FilterBank = 0;
+  	sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
+  	sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
+  	sFilterConfig.FilterIdHigh = 0x0000;
+  	sFilterConfig.FilterIdLow = 0x0000;
+  	sFilterConfig.FilterMaskIdHigh = 0x0000;
+  	sFilterConfig.FilterMaskIdLow = 0x0000;
+  	sFilterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+  	sFilterConfig.FilterActivation = ENABLE;
+  	sFilterConfig.SlaveStartFilterBank = 14;
+  	if (HAL_CAN_ConfigFilter(&hcan, &sFilterConfig) != HAL_OK) {
+  		/* Filter configuration Error */
+  		Error_Handler();
+  	}
 
+  	/*if (HAL_CAN_Start(&hcan) != HAL_OK) {
+  		/* Start Error */
+  	/*	Error_Handler();
+  	}*/
+  	if (HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING)
+  			!= HAL_OK) {
+  		/* Notification Error */
+  		Error_Handler();
+  	}
+
+  	TxHeader.ExtId = 0x01;
+  	TxHeader.RTR = CAN_RTR_DATA;
+  	TxHeader.IDE = CAN_ID_STD;
+  	TxHeader.DLC = 8;
+  	TxHeader.TransmitGlobalTime = DISABLE;
   /* USER CODE END CAN_Init 2 */
 
 }
@@ -517,7 +545,7 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 1 */
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 9600;
+  huart3.Init.BaudRate = 115200;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;

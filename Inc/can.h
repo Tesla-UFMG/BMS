@@ -10,7 +10,15 @@
 
 #include "stdint.h"
 
+typedef struct{
+  uint16_t word_0;
+  uint16_t word_1;
+  uint16_t word_2;
+  uint16_t word_3;
+}CanIdData_t;
+
 #define CAN_BUFFER_SIZE	4
+#define CAN_IDS_NUMBER 360
 
 #define CAN_ID_PACKS_INITIAL	260
 #define CAN_ID_GENERAL1			51
