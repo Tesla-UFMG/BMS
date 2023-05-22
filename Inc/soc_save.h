@@ -10,15 +10,16 @@
 
 #include "stdint.h"
 #define SOC_DATA_FLASH_ADDRESS 0x0800fc00
-#define WORDS_READ_TWO 2
-#define FLASH_WORD_SIZE 2
+#define WORDS_READ 3
+#define FLASH_WORD_SIZE 3
 
 enum {
 	SOC_VALUE,
-	REMAINING_CHARGE
+	REMAINING_CHARGE,
+	NUMBER_OF_SAVES
 };
 
 void soc_save(uint32_t soc_value, uint32_t remaining_charge);
-void soc_read(uint32_t *read_soc_value, uint32_t *read_remaining_charge);
+void soc_read(uint32_t *read_soc_value, uint32_t *read_remaining_charge, uint32_t *read_number_of_saves);
 
 #endif /* SOC_SAVE_H_ */

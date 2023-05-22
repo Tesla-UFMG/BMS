@@ -99,20 +99,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 	DWT_Delay_us(1);
 
 	// Integer Calculation
-	float delta_time = 0.000001; // 4ms
+	float delta_time = 0.000001; // 1us
 	BMS->integration = (BMS->current[1]+BMS->current[2]) * delta_time; //SENSOR_01 Definir quais canais usar
 	BMS->totalIntegration += BMS->integration;
 
-	BMS_Initial_Charge(BMS);
 	BMS_SoC_Calculation(BMS);
-	BMS_Truncated_SoC_Calculation(BMS);
 }
-//static uint32_t soc_teste = 1000;
-//  static uint32_t rmc_teste = 5000;
-//  static uint32_t read_soc = 0;
-//  static uint32_t read_rmc = 0;
-  static uint32_t* ptr_teste = 0x08007FFF;
-  static uint32_t ptr_content = &ptr_teste;
 
 /* USER CODE END 0 */
 
@@ -178,12 +170,6 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-
-  BMS->soc_teste = 10;
-  BMS->rmc_teste = 14;
-  soc_save(BMS->soc_teste, BMS->rmc_teste);
-  soc_read(&BMS->read_soc, &BMS->read_rmc);
-
   while (1)
   {
     /* USER CODE END WHILE */
@@ -196,10 +182,15 @@ int main(void)
       timer_restart(&canTimer);
     }
 
-    if (timer_wait_ms(SoCTimer, 1000))
+    if (timer_wait_ms(SoCTimer, 60000))
     {
-      BMS_SoC_Calculation(BMS);
-      timer_restart(&SoCTimer);
+      if(!BMS->AIR){
+    	  timer_restart(&SoCTimer);
+      	  soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
+    	  if(BMS->socPrecisionValue != (BMS->read_soc/1000)){
+    		  soc_save(BMS->socPrecisionValue*1000, BMS->remainingCharge*1000/*, BMS->number_of_saves++*/);
+    	  }
+      }
     }
     display_show(BMS);
     /* USER CODE BEGIN 3 */
