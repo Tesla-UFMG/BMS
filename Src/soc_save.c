@@ -7,12 +7,17 @@
 
 #include "soc_save.h"
 #include "FLASH_PAGE_F1.h"
+#include "BMS.h"
 
 
-void soc_save(uint32_t soc_value, uint32_t remaining_charge){
+void soc_save(uint32_t soc_value, uint32_t remaining_charge, BMS_struct *BMS){
 	uint32_t soc_data[FLASH_WORD_SIZE] = {0, 0, 0};
 	static uint32_t number_of_saves;
-	number_of_saves++;
+
+	soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
+	//number_of_saves = (BMS->read_nos)=0; //Run the code for the first time
+	number_of_saves = (BMS->read_nos)++; //Run the code like this after
+
 	soc_data[SOC_VALUE] = soc_value;
 	soc_data[REMAINING_CHARGE] = remaining_charge;
 	soc_data[NUMBER_OF_SAVES] = number_of_saves;

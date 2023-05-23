@@ -104,6 +104,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 	BMS->totalIntegration += BMS->integration;
 
 	BMS_SoC_Calculation(BMS);
+
 }
 
 /* USER CODE END 0 */
@@ -169,7 +170,6 @@ int main(void)
   BMS_Initial_Charge(BMS);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
   while (1)
   {
     /* USER CODE END WHILE */
@@ -186,9 +186,8 @@ int main(void)
     {
       if(!BMS->AIR){
     	  timer_restart(&SoCTimer);
-      	  soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
     	  if(BMS->socPrecisionValue != (BMS->read_soc/1000)){
-    		  soc_save(BMS->socPrecisionValue*1000, BMS->remainingCharge*1000/*, BMS->number_of_saves++*/);
+    		  soc_save(BMS->socPrecisionValue*1000, BMS->remainingCharge*1000, BMS);
     	  }
       }
     }

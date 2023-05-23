@@ -44,7 +44,6 @@ typedef struct BMS_struct {
 	uint16_t socTruncatedValue;
 
 	//FLASH
-	uint32_t number_of_saves;
 	uint32_t read_soc;
 	uint32_t read_rmc;
 	uint32_t read_nos;
