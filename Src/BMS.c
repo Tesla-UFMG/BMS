@@ -243,19 +243,19 @@ uint16_t float2uint16(float f) {
 }
 
 void BMS_SoC_Calculation(BMS_struct *BMS) {
-	BMS->remainingCharge -= BMS->totalIntegration/*Integrador da Malu*/;
-	BMS->socPrecisionValue = (BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*100;
-	BMS->socTruncatedValue = (BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*10;
+	BMS->actualCharge = BMS->remainingCharge - BMS->totalIntegration;
+	BMS->socPrecisionValue = (BMS->actualCharge/ACCUMULATOR_TOTAL_CHARGE)*100;
+	BMS->socTruncatedValue = (BMS->actualCharge/ACCUMULATOR_TOTAL_CHARGE)*10;
 	BMS->socTruncatedValue *= 10; //Converting to percent
 }
 
 void BMS_Initial_Charge(BMS_struct *BMS) {
 	soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
-	if((BMS->read_rmc)/1000 < ACCUMULATOR_TOTAL_CHARGE){
+	if((BMS->read_rmc)/1000 < ACCUMULATOR_TOTAL_CHARGE && (BMS->read_rmc/1000) != 0){
 		BMS->remainingCharge = BMS->read_rmc/1000;
 	}
 	else{
-		BMS->remainingCharge = (ACCUMULATOR_TOTAL_CHARGE - BMS->totalIntegration/*Integrador da Malu*/);
+		BMS->remainingCharge = ACCUMULATOR_TOTAL_CHARGE;
 		BMS->socTruncatedValue = ((BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*10);
 		BMS->socTruncatedValue *= 10; //Converting to percent
 	}

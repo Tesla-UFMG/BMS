@@ -99,8 +99,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 	DWT_Delay_us(1);
 
 	// Integer Calculation
-	float delta_time = 0.000001; // 1us
-	BMS->integration = (BMS->current[0]+BMS->current[1]) * delta_time;
+	float delta_time = 0.000000001; // 1ns
+	BMS->integration = (BMS->current[0] + BMS->current[2]) * delta_time;
 	BMS->totalIntegration += BMS->integration;
 
 	BMS_SoC_Calculation(BMS);
@@ -184,10 +184,10 @@ int main(void)
 
     if (timer_wait_ms(SoCTimer, 60000))
     {
-      if(!BMS->AIR){
+      if(BMS->AIR){
     	  timer_restart(&SoCTimer);
     	  if(BMS->socPrecisionValue <= ((BMS->read_soc/1000)-1)){ //1% security variance
-    		  soc_save(BMS->socPrecisionValue*1000, BMS->remainingCharge*1000, BMS);
+    		  soc_save(BMS->socPrecisionValue*1000, BMS->actualCharge*1000, BMS);
     	  }
       }
     }

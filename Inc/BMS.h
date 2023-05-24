@@ -39,6 +39,7 @@ typedef struct BMS_struct {
 	//SoC of accumulator
 	uint32_t socPrecisionValue;
 	float remainingCharge;
+	float actualCharge;
 	float totalIntegration;
 	float integration;
 	uint16_t socTruncatedValue;
