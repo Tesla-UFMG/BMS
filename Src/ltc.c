@@ -116,6 +116,7 @@ void LTC_TransmitCommand(uint16_t command) {
 }
 
 void LTC_TransmitReceive(uint16_t command, uint16_t* tx_data, uint16_t* rx_data) {
+
 	if((command & 0x07FF) == LTC_COMMAND_WRCFG) {
 		uint16_t pec = LTC_PEC(tx_data, 3);
 		tx_data[3] = pec;
@@ -125,6 +126,14 @@ void LTC_TransmitReceive(uint16_t command, uint16_t* tx_data, uint16_t* rx_data)
 			rx_data[i] = LTC_SPI(tx_data[i]);
 		}
 	}
+	while(rx_data[3] != LTC_PEC2(rx_data, 3)){
+		break;
+	}
+
+//	while(1){
+//		if(rx_data[3] == LTC_PEC2(rx_data, 3))	break;
+//	}
+
 }
 
 uint16_t LTC_MakeCommand(LTC_command *command) {
@@ -286,6 +295,7 @@ void LTC_SendAddressedCommand(LTC_config *config, LTC_sensor *sensor, uint16_t c
 	volatile uint16_t pitstop = 0;
 	volatile uint16_t verify;
 	volatile uint16_t verify2;
+	//volatile uint16_t help = 5;
 
 	config->command->NAME = command_name;
 	LTC_ConfigCommandName(sensor, config);
@@ -299,17 +309,20 @@ void LTC_SendAddressedCommand(LTC_config *config, LTC_sensor *sensor, uint16_t c
 	verify = LTC_PEC(rx_data,3);
 	verify2 = LTC_PEC2(rx_data,3);
 
-	if( rx_data[3] == LTC_PEC2(rx_data,3)){ //LTC_PEC(rx_data,3)){
+	//if( rx_data[3] == LTC_PEC2(rx_data,3)){
+		if(regTest == verify2){		//LTC_PEC(rx_data,3)){
 
 			pitstop = 1;
 			//LTC_ReceiveMessage(sensor, config, rx_data);
+
 		}
-
-	if ( (pitstop = 1) ) {
-
+//
+//	if ( pitstop == 1 ) {
+//		help = 1;
+//	}
 	LTC_ReceiveMessage(sensor, config, rx_data);
 
-	}
+	//}
 
 }
 

@@ -204,5 +204,6 @@ void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor);
 void LTC_SetBalanceFlag(LTC_config *config, LTC_sensor *sensor);
 void LTC_ResetBalanceFlag(LTC_config *config, LTC_sensor *sensor);
 void LTC_Balance(LTC_config *config, LTC_sensor *sensor);
+//void LTC_SendBroadcastCommand(LTC_config *config, uint16_t command_name);
 
 #endif /* LTC_H_ */
