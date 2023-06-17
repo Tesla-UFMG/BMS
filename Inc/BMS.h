@@ -20,6 +20,8 @@ typedef struct BMS_struct {
 
 	LTC_sensor *sensor[NUMBER_OF_SLAVES];
 	LTC_config *config;
+
+	uint16_t sumOfErros;
 //	DHAB_sensor *dhabSensor[N_OF_DHAB];
 
 	uint16_t tractiveSystemVoltage;

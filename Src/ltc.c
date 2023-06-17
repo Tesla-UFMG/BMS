@@ -184,28 +184,41 @@ void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data
 		break;
 
 	case LTC_COMMAND_RDCVA:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[0] = rx_data[0];
 		sensor->CxV[1] = rx_data[1];
 		sensor->CxV[2] = rx_data[2];
 		break;
+		}
+		else sensor->erroSum += 1;
+		//break;
 
 	case LTC_COMMAND_RDCVB:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[3] = rx_data[0];
 		sensor->CxV[4] = rx_data[1];
 		sensor->CxV[5] = rx_data[2];
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDCVC:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[6] = rx_data[0];
 		sensor->CxV[7] = rx_data[1];
 		sensor->CxV[8] = rx_data[2];
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDCVD:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[9]  = rx_data[0];
 		sensor->CxV[10] = rx_data[1];
 		sensor->CxV[11] = rx_data[2];
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDAUXA:
 		sensor->GxV[0] = rx_data[0];
@@ -290,12 +303,9 @@ void LTC_SendBroadcastCommand(LTC_config *config, uint16_t command_name) {
 }
 
 void LTC_SendAddressedCommand(LTC_config *config, LTC_sensor *sensor, uint16_t command_name) {
-	uint16_t rx_data[4];
 	uint16_t tx_data[4] = {0, 0, 0, 0};
-	rx_data[0]=0;
-	rx_data[1]=0;
-	rx_data[2]=0;
-	rx_data[3]=0;
+	uint16_t rx_data[4] = {0, 0, 0, 0};
+
 	volatile uint16_t pitstop = 0;
 	volatile uint16_t verify;
 	volatile uint16_t verify2;
@@ -309,18 +319,20 @@ void LTC_SendAddressedCommand(LTC_config *config, LTC_sensor *sensor, uint16_t c
 
 	LTC_Communication(config, tx_data, rx_data);
 
-	volatile uint16_t regTest = rx_data[3]; //optimized, ok
+
 	verify = LTC_PEC(rx_data,3);
 	verify2 = LTC_PEC2(rx_data,3);
+	volatile uint16_t regTest = rx_data[3]; //optimized, ok
 
 	//if( rx_data[3] == LTC_PEC2(rx_data,3)){
 		if(regTest == verify2){		//LTC_PEC(rx_data,3)){
 
 			pitstop = 1;
-			LTC_ReceiveMessage(sensor, config, rx_data);
 			//LTC_ReceiveMessage(sensor, config, rx_data);
 
 		}
+
+	LTC_ReceiveMessage(sensor, config, rx_data);
 //
 //	if ( pitstop == 1 ) {
 //		help = 1;
