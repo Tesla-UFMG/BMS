@@ -14,9 +14,12 @@
 #include "led.h"
 #include "shutdown_circuit.h"
 #include "stdbool.h"
+#include "timer_handler.h"
+#include "indirect_temperature.h"
 
 static int8_t retries[NUMBER_OF_ERRORS];
 static uint16_t safety_limits[NUMBER_OF_ERRORS];
+static uint32_t tempTimer;
 bool error_flag[NUMBER_OF_ERRORS];
 
 
@@ -45,6 +48,23 @@ void BMS_Init(BMS_struct *BMS) {
 		charger_disable();
 
 	LTC_Init(BMS->config);
+
+	//setting initial values for temperatures. It's needed due to how the calculation works
+	for(int i = 0; i < NUMBER_OF_SLAVES; i++)
+	{
+		BMS->sensor[i]->GxV[0] = 30;
+		BMS->sensor[i]->GxV[1] = 30;
+		BMS->sensor[i]->GxV[2] = 30;
+		BMS->sensor[i]->GxV[3] = 30;
+		BMS->sensor[i]->GxV[4] = 30;
+		BMS->sensor[i]->GxV[5] = 30;
+		BMS->sensor[i]->GxV[6] = 30;
+		BMS->sensor[i]->GxV[7] = 30;
+		BMS->sensor[i]->GxV[8] = 30;
+		BMS->sensor[i]->GxV[9] = 30;
+		BMS->sensor[i]->GxV[10] = 30;
+		BMS->sensor[i]->GxV[11] = 30;
+	}
 }
 
 void BMS_SetSafetyLimits(BMS_struct* BMS) {
@@ -134,6 +154,10 @@ void BMS_ThermalManagement(BMS_struct *BMS) {
 	int sumCellTemperature = 0;
 	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
 		LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
+		if(timer_wait_ms(tempTimer, 5000))
+		{
+			calculate_temperatures(BMS);
+		}
 		for(uint8_t j = 0; j < NUMBER_OF_THERMISTORS; j++){
 			if(BMS->sensor[i]->GxV[j] > aux_maxCellTemperature)
 				aux_maxCellTemperature = BMS->sensor[i]->GxV[j];

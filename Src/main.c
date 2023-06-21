@@ -29,6 +29,7 @@
 #include "timer_handler.h"
 #include "dwt_delay.h"
 #include "soc_save.h"
+#include "can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,8 +63,8 @@ DMA_HandleTypeDef hdma_usart3_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-static const float current_zero[ADC_BUFFER_SIZE] = {30.42034498,239.1549633 ,26.41619284, 29.51695};
-static const float current_gain[ADC_BUFFER_SIZE] = {0.01448599958, 0.113385857,0.01318529399, 0.01389};
+static const float current_zero[ADC_BUFFER_SIZE] = {30.42034498, 237.15496333, 26.41619284, 237.1549633};
+static const float current_gain[ADC_BUFFER_SIZE] = {0.01448599958, 0.113385857, 0.01318529399, 0.113385857};
 static int32_t adc_buffer[ADC_BUFFER_SIZE];
 
 BMS_struct* BMS;
@@ -93,13 +94,13 @@ float filter(float old, float new) {
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 	for(uint8_t i = 0; i < ADC_BUFFER_SIZE; i++) {
-		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i+1]);
-		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i+1] * current_gain[i]) - current_zero[i]);
+		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i]);
+		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i] * current_gain[i]) - current_zero[i]);
 	}
 	DWT_Delay_us(1);
 
 	// Integer Calculation
-	float delta_time = 0.000000001; // 1ns
+	float delta_time = 0.000001; // 1ns
 	BMS->integration = (BMS->current[0] + BMS->current[2]) * delta_time;
 	BMS->totalIntegration += BMS->integration;
 

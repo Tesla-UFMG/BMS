@@ -200,13 +200,13 @@ void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data
 
 	case LTC_COMMAND_RDAUXA:
 		sensor->GxV[0] = rx_data[0];
-		sensor->GxV[1] = rx_data[1];
-		sensor->GxV[2] = rx_data[2];
+		sensor->GxV[3] = rx_data[1];
+		sensor->GxV[6] = rx_data[2];
 		break;
 
 	case LTC_COMMAND_RDAUXB:
-		sensor->GxV[3] = rx_data[0];
-		sensor->GxV[4] = rx_data[1];
+		sensor->GxV[9] = rx_data[0];
+		sensor->GxV[11] = rx_data[1];
 		sensor->REF    = rx_data[2];
 		break;
 

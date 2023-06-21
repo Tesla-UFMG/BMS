@@ -56,7 +56,7 @@ typedef struct LTC_sensor{
 	uint16_t CxV[LTC_MAX_SUPPORTED_CELLS]; 	// 12 * 16 bits - get CELL voltages
 
 	//AUXILIARY REGISTERS A & B
-	uint16_t GxV[LTC_MAX_SUPPORTED_GPIOS]; 	// 5 * 16 bits - get GPIO voltages
+	uint16_t GxV[LTC_MAX_SUPPORTED_CELLS]; 	// 12 * 16 bits - get GPIO voltages + indirect measurements
 	uint16_t REF;		// 16 bits - get the second reference voltage
 
 	//STATUS REGISTER A & B
