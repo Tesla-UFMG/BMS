@@ -63,8 +63,10 @@ DMA_HandleTypeDef hdma_usart3_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-static const float current_zero[ADC_BUFFER_SIZE] = {30.42034498, 237.15496333, 26.41619284, 237.1549633};
-static const float current_gain[ADC_BUFFER_SIZE] = {0.01448599958, 0.113385857, 0.01318529399, 0.113385857};
+//static const float current_zero[ADC_BUFFER_SIZE] = {30.42034498, 237.15496333, 26.41619284, 237.1549633};
+//static const float current_gain[ADC_BUFFER_SIZE] = {0.01448599958, 0.113385857, 0.01318529399, 0.113385857}; //corretos pro acumulador
+static const float current_zero[ADC_BUFFER_SIZE] = {237.15496333, 30.42034498, 26.41619284, 237.1549633};
+static const float current_gain[ADC_BUFFER_SIZE] = {0.113385857, 0.01448599958, 0.01318529399, 0.113385857};
 static int32_t adc_buffer[ADC_BUFFER_SIZE];
 
 BMS_struct* BMS;
@@ -97,11 +99,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 		BMS->c_adc[i] = filter((float)BMS->c_adc[i], (float)adc_buffer[i]);
 		BMS->current[i] = filter(BMS->current[i], ((float)adc_buffer[i] * current_gain[i]) - current_zero[i]);
 	}
-	DWT_Delay_us(1);
+	//DWT_Delay_us(1);
 
 	// Integer Calculation
-	float delta_time = 0.000001; // 1ns
-	BMS->integration = (BMS->current[0] + BMS->current[2]) * delta_time;
+	float delta_time = 0.0000048; // 1us*100
+	//BMS->integration = (BMS->current[1] + BMS->current[3]) * delta_time;
+	BMS->integration = (BMS->current[0]) * delta_time;
 	BMS->totalIntegration += BMS->integration;
 
 	BMS_SoC_Calculation(BMS);

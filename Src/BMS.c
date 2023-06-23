@@ -274,13 +274,13 @@ void BMS_SoC_Calculation(BMS_struct *BMS) {
 }
 
 void BMS_Initial_Charge(BMS_struct *BMS) {
-	soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
-	if((BMS->read_rmc)/1000 < ACCUMULATOR_TOTAL_CHARGE && (BMS->read_rmc/1000) != 0){
-		BMS->remainingCharge = BMS->read_rmc/1000;
-	}
-	else{
-		BMS->remainingCharge = ACCUMULATOR_TOTAL_CHARGE;
+	//soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
+	//if((BMS->read_rmc)/1000 < ACCUMULATOR_TOTAL_CHARGE && (BMS->read_rmc/1000) != 0){
+		BMS->remainingCharge = 40000;
+	//}
+	//else{
+	BMS->remainingCharge = ACCUMULATOR_TOTAL_CHARGE;
 		BMS->socTruncatedValue = ((BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*10);
 		BMS->socTruncatedValue *= 10; //Converting to percent
-	}
+	//}
 }
