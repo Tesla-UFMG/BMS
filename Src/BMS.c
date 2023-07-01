@@ -49,22 +49,6 @@ void BMS_Init(BMS_struct *BMS) {
 
 	LTC_Init(BMS->config);
 
-	//setting initial values for temperatures. It's needed due to how the calculation works
-	for(int i = 0; i < NUMBER_OF_SLAVES; i++)
-	{
-		BMS->sensor[i]->GxV[0] = 30;
-		BMS->sensor[i]->GxV[1] = 30;
-		BMS->sensor[i]->GxV[2] = 30;
-		BMS->sensor[i]->GxV[3] = 30;
-		BMS->sensor[i]->GxV[4] = 30;
-		BMS->sensor[i]->GxV[5] = 30;
-		BMS->sensor[i]->GxV[6] = 30;
-		BMS->sensor[i]->GxV[7] = 30;
-		BMS->sensor[i]->GxV[8] = 30;
-		BMS->sensor[i]->GxV[9] = 30;
-		BMS->sensor[i]->GxV[10] = 30;
-		BMS->sensor[i]->GxV[11] = 30;
-	}
 }
 
 void BMS_SetSafetyLimits(BMS_struct* BMS) {
@@ -113,7 +97,7 @@ void BMS_Convert(uint8_t BMS_CONVERT, BMS_struct *BMS) {
 		uint16_t aux_maxCellTemperature = 0;
 		for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
 			LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
-			for(uint8_t j = 0; j < NUMBER_OF_THERMISTORS; j++){
+			for(uint8_t j = 0; j < NUMBER_OF_TEMPERATURE_MEASUREMENTS; j++){
 				if(BMS->sensor[i]->GxV[j] > aux_maxCellTemperature)
 					aux_maxCellTemperature = BMS->sensor[i]->GxV[j];
 			}
@@ -149,23 +133,32 @@ void BMS_ElectricalManagement(BMS_struct *BMS) {
 }
 
 void BMS_ThermalManagement(BMS_struct *BMS) {
-	LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADCV);
+	LTC_SendBroadcastCommand(BMS->config, LTC_COMMAND_ADAX);
 	uint16_t aux_maxCellTemperature = 0;
 	int sumCellTemperature = 0;
-	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++) {
+	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++)
+	{
 		LTC_Read(LTC_READ_GPIO, BMS->config, BMS->sensor[i]);
-		if(timer_wait_ms(tempTimer, 5000))
+	}
+	initialize_indirect_temperatures(BMS);
+	if(timer_wait_ms(tempTimer, 500))
+	{
+		calculate_temperatures(BMS);
+	    timer_restart(&tempTimer);
+	}
+	for(uint8_t i = 0; i < NUMBER_OF_SLAVES; i++)
+	{
+		for(uint8_t j = 0; j < NUMBER_OF_TEMPERATURE_MEASUREMENTS; j++)
 		{
-			calculate_temperatures(BMS);
-		}
-		for(uint8_t j = 0; j < NUMBER_OF_THERMISTORS; j++){
 			if(BMS->sensor[i]->GxV[j] > aux_maxCellTemperature)
-				aux_maxCellTemperature = BMS->sensor[i]->GxV[j];
+			{
+			aux_maxCellTemperature = BMS->sensor[i]->GxV[j];
+			}
 			sumCellTemperature += BMS->sensor[i]->GxV[j];
 		}
+		BMS->maxCellTemperature = aux_maxCellTemperature;
 	}
-	BMS->maxCellTemperature = aux_maxCellTemperature;
-	BMS->averageCellTemperature = sumCellTemperature / (NUMBER_OF_SLAVES*NUMBER_OF_THERMISTORS);
+	BMS->averageCellTemperature = sumCellTemperature / (NUMBER_OF_SLAVES*NUMBER_OF_TEMPERATURE_MEASUREMENTS);
 }
 
 void BMS_SafetyManagement(BMS_struct *BMS) {
@@ -216,12 +209,21 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 	retries[OVER_VOLTAGE]     += BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE]  ? 1 : -1;
 	retries[UNDER_VOLTAGE]    += BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE] ? 1 : -1;
 	retries[OVER_TEMPERATURE] += BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE] ? 1 : -1;
+	BMS->maxTempErrors = retries[2];
+	BMS->maxVoltageErrors = retries[0];
+	BMS->minVoltageErrors = retries[1];
 
 	for(uint8_t i = 0; i < NUMBER_OF_ERRORS; i++) {
 		if(retries[i] >= MAX_RETRIES) {
 			retries[i] = MAX_RETRIES;
 			BMS->error |= (1 << i);
 			error_flag[i] = true;
+			BMS->typeOfError = i;
+			BMS->lastCellTempDebug = BMS->maxCellTemperature;
+			BMS->lastMaxCellVoltageDebug = BMS->maxCellVoltage;
+			BMS->lastMinCellVoltageDebug = BMS->minCellVoltage;
+			retries[i] = 0;
+
 		}else if(retries[i] < 0)
 			retries[i] = 0;
 	}
@@ -274,13 +276,13 @@ void BMS_SoC_Calculation(BMS_struct *BMS) {
 }
 
 void BMS_Initial_Charge(BMS_struct *BMS) {
-	//soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
-	//if((BMS->read_rmc)/1000 < ACCUMULATOR_TOTAL_CHARGE && (BMS->read_rmc/1000) != 0){
-		BMS->remainingCharge = 40000;
-	//}
-	//else{
-	BMS->remainingCharge = ACCUMULATOR_TOTAL_CHARGE;
+	soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
+	if((BMS->read_rmc)/1000 < ACCUMULATOR_TOTAL_CHARGE && (BMS->read_rmc/1000) != 0){
+		BMS->remainingCharge = 144000;
+	}
+	else{
+		BMS->remainingCharge = ACCUMULATOR_TOTAL_CHARGE;
 		BMS->socTruncatedValue = ((BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*10);
 		BMS->socTruncatedValue *= 10; //Converting to percent
-	//}
+	}
 }

@@ -17,6 +17,7 @@ typedef struct BMS_struct {
 	//GENERAL
 	uint8_t mode;
 	uint16_t error;
+	uint8_t typeOfError;
 
 	LTC_sensor *sensor[NUMBER_OF_SLAVES];
 	LTC_config *config;
@@ -28,6 +29,15 @@ typedef struct BMS_struct {
 	uint16_t deltaVoltage;
 	uint16_t maxCellTemperature;
 	uint16_t averageCellTemperature;
+
+	uint16_t lastMaxCellVoltageDebug;
+	uint16_t lastMinCellVoltageDebug;
+	uint16_t lastCellTempDebug;
+
+	uint16_t maxVoltageErrors;
+	uint16_t minVoltageErrors;
+	uint16_t maxTempErrors;
+
 
 	//CURRENT
 	float current[ADC_BUFFER_SIZE];
@@ -62,7 +72,7 @@ typedef enum{
 #define BMS_CONVERT_GPIO	2
 #define BMS_CONVERT_STAT	4
 #define BMS_CONVERT_CONFIG	8
-#define ACCUMULATOR_TOTAL_CHARGE 40000 //[40 A/h to Coulomb]
+#define ACCUMULATOR_TOTAL_CHARGE 144000 //[40 A/h to Coulomb]
 
 void BMS_Init(BMS_struct *BMS);
 void BMS_SetSafetyLimits(BMS_struct* BMS);

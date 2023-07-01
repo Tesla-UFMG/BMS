@@ -295,9 +295,11 @@ void LTC_SendAddressedCommand(LTC_config *config, LTC_sensor *sensor, uint16_t c
 }
 
 void LTC_ConvertTemp(LTC_sensor* sensor) {
-	for(uint8_t i = 0; i < NUMBER_OF_THERMISTORS; i++){
-		sensor->GxV[i] = NTC_ConvertTemp(sensor->GxV[i], sensor->REF);
-	}
+	sensor->GxV[0] = NTC_ConvertTemp(sensor->GxV[0], sensor->REF);
+	sensor->GxV[3] = NTC_ConvertTemp(sensor->GxV[3], sensor->REF);
+	sensor->GxV[6] = NTC_ConvertTemp(sensor->GxV[6], sensor->REF);
+	sensor->GxV[9] = NTC_ConvertTemp(sensor->GxV[9], sensor->REF);
+	sensor->GxV[11] = NTC_ConvertTemp(sensor->GxV[11], sensor->REF);
 }
 
 void LTC_Wait(LTC_config *config, LTC_sensor *sensor) {

@@ -11,36 +11,60 @@
 #include "ltc.h"
 
 #define SOC_RANGE		11 //0% to 100% equally separeted
-#define TEMP_TIMER		5 //Delay between simulations (seconds)
+#define TEMP_TIMER		0.5 //Delay between simulations (seconds)
 #define h  20 //Mica plate convection coefficient
 #define A  0.001596 //Mica plate surface area
-#define SC1_HIGH_RANGE 2 //200A Channel of sensor 1
-#define SC2_HIGH_RANGE 0 //200A Channel of sensor 2
+#define SC1_HIGH_RANGE 1 //200A Channel of sensor 1
+#define SC2_HIGH_RANGE 3 //200A Channel of sensor 2
 #define CONSTANT_TEMPERATURE_CALC 0.00182 //(1/(0.495*1106.34)) Numerical equation's part
 
+uint8_t initializeController = 0;
+
+//setting initial values for temperatures. It's needed due to how the calculation works
+void initialize_indirect_temperatures (BMS_struct *BMS)
+{
+	if(initializeController == 0)
+	{
+		for(int i = 0; i < NUMBER_OF_SLAVES; i++)
+			{
+			BMS->sensor[i]->GxV[1] = BMS->sensor[i]->GxV[0];
+			BMS->sensor[i]->GxV[2] = BMS->sensor[i]->GxV[3];
+			BMS->sensor[i]->GxV[4] = BMS->sensor[i]->GxV[3];
+			BMS->sensor[i]->GxV[5] = BMS->sensor[i]->GxV[6];
+			BMS->sensor[i]->GxV[7] = BMS->sensor[i]->GxV[6];
+			BMS->sensor[i]->GxV[8] = BMS->sensor[i]->GxV[9];
+			BMS->sensor[i]->GxV[10] = BMS->sensor[i]->GxV[11];
+			}
+		++initializeController;
+	}
+}
 
 float calculate_single_temperature (float current, BMS_struct *BMS, int celula, int slave)
 {
-	uint8_t OCVVoltage[SOC_RANGE] = {2.85, 3.22, 3.26, 3.28, 3.30, 3.304, 3.308, 3.31, 3.313, 3.318, 3.6};
+	uint16_t OCVVoltage[SOC_RANGE] = {28500, 32200, 32600, 32800, 33000, 33040, 33080, 33100, 33130, 33180, 36000};
 
 	uint8_t SoCPossibleValues[SOC_RANGE] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
 
 	float cellTemperature;
+	float voltageDiference;
 	uint16_t cellBMSVoltage = BMS->sensor[slave]->CxV[celula];
 
-	//The formula respects the S.I, so, the temperatures have to be in Kelvin (Celsius + 273)
-	uint16_t actualCellTemp = BMS->sensor[slave]->GxV[celula] + 273;
-	uint16_t nextCellTemp = BMS->sensor[slave]->GxV[celula+1] + 273;
-	uint16_t lastCellTemp = BMS->sensor[slave]->GxV[celula-1] + 273;
+	//The formula respects the S.I, so, the temperatures have to be in Kelvin (Celsius + 273). Celsius is *10, so kelvin need to bem *10 as well
+	uint16_t actualCellTemp = BMS->sensor[slave]->GxV[celula] + 2730;
+	uint16_t nextCellTemp = BMS->sensor[slave]->GxV[celula+1] + 2730;
+	uint16_t lastCellTemp = BMS->sensor[slave]->GxV[celula-1] + 2730;
+
+	//Every 10* is being implemented due to temperature being multiplied per 10;
 
 	for(int i = 0; i < SOC_RANGE; ++i)
 	{
 		if(BMS->socTruncatedValue == SoCPossibleValues[i])
 		{
-			cellTemperature = actualCellTemp + CONSTANT_TEMPERATURE_CALC*(current*(OCVVoltage[i] - cellBMSVoltage) - 2*(2*actualCellTemp - lastCellTemp - nextCellTemp) - (h*A*(actualCellTemp - 300)))*TEMP_TIMER - (273);
+			voltageDiference = (float)(OCVVoltage[i] - cellBMSVoltage)/10000;
+			cellTemperature = actualCellTemp + CONSTANT_TEMPERATURE_CALC*(10*current*(voltageDiference) - 2*(2*actualCellTemp - lastCellTemp - nextCellTemp) - (h*A*(actualCellTemp - 3000)))*TEMP_TIMER - (2730);
 		};
 	}
-	return cellTemperature;
+	return (uint16_t)cellTemperature;
 }
 
 void calculate_temperatures (BMS_struct *BMS)

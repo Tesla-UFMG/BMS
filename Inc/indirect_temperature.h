@@ -10,6 +10,8 @@
 
 #include "BMS.h"
 
+void initialize_indirect_temperatures (BMS_struct *BMS);
+
 float calculate_single_temperature (float current, BMS_struct *BMS, int celula, int slave);
 
 void calculate_temperatures (BMS_struct *BMS);

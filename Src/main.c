@@ -63,11 +63,13 @@ DMA_HandleTypeDef hdma_usart3_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-//static const float current_zero[ADC_BUFFER_SIZE] = {30.42034498, 237.15496333, 26.41619284, 237.1549633};
-//static const float current_gain[ADC_BUFFER_SIZE] = {0.01448599958, 0.113385857, 0.01318529399, 0.113385857}; //corretos pro acumulador
-static const float current_zero[ADC_BUFFER_SIZE] = {237.15496333, 30.42034498, 26.41619284, 237.1549633};
-static const float current_gain[ADC_BUFFER_SIZE] = {0.113385857, 0.01448599958, 0.01318529399, 0.113385857};
+static const float current_zero[ADC_BUFFER_SIZE] = {30.42034498, 237.15496333, 26.41619284, 237.1549633};
+static const float current_gain[ADC_BUFFER_SIZE] = {0.01448599958, 0.113385857, 0.01318529399, 0.113385857}; //corretos pro acumulador
+//static const float current_zero[ADC_BUFFER_SIZE] = {237.15496333, 30.42034498, 237.15496333, 26.41619284};
+//static const float current_gain[ADC_BUFFER_SIZE] = {0.113385857, 0.01448599958, 0.113385857, 0.01318529399};
 static int32_t adc_buffer[ADC_BUFFER_SIZE];
+//Variable is being used for monitoring if the AIR has been closed at any moment while the board is being powered
+uint8_t AIRStatusMonitoring = 0;
 
 BMS_struct* BMS;
 /* USER CODE END PV */
@@ -102,9 +104,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 	//DWT_Delay_us(1);
 
 	// Integer Calculation
-	float delta_time = 0.0000048; // 1us*100
-	//BMS->integration = (BMS->current[1] + BMS->current[3]) * delta_time;
-	BMS->integration = (BMS->current[0]) * delta_time;
+	float delta_time = 0.00012584; //Calculado empiricamente usando quantas vezes uma variável colocada dentro dessa função atualiza em 30 segundos
+	BMS->integration = (/*BMS->current[1] + BMS->current[3]*/ BMS->current[2]) * delta_time;
 	BMS->totalIntegration += BMS->integration;
 
 	BMS_SoC_Calculation(BMS);
@@ -188,12 +189,20 @@ int main(void)
 
     if (timer_wait_ms(SoCTimer, 60000))
     {
-      if(BMS->AIR){
-    	  timer_restart(&SoCTimer);
-    	  if(BMS->socPrecisionValue <= ((BMS->read_soc/1000)-1)){ //1% security variance
-    		  soc_save(BMS->socPrecisionValue*1000, BMS->actualCharge*1000, BMS);
-    	  }
-      }
+    	if(BMS->AIR == 0)
+    	{
+    		++AIRStatusMonitoring;
+    	}
+    		if(BMS->AIR == 1 && AIRStatusMonitoring == 1)
+    		{
+    			timer_restart(&SoCTimer);
+    			//read_soc is divided per 1000 because when salving in flash to not lose the precision we *1000 and convert float to uint32_t.
+    			if(BMS->socPrecisionValue <= ((BMS->read_soc/1000)-4)) //4% security variance
+    			{
+    			soc_save(BMS->socPrecisionValue*1000, BMS->actualCharge*1000, BMS);
+    			}
+    	  --AIRStatusMonitoring;
+    		}
     }
     display_show(BMS);
     /* USER CODE BEGIN 3 */
