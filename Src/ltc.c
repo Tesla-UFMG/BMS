@@ -17,6 +17,8 @@
 
 extern SPI_HandleTypeDef hspi1;
 static uint16_t pec_table[LTC_PEC_TABLE_LENGTH];
+uint8_t PECTemperatureControlling = 0;
+uint16_t PECTemporaryVariables[3];
 
 void LTC_Init(LTC_config *config) {
 	config->GPIO   = ALL_GPIOS_READ;
@@ -175,46 +177,75 @@ void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data
 		break;
 
 	case LTC_COMMAND_RDCVA:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[0] = rx_data[0];
 		sensor->CxV[1] = rx_data[1];
 		sensor->CxV[2] = rx_data[2];
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDCVB:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[3] = rx_data[0];
 		sensor->CxV[4] = rx_data[1];
 		sensor->CxV[5] = rx_data[2];
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDCVC:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[6] = rx_data[0];
 		sensor->CxV[7] = rx_data[1];
 		sensor->CxV[8] = rx_data[2];
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDCVD:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[9]  = rx_data[0];
 		sensor->CxV[10] = rx_data[1];
 		sensor->CxV[11] = rx_data[2];
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDAUXA:
-		sensor->GxV[0] = rx_data[0];
-		sensor->GxV[3] = rx_data[1];
-		sensor->GxV[6] = rx_data[2];
-		break;
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
+			PECTemporaryVariables[0] = rx_data[0];
+			PECTemporaryVariables[1] = rx_data[1];
+			PECTemporaryVariables[2] = rx_data[2];
+			PECTemperatureControlling = 1;
+			break;
+		}
+		else {
+			sensor->erroSum += 1;
+			PECTemperatureControlling = 0;
+		}
 
 	case LTC_COMMAND_RDAUXB:
-		sensor->GxV[9] = rx_data[0];
-		sensor->GxV[11] = rx_data[1];
-		sensor->REF    = rx_data[2];
+		if (rx_data[3] == LTC_PEC2(rx_data,3) && PECTemperatureControlling == 1){
+			sensor->GxV[0] = PECTemporaryVariables[0];
+			sensor->GxV[3] = PECTemporaryVariables[1];
+			sensor->GxV[6] = PECTemporaryVariables[2];
+			sensor->GxV[9] = rx_data[0];
+			sensor->GxV[11] = rx_data[1];
+			sensor->REF    = rx_data[2];
+			++PECTemperatureControlling;
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDSTATA:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->SOC  = rx_data[0] * 0.2;
 		sensor->ITMP = rx_data[1] * 7.5;
 		sensor->VA   = rx_data[2];
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDSTATB:
 		sensor->VD = rx_data[0];
@@ -331,7 +362,9 @@ void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor) {
 		LTC_Wait(config, sensor);
 		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDAUXA);
 		LTC_SendAddressedCommand(config, sensor, LTC_COMMAND_RDAUXB);
+		if(PECTemperatureControlling == 2){
 		LTC_ConvertTemp(sensor);
+		}
 	}
 	if (LTC_READ&LTC_READ_STATUS) {
 		LTC_Wait(config, sensor);

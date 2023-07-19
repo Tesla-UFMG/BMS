@@ -105,7 +105,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 
 	// Integer Calculation
 	float delta_time = 0.00012584; //Calculado empiricamente usando quantas vezes uma variável colocada dentro dessa função atualiza em 30 segundos
-	BMS->integration = (/*BMS->current[1] + BMS->current[3]*/ BMS->current[2]) * delta_time;
+	BMS->integration = (BMS->current[0] + BMS->current[2]) * delta_time;
 	BMS->totalIntegration += BMS->integration;
 
 	BMS_SoC_Calculation(BMS);
@@ -195,13 +195,13 @@ int main(void)
     	}
     		if(BMS->AIR == 1 && AIRStatusMonitoring == 1)
     		{
-    			timer_restart(&SoCTimer);
     			//read_soc is divided per 1000 because when salving in flash to not lose the precision we *1000 and convert float to uint32_t.
-    			if(BMS->socPrecisionValue <= ((BMS->read_soc/1000)-4)) //4% security variance
+    			if(BMS->socPrecisionValue <= ((BMS->read_soc/1000)-2)) //4% security variance
     			{
-    			soc_save(BMS->socPrecisionValue*1000, BMS->actualCharge*1000, BMS);
+    				soc_save(BMS->socPrecisionValue*1000, BMS->actualCharge*1000, BMS);
     			}
-    	  --AIRStatusMonitoring;
+    			--AIRStatusMonitoring;
+    			timer_restart(&SoCTimer);
     		}
     }
     display_show(BMS);

@@ -17,7 +17,7 @@ typedef struct BMS_struct {
 	//GENERAL
 	uint8_t mode;
 	uint16_t error;
-	uint8_t typeOfError;
+	uint8_t whichcell;
 
 	LTC_sensor *sensor[NUMBER_OF_SLAVES];
 	LTC_config *config;
@@ -34,9 +34,9 @@ typedef struct BMS_struct {
 	uint16_t lastMinCellVoltageDebug;
 	uint16_t lastCellTempDebug;
 
-	uint16_t maxVoltageErrors;
-	uint16_t minVoltageErrors;
-	uint16_t maxTempErrors;
+	int8_t maxVoltageErrors;
+	int8_t minVoltageErrors;
+	int8_t maxTempErrors;
 
 
 	//CURRENT

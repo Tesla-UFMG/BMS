@@ -15,7 +15,6 @@ void soc_save(uint32_t soc_value, uint32_t remaining_charge, BMS_struct *BMS){
 	static uint32_t number_of_saves;
 
 	soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
-	//number_of_saves = 0; //Run the code for the first time
 	number_of_saves = (BMS->read_nos) + 1; //Run the code like this after
 
 	soc_data[SOC_VALUE] = soc_value;

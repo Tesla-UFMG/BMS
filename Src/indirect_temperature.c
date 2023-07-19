@@ -58,10 +58,20 @@ float calculate_single_temperature (float current, BMS_struct *BMS, int celula, 
 
 	for(int i = 0; i < SOC_RANGE; ++i)
 	{
-		if(BMS->socTruncatedValue == SoCPossibleValues[i])
+		if((BMS->socTruncatedValue == SoCPossibleValues[i]) && BMS->mode == BMS_CHARGING && (current <= 0))
 		{
 			voltageDiference = (float)(OCVVoltage[i] - cellBMSVoltage)/10000;
 			cellTemperature = actualCellTemp + CONSTANT_TEMPERATURE_CALC*(10*current*(voltageDiference) - 2*(2*actualCellTemp - lastCellTemp - nextCellTemp) - (h*A*(actualCellTemp - 3000)))*TEMP_TIMER - (2730);
+		}
+		if((BMS->socTruncatedValue + 10 == SoCPossibleValues[i]) && BMS->mode == BMS_MONITORING && (current >= 0))
+		{
+			voltageDiference = (float)(OCVVoltage[i] - cellBMSVoltage)/10000;
+			cellTemperature = actualCellTemp + CONSTANT_TEMPERATURE_CALC*(10*current*(voltageDiference) - 2*(2*actualCellTemp - lastCellTemp - nextCellTemp) - (h*A*(actualCellTemp - 3000)))*TEMP_TIMER - (2730);
+		};
+		if((BMS->socTruncatedValue + 10 == SoCPossibleValues[i]) && BMS->mode == BMS_MONITORING && (current < 0))
+		{
+			voltageDiference = (float)(OCVVoltage[i] - cellBMSVoltage)/10000;
+			cellTemperature = actualCellTemp + CONSTANT_TEMPERATURE_CALC*(10*current*((-1)*voltageDiference) - 2*(2*actualCellTemp - lastCellTemp - nextCellTemp) - (h*A*(actualCellTemp - 3000)))*TEMP_TIMER - (2730);
 		};
 	}
 	return (uint16_t)cellTemperature;

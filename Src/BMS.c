@@ -153,6 +153,7 @@ void BMS_ThermalManagement(BMS_struct *BMS) {
 			if(BMS->sensor[i]->GxV[j] > aux_maxCellTemperature)
 			{
 			aux_maxCellTemperature = BMS->sensor[i]->GxV[j];
+			BMS->whichcell = j;
 			}
 			sumCellTemperature += BMS->sensor[i]->GxV[j];
 		}
@@ -218,11 +219,9 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 			retries[i] = MAX_RETRIES;
 			BMS->error |= (1 << i);
 			error_flag[i] = true;
-			BMS->typeOfError = i;
 			BMS->lastCellTempDebug = BMS->maxCellTemperature;
 			BMS->lastMaxCellVoltageDebug = BMS->maxCellVoltage;
 			BMS->lastMinCellVoltageDebug = BMS->minCellVoltage;
-			retries[i] = 0;
 
 		}else if(retries[i] < 0)
 			retries[i] = 0;
@@ -254,12 +253,15 @@ void BMS_Datalloger(BMS_struct* BMS) {
 		CAN_Transmit(sensor->GxV[4], sensor->SOC, sensor->REF, sensor->DCC, can_id);
 		can_id++;
 	}
-	CAN_Transmit(BMS->maxCellVoltage, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, 50);
-	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, 51);
-	CAN_Transmit(16800, 50, 0, 0, 52);
-	CAN_Transmit(0, BMS->tractiveSystemVoltage/10, BMS->averageCellTemperature, BMS->maxCellTemperature, 53);
+	CAN_Transmit(BMS->maxCellVoltage, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, 226);
+	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, 227);
+	//CAN_Transmit(16800, 50, 0, 0, 52);
+	//CAN_Transmit(0, BMS->maxCellVoltage, BMS->averageCellTemperature, BMS->maxCellTemperature, 53);
 	CAN_Transmit(BMS->minCellVoltage/100, 0, float2uint16(BMS->current[0]), float2uint16(BMS->current[1]), 54);
-	CAN_Transmit(float2uint16(BMS->current[2]), float2uint16(BMS->current[3]), 0, 0, 55);
+	CAN_Transmit(0,float2uint16(BMS->current[1]), 0, float2uint16(BMS->current[3]), 230);
+	CAN_Transmit(0,0,0, BMS->averageCellTemperature, 231);
+	CAN_Transmit(BMS->socTruncatedValue,0,0,0, 232);
+
 }
 
 uint16_t float2uint16(float f) {
@@ -277,11 +279,13 @@ void BMS_SoC_Calculation(BMS_struct *BMS) {
 
 void BMS_Initial_Charge(BMS_struct *BMS) {
 	soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
+	//read_soc is divided per 1000 because when salving in flash to not lose the precision we *1000 and convert float to uint32_t.
 	if((BMS->read_rmc)/1000 < ACCUMULATOR_TOTAL_CHARGE && (BMS->read_rmc/1000) != 0){
 		BMS->remainingCharge = 144000;
 	}
 	else{
 		BMS->remainingCharge = ACCUMULATOR_TOTAL_CHARGE;
+		//We had problems when trying to multiply *100, but when doing in 2 ways it works
 		BMS->socTruncatedValue = ((BMS->remainingCharge/ACCUMULATOR_TOTAL_CHARGE)*10);
 		BMS->socTruncatedValue *= 10; //Converting to percent
 	}
