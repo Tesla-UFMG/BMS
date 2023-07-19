@@ -253,14 +253,23 @@ void BMS_Datalloger(BMS_struct* BMS) {
 		CAN_Transmit(sensor->GxV[4], sensor->SOC, sensor->REF, sensor->DCC, can_id);
 		can_id++;
 	}
-	CAN_Transmit(BMS->maxCellVoltage, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, 226);
-	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, 227);
-	//CAN_Transmit(16800, 50, 0, 0, 52);
+//	CAN_Transmit(BMS->maxCellVoltage, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, 226);
+//	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, 227);
+//	//CAN_Transmit(16800, 50, 0, 0, 52);
+//	//CAN_Transmit(0, BMS->maxCellVoltage, BMS->averageCellTemperature, BMS->maxCellTemperature, 53);
+//	CAN_Transmit(BMS->minCellVoltage/100, 0, float2uint16(BMS->current[0]), float2uint16(BMS->current[1]), 54);
+//	CAN_Transmit(0,float2uint16(BMS->current[1]), 0, float2uint16(BMS->current[3]), 230);
+//	CAN_Transmit(0,0,0, BMS->averageCellTemperature, 231);
+//	CAN_Transmit(BMS->socTruncatedValue,0,0,0, 232);
+
+	CAN_Transmit(BMS->maxCellVoltage, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, ID_safety_voltage);
+	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, ID_safety_bms);
+	CAN_Transmit(50, 51, 52, 53, 320);
 	//CAN_Transmit(0, BMS->maxCellVoltage, BMS->averageCellTemperature, BMS->maxCellTemperature, 53);
-	CAN_Transmit(BMS->minCellVoltage/100, 0, float2uint16(BMS->current[0]), float2uint16(BMS->current[1]), 54);
-	CAN_Transmit(0,float2uint16(BMS->current[1]), 0, float2uint16(BMS->current[3]), 230);
-	CAN_Transmit(0,0,0, BMS->averageCellTemperature, 231);
-	CAN_Transmit(BMS->socTruncatedValue,0,0,0, 232);
+	//CAN_Transmit(BMS->minCellVoltage/100, 0, float2uint16(BMS->current[0]), float2uint16(BMS->current[1]), 54);
+	CAN_Transmit((uint16_t)BMS->current[0] ,(uint16_t)BMS->current[1], (uint16_t)BMS->current[2], (uint16_t)BMS->current[3], ID_safety_current);
+	CAN_Transmit(0,0,0, BMS->averageCellTemperature, ID_safety_charge);
+	CAN_Transmit(BMS->socTruncatedValue,0,0,0, ID_safety_soc);
 
 }
 
