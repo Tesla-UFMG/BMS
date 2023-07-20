@@ -268,8 +268,8 @@ void BMS_Datalloger(BMS_struct* BMS) {
 	//CAN_Transmit(0, BMS->maxCellVoltage, BMS->averageCellTemperature, BMS->maxCellTemperature, 53);
 	//CAN_Transmit(BMS->minCellVoltage/100, 0, float2uint16(BMS->current[0]), float2uint16(BMS->current[1]), 54);
 	CAN_Transmit((uint16_t)BMS->current[0] ,(uint16_t)BMS->current[1], (uint16_t)BMS->current[2], (uint16_t)BMS->current[3], ID_safety_current);
-	CAN_Transmit(0,0,0, BMS->averageCellTemperature, ID_safety_charge);
-	CAN_Transmit(BMS->socTruncatedValue,0,0,0, ID_safety_soc);
+	CAN_Transmit((uint16_t)BMS->socPrecisionValue,0,0, BMS->averageCellTemperature, ID_safety_charge);
+	CAN_Transmit(0,0,0,0, ID_safety_soc);
 
 }
 
@@ -290,7 +290,7 @@ void BMS_Initial_Charge(BMS_struct *BMS) {
 	soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
 	//read_soc is divided per 1000 because when salving in flash to not lose the precision we *1000 and convert float to uint32_t.
 	if((BMS->read_rmc)/1000 < ACCUMULATOR_TOTAL_CHARGE && (BMS->read_rmc/1000) != 0){
-		BMS->remainingCharge = 144000;
+		BMS->remainingCharge = BMS->read_rmc;
 	}
 	else{
 		BMS->remainingCharge = ACCUMULATOR_TOTAL_CHARGE;

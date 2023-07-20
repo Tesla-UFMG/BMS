@@ -173,12 +173,13 @@ int main(void)
   static uint32_t SoCTimer;
 
   BMS_Initial_Charge(BMS);
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
 	  BMS_Monitoring(BMS);
-	      BMS_ErrorTreatment(BMS);
+	  BMS_ErrorTreatment(BMS);
 
 	      if (timer_wait_ms(canTimer, 100))
 	      {

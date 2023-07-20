@@ -73,7 +73,7 @@ typedef enum{
 #define BMS_CONVERT_GPIO	2
 #define BMS_CONVERT_STAT	4
 #define BMS_CONVERT_CONFIG	8
-#define ACCUMULATOR_TOTAL_CHARGE 144000 //[40 A/h to Coulomb]
+#define ACCUMULATOR_TOTAL_CHARGE 72000 //[40 A/h to Coulomb]
 
 void BMS_Init(BMS_struct *BMS);
 void BMS_SetSafetyLimits(BMS_struct* BMS);
