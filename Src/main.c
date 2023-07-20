@@ -177,34 +177,35 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  BMS_Monitoring(BMS);
+	      BMS_ErrorTreatment(BMS);
+
+	      if (timer_wait_ms(canTimer, 100))
+	      {
+	        BMS_Datalloger(BMS);
+	        timer_restart(&canTimer);
+	      }
+
+	      if (timer_wait_ms(SoCTimer, 60000))
+	      {
+	      	if(BMS->AIR == 0)
+	      	{
+	      		++AIRStatusMonitoring;
+	      	}
+	      		if(BMS->AIR == 1 && AIRStatusMonitoring == 1)
+	      		{
+	      			//read_soc is divided per 1000 because when salving in flash to not lose the precision we *1000 and convert float to uint32_t.
+	      			if(BMS->socPrecisionValue <= ((BMS->read_soc/1000)-2)) //4% security variance
+	      			{
+	      				soc_save(BMS->socPrecisionValue*1000, BMS->actualCharge*1000, BMS);
+	      			}
+	      			--AIRStatusMonitoring;
+	      			timer_restart(&SoCTimer);
+	      		}
+	      }
+	      display_show(BMS);
     /* USER CODE END WHILE */
-    BMS_Monitoring(BMS);
-    BMS_ErrorTreatment(BMS);
 
-    if (timer_wait_ms(canTimer, 100))
-    {
-      BMS_Datalloger(BMS);
-      timer_restart(&canTimer);
-    }
-
-    if (timer_wait_ms(SoCTimer, 60000))
-    {
-    	if(BMS->AIR == 0)
-    	{
-    		++AIRStatusMonitoring;
-    	}
-    		if(BMS->AIR == 1 && AIRStatusMonitoring == 1)
-    		{
-    			//read_soc is divided per 1000 because when salving in flash to not lose the precision we *1000 and convert float to uint32_t.
-    			if(BMS->socPrecisionValue <= ((BMS->read_soc/1000)-2)) //4% security variance
-    			{
-    				soc_save(BMS->socPrecisionValue*1000, BMS->actualCharge*1000, BMS);
-    			}
-    			--AIRStatusMonitoring;
-    			timer_restart(&SoCTimer);
-    		}
-    }
-    display_show(BMS);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -675,6 +676,9 @@ void Error_Handler(void)
 	/* User can add his own implementation to report the HAL error return state */
 	while(1)
 	{
+	charger_disable();
+	open_shutdown_circuit();
+	bms_indicator_light_turn(ON);
 	}
   /* USER CODE END Error_Handler_Debug */
 }
