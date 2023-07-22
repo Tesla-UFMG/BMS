@@ -19,6 +19,9 @@ extern SPI_HandleTypeDef hspi1;
 static uint16_t pec_table[LTC_PEC_TABLE_LENGTH];
 uint8_t PECTemperatureControlling = 0;
 uint16_t PECTemporaryVariables[3];
+	//uint16_t dataTeste[4] = {20,30,40,50};
+	//uint16_t* visualize;
+
 
 void LTC_Init(LTC_config *config) {
 	config->GPIO   = ALL_GPIOS_READ;
@@ -48,7 +51,7 @@ uint16_t LTC_PEC(uint16_t *data , uint8_t len) {
 uint16_t LTC_PEC2(uint16_t* data, uint8_t size) {
 	uint16_t aux, in0;
 	uint16_t pec = LTC_PEC_SEED;
-	for(int i = 0; i < size; i++) {
+		for(int i = 0; i < size; i++) {
 		data[i] = BYTESWAP(data[i]);
 		for(int j = 15; j >= 0; j--) {
 			aux = 0x00;
@@ -125,6 +128,8 @@ void LTC_TransmitReceive(uint16_t command, uint16_t* tx_data, uint16_t* rx_data)
 	if((tx_data[0] & 0x07FF) < LTC_COMMAND_ADCV) {
 		for (uint8_t i = 0; i < SPI_BUFFER_LENGTH; ++i) {
 			rx_data[i] = LTC_SPI(tx_data[i]);
+			//rx_data[i] = 123;
+			//aqui
 		}
 	}
 }
@@ -304,7 +309,7 @@ void LTC_Communication(LTC_config *config, uint16_t* tx_data, uint16_t* rx_data)
 	LTC_EndTramission();
 }
 
-void LTC_SendBroadcastCommand(LTC_config *config, uint16_t command_name) {
+void LTC_SendBroadcastCommand(LTC_config *config, uint16_t command_name) { //O INICIO
 	uint16_t tx_data[4] = {0, 0, 0, 0};
 	uint16_t rx_data[4] = {0, 0, 0, 0};
 	config->command->NAME = command_name;
@@ -322,6 +327,9 @@ void LTC_SendAddressedCommand(LTC_config *config, LTC_sensor *sensor, uint16_t c
 		LTC_WriteConfigRegister(sensor, config, tx_data);
 
 	LTC_Communication(config, tx_data, rx_data);
+
+	//LTC_PEC2(dataTeste, 3);
+
 	LTC_ReceiveMessage(sensor, config, rx_data);
 }
 
