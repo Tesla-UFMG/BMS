@@ -359,10 +359,14 @@ void LTC_Read(uint8_t LTC_READ, LTC_config *config, LTC_sensor *sensor) {
 		sensor->V_MIN = UINT16_MAX;
 		sensor->V_MAX = 0;
 		for(uint8_t i = 0; i < NUMBER_OF_CELLS; i++) {
-			if(sensor->CxV[i] < sensor->V_MIN)
+			if(sensor->CxV[i] < sensor->V_MIN){
 				sensor->V_MIN = sensor->CxV[i];
-			if(sensor->CxV[i] > sensor->V_MAX)
+				sensor->lesserCell = i;
+			}
+			if(sensor->CxV[i] > sensor->V_MAX){
 				sensor->V_MAX = sensor->CxV[i];
+				sensor->higherCell = i;
+			}
 		}
 		sensor->V_DELTA = sensor->V_MAX - sensor->V_MIN;
 	}

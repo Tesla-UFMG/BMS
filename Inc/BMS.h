@@ -39,6 +39,12 @@ typedef struct BMS_struct {
 	int8_t minVoltageErrors;
 	int8_t maxTempErrors;
 
+	//HIGH MONITORING
+	uint8_t whichCellMaxVoltage;
+	uint8_t whichCellMinVoltage;
+	uint8_t maxTemperature;
+	uint8_t maxStack;
+	uint8_t minStack;
 
 	//CURRENT
 	float current[ADC_BUFFER_SIZE];

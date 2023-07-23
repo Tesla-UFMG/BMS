@@ -17,6 +17,7 @@ CAN_RxHeaderTypeDef	RxHeader;
 uint8_t TxData[8];
 uint8_t RxData[8];
 uint32_t TxMailbox;
+uint32_t TxMailboxdebug;
 
 void CAN_CofigFilter() {
 	sFilterConfig.FilterBank = 0;
@@ -64,6 +65,7 @@ void CAN_AddToBuffer(uint16_t word0, uint16_t word1, uint16_t word2, uint16_t wo
 
 void CAN_SendMessage(uint32_t id) {
     TxHeader.StdId = id;
+    TxMailboxdebug = HAL_CAN_GetTxMailboxesFreeLevel(&hcan);
     if(HAL_CAN_AddTxMessage(&hcan, &TxHeader, TxData, &TxMailbox) != HAL_OK) {
     	Error_Handler();
     }

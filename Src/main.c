@@ -72,6 +72,9 @@ static int32_t adc_buffer[ADC_BUFFER_SIZE];
 uint8_t AIRStatusMonitoring = 0;
 
 BMS_struct* BMS;
+
+uint32_t ErrorTxMailboxDebug;
+extern uint32_t TxMailboxdebug;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -675,11 +678,16 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
-	while(1)
-	{
 	charger_disable();
 	open_shutdown_circuit();
 	bms_indicator_light_turn(ON);
+	ErrorTxMailboxDebug = TxMailboxdebug;
+
+	while(1)
+	{
+
+	CAN_Transmit(0, 20, ErrorTxMailboxDebug, 0, ID_safety_bms);
+
 	}
   /* USER CODE END Error_Handler_Debug */
 }

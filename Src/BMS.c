@@ -125,8 +125,11 @@ void BMS_ElectricalManagement(BMS_struct *BMS) {
 		LTC_Read(LTC_READ_CELL, BMS->config, BMS->sensor[i]);
 		if(BMS->sensor[i]->V_MIN < aux_minCellVoltage)
 			aux_minCellVoltage = BMS->sensor[i]->V_MIN;
+		BMS->minStack = i;
+
 		if(BMS->sensor[i]->V_MAX > aux_maxCellVoltage)
 			aux_maxCellVoltage = BMS->sensor[i]->V_MAX;
+		BMS->maxStack = i;
 	}
 	BMS->maxCellVoltage = aux_maxCellVoltage;
 	BMS->minCellVoltage = aux_minCellVoltage;
@@ -154,6 +157,8 @@ void BMS_ThermalManagement(BMS_struct *BMS) {
 			if(BMS->sensor[i]->GxV[j] > aux_maxCellTemperature)
 			{
 			aux_maxCellTemperature = BMS->sensor[i]->GxV[j];
+			BMS->sensor[i]->T_MAX = aux_maxCellTemperature ;
+			BMS->sensor[i]->higherTermistor = j;
 			BMS->whichcell = j;
 			}
 			sumCellTemperature += BMS->sensor[i]->GxV[j];
@@ -237,26 +242,33 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 }
 
 void BMS_Datalloger(BMS_struct* BMS) {
+	//uint32_t canTime = 40;
 	uint32_t can_id = CAN_ID_PACKS_INITIAL;
 	LTC_sensor* sensor;
 	for(uint8_t i = 0; i < NUMBER_OF_PACKS; i++) {
 		sensor = BMS->sensor[i];
-		for(uint8_t j = 0; j < NUMBER_OF_CELLS/CAN_BUFFER_SIZE; j++) {
-			CAN_Transmit(sensor->CxV[j*CAN_BUFFER_SIZE],
-					   sensor->CxV[j*CAN_BUFFER_SIZE + 1],
-					   sensor->CxV[j*CAN_BUFFER_SIZE + 2],
-					   sensor->CxV[j*CAN_BUFFER_SIZE + 3],
-					   can_id);
-			can_id++;
-		}
-		CAN_Transmit(sensor->GxV[0], sensor->GxV[1], sensor->GxV[2], sensor->GxV[3], can_id);
+		CAN_Transmit(sensor->V_MIN, sensor->lesserCell, sensor->V_MAX, sensor->higherCell, can_id);
 		can_id++;
-		CAN_Transmit(sensor->GxV[4], sensor->SOC, sensor->REF, sensor->DCC, can_id);
+		CAN_Transmit(sensor->higherTermistor, sensor->T_MAX, sensor->REF, sensor->DCC,  can_id);
 		can_id++;
+		//Pra maior temperatura de cada pack, incluir sensor->T_MAX. Tirei o sensor->SOC.
+
+//		for(uint8_t j = 0; j < NUMBER_OF_CELLS/CAN_BUFFER_SIZE; j++) {
+//			CAN_Transmit(sensor->CxV[j*CAN_BUFFER_SIZE],
+//					   sensor->CxV[j*CAN_BUFFER_SIZE + 1],
+//					   sensor->CxV[j*CAN_BUFFER_SIZE + 2],
+//					   sensor->CxV[j*CAN_BUFFER_SIZE + 3],
+//					   can_id);
+//			can_id++;
+//		}
+//		CAN_Transmit(sensor->GxV[0], sensor->GxV[1], sensor->GxV[2], sensor->GxV[3], can_id);
+//		can_id++;
+//		CAN_Transmit(sensor->GxV[4], sensor->SOC, sensor->REF, sensor->DCC, can_id);
+//		can_id++;
 	}
 
 	CAN_Transmit(BMS->maxCellVoltage, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, ID_safety_voltage);
-	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, ID_safety_bms);
+	//CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, ID_safety_bms);
 	CAN_Transmit(50, 51, 52, 53, 320);
 	//CAN_Transmit(0, BMS->maxCellVoltage, BMS->averageCellTemperature, BMS->maxCellTemperature, 53);
 	//CAN_Transmit(BMS->minCellVoltage/100, 0, float2uint16(BMS->current[0]), float2uint16(BMS->current[1]), 54);
