@@ -72,6 +72,9 @@ static int32_t adc_buffer[ADC_BUFFER_SIZE];
 uint8_t AIRStatusMonitoring = 0;
 
 BMS_struct* BMS;
+
+uint32_t ErrorTxMailboxDebug;
+extern uint32_t TxMailboxdebug;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -119,7 +122,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
   * @retval int
   */
 int main(void)
-{
+  {
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -157,7 +160,7 @@ int main(void)
 
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, 6);
   USART_DMA_Init(&huart3, &hdma_usart3_rx);
-  CAN_Init();
+  //CAN_Init();
 
   HAL_TIM_Base_Start_IT(&htim3);
   HAL_TIM_Base_Start_IT(&htim4);
@@ -181,11 +184,11 @@ int main(void)
 	  BMS_Monitoring(BMS);
 	  BMS_ErrorTreatment(BMS);
 
-	      if (timer_wait_ms(canTimer, 100))
-	      {
-	        BMS_Datalloger(BMS);
-	        timer_restart(&canTimer);
-	      }
+//	      if (timer_wait_ms(canTimer, 100))
+//	      {
+//	        BMS_Datalloger(BMS);
+//	        timer_restart(&canTimer);
+//	      }
 
 	      if (timer_wait_ms(SoCTimer, 60000))
 	      {
@@ -674,12 +677,15 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-	/* User can add his own implementation to report the HAL error return state */
-	while(1)
-	{
 	charger_disable();
 	open_shutdown_circuit();
 	bms_indicator_light_turn(ON);
+	ErrorTxMailboxDebug = TxMailboxdebug;
+	/* User can add his own implementation to report the HAL error return state */
+	while(1)
+	{
+	 //CAN_Transmit(0, 20, ErrorTxMailboxDebug, 0, ID_safety_bms);
+	 //HAL_Delay(100);
 	}
   /* USER CODE END Error_Handler_Debug */
 }

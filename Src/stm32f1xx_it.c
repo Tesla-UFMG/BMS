@@ -72,6 +72,9 @@ extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_usart3_rx;
 extern UART_HandleTypeDef huart3;
+
+extern uint32_t ErrorTxMailboxDebug;
+extern uint32_t TxMailboxdebug;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -101,10 +104,13 @@ void HardFault_Handler(void)
   charger_disable();
   open_shutdown_circuit();
   bms_indicator_light_turn(ON);
+  ErrorTxMailboxDebug = TxMailboxdebug;
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+	//CAN_Transmit(0, 10, ErrorTxMailboxDebug, 0, ID_safety_bms);
+	//HAL_Delay(100);
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
 }

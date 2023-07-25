@@ -207,12 +207,12 @@ void BMS_Monitoring(BMS_struct* BMS) {
 }
 
 void BMS_ErrorTreatment(BMS_struct *BMS) {
-	retries[OVER_VOLTAGE]     += BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE]  ? 1 : -1;
-	retries[UNDER_VOLTAGE]    += BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE] ? 1 : -1;
-	retries[OVER_TEMPERATURE] += BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE] ? 1 : -1;
-	BMS->maxTempErrors = retries[2];
-	BMS->maxVoltageErrors = retries[0];
-	BMS->minVoltageErrors = retries[1];
+		retries[OVER_VOLTAGE]    += BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE] ? 1 : -1;
+		retries[UNDER_VOLTAGE]    += BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE] ? 1 : -1;
+		retries[OVER_TEMPERATURE] += BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE] ? 1 : -1;
+		BMS->maxTempErrors = retries[2];
+		BMS->maxVoltageErrors = retries[0];
+		BMS->minVoltageErrors = retries[1];
 
 	for(uint8_t i = 0; i < NUMBER_OF_ERRORS; i++) {
 		if(retries[i] >= MAX_RETRIES) {
