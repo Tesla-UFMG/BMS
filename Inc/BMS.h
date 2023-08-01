@@ -84,6 +84,7 @@ void BMS_AIR_status(BMS_struct *BMS);
 void BMS_ErrorTreatment(BMS_struct *BMS);
 void BMS_SoC_Calculation(BMS_struct *BMS);
 void BMS_Initial_Charge(BMS_struct *BMS);
+void BMS_SPI_Check(BMS_struct *BMS);
 uint16_t float2uint16(float f);
 
 #endif

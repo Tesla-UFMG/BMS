@@ -20,6 +20,7 @@
 static int8_t retries[NUMBER_OF_ERRORS];
 static uint16_t safety_limits[NUMBER_OF_ERRORS];
 static uint32_t tempTimer;
+static uint32_t errorTimer;
 bool error_flag[NUMBER_OF_ERRORS];
 
 
@@ -207,14 +208,19 @@ void BMS_Monitoring(BMS_struct* BMS) {
 }
 
 void BMS_ErrorTreatment(BMS_struct *BMS) {
+	if(timer_wait_ms(errorTimer, 500)){
 		retries[OVER_VOLTAGE]    += BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE] ? 1 : -1;
 		retries[UNDER_VOLTAGE]    += BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE] ? 1 : -1;
 		retries[OVER_TEMPERATURE] += BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE] ? 1 : -1;
+		if(BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE] || BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE] || BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE]){
+			timer_restart(&errorTimer);
+		}
+	}
 		BMS->maxTempErrors = retries[2];
 		BMS->maxVoltageErrors = retries[0];
 		BMS->minVoltageErrors = retries[1];
 
-	for(uint8_t i = 0; i < NUMBER_OF_ERRORS; i++) {
+	for(uint8_t i = 0; i < (NUMBER_OF_ERRORS - 1); i++) { //SPI check is not included
 		if(retries[i] >= MAX_RETRIES) {
 			retries[i] = MAX_RETRIES;
 			BMS->error |= (1 << i);
@@ -232,6 +238,15 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 		open_shutdown_circuit();
 		bms_indicator_light_turn(ON);
 		led_debug_turn(ON);
+	}
+}
+
+void BMS_SPI_Check(BMS_struct *BMS)
+{
+	if(BMS->sensor[0]->erroSum >= 2000)
+	{
+		error_flag[ERR_SPI] = true;
+		BMS->error |= (1 << ERR_SPI);
 	}
 }
 
@@ -290,7 +305,7 @@ void BMS_Initial_Charge(BMS_struct *BMS) {
 	soc_read(&BMS->read_soc, &BMS->read_rmc, &BMS->read_nos);
 	//read_soc is divided per 1000 because when salving in flash to not lose the precision we *1000 and convert float to uint32_t.
 	if((BMS->read_rmc)/1000 < ACCUMULATOR_TOTAL_CHARGE && (BMS->read_rmc/1000) != 0){
-		BMS->remainingCharge = BMS->read_rmc;
+		BMS->remainingCharge = (float)BMS->read_rmc/1000;
 	}
 	else{
 		BMS->remainingCharge = ACCUMULATOR_TOTAL_CHARGE;

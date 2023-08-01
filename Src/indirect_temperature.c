@@ -14,8 +14,6 @@
 #define TEMP_TIMER		0.5 //Delay between simulations (seconds)
 #define h  20 //Mica plate convection coefficient
 #define A  0.001596 //Mica plate surface area
-#define SC1_HIGH_RANGE 1 //200A Channel of sensor 1
-#define SC2_HIGH_RANGE 3 //200A Channel of sensor 2
 #define CONSTANT_TEMPERATURE_CALC 0.00182 //(1/(0.495*1106.34)) Numerical equation's part
 
 uint8_t initializeController = 0;
@@ -58,23 +56,27 @@ float calculate_single_temperature (float current, BMS_struct *BMS, int celula, 
 
 	for(int i = 0; i < SOC_RANGE; ++i)
 	{
-		if((BMS->socTruncatedValue == SoCPossibleValues[i]) && BMS->mode == BMS_CHARGING && (current <= 0))
+		if((BMS->socTruncatedValue == SoCPossibleValues[i]) && BMS->mode == BMS_CHARGING && (current < 0))
 		{
 			voltageDiference = (float)(OCVVoltage[i] - cellBMSVoltage)/10000;
-			cellTemperature = actualCellTemp + CONSTANT_TEMPERATURE_CALC*(10*current*(voltageDiference) - 2*(2*actualCellTemp - lastCellTemp - nextCellTemp) - (h*A*(actualCellTemp - 3000)))*TEMP_TIMER - (2730);
+			cellTemperature = actualCellTemp + CONSTANT_TEMPERATURE_CALC*((-1)*10*current*(voltageDiference) - 2*(2*actualCellTemp - lastCellTemp - nextCellTemp) - (h*A*(actualCellTemp - 3000)))*TEMP_TIMER - (2730);
+			return (uint16_t)cellTemperature;
 		}
-		if((BMS->socTruncatedValue + 10 == SoCPossibleValues[i]) && BMS->mode == BMS_MONITORING && (current >= 0))
+		else if((BMS->socTruncatedValue + 10 == SoCPossibleValues[i]) && BMS->mode == BMS_MONITORING && (current > 0))
 		{
 			voltageDiference = (float)(OCVVoltage[i] - cellBMSVoltage)/10000;
 			cellTemperature = actualCellTemp + CONSTANT_TEMPERATURE_CALC*(10*current*(voltageDiference) - 2*(2*actualCellTemp - lastCellTemp - nextCellTemp) - (h*A*(actualCellTemp - 3000)))*TEMP_TIMER - (2730);
-		};
-		if((BMS->socTruncatedValue + 10 == SoCPossibleValues[i]) && BMS->mode == BMS_MONITORING && (current < 0))
+			return (uint16_t)cellTemperature;
+		}
+		else if((BMS->socTruncatedValue + 10 == SoCPossibleValues[i]) && BMS->mode == BMS_MONITORING && (current < 0))
 		{
 			voltageDiference = (float)(OCVVoltage[i] - cellBMSVoltage)/10000;
 			cellTemperature = actualCellTemp + CONSTANT_TEMPERATURE_CALC*(10*current*((-1)*voltageDiference) - 2*(2*actualCellTemp - lastCellTemp - nextCellTemp) - (h*A*(actualCellTemp - 3000)))*TEMP_TIMER - (2730);
-		};
+			return (uint16_t)cellTemperature;
+		}
+		else
+			return BMS->sensor[slave]->GxV[celula];
 	}
-	return (uint16_t)cellTemperature;
 }
 
 void calculate_temperatures (BMS_struct *BMS)

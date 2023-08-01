@@ -30,6 +30,9 @@
 #include "dwt_delay.h"
 #include "soc_save.h"
 #include "can.h"
+#include "shutdown_circuit.h"
+#include "charger.h"
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -108,7 +111,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc) {
 
 	// Integer Calculation
 	float delta_time = 0.00012584; //Calculado empiricamente usando quantas vezes uma variável colocada dentro dessa função atualiza em 30 segundos
-	BMS->integration = (BMS->current[0] + BMS->current[2]) * delta_time;
+	BMS->integration = (BMS->current[SC1_HIGH_RANGE] + BMS->current[SC2_HIGH_RANGE]) * delta_time;
 	BMS->totalIntegration += BMS->integration;
 
 	BMS_SoC_Calculation(BMS);
@@ -176,6 +179,7 @@ int main(void)
   static uint32_t SoCTimer;
 
   BMS_Initial_Charge(BMS);
+  soc_save(100*1000, 108000*1000, BMS);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -183,6 +187,7 @@ int main(void)
   {
 	  BMS_Monitoring(BMS);
 	  BMS_ErrorTreatment(BMS);
+	  BMS_SPI_Check(BMS);
 
 //	      if (timer_wait_ms(canTimer, 100))
 //	      {
@@ -201,7 +206,7 @@ int main(void)
 	      			//read_soc is divided per 1000 because when salving in flash to not lose the precision we *1000 and convert float to uint32_t.
 	      			if(BMS->socPrecisionValue <= ((BMS->read_soc/1000)-2)) //4% security variance
 	      			{
-	      				soc_save(BMS->socPrecisionValue*1000, BMS->actualCharge*1000, BMS);
+	      				//soc_save(BMS->socPrecisionValue*1000, BMS->actualCharge*1000, BMS);
 	      			}
 	      			--AIRStatusMonitoring;
 	      			timer_restart(&SoCTimer);

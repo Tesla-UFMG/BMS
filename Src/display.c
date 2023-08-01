@@ -50,6 +50,7 @@ void display_show(BMS_struct *BMS)
 		pageMessageReceived = 0;
 		timer_restart(&pageTimeout);
 		sendCommand("sendme");
+		timer_restart(&updateTimer);
 
 		while (!pageMessageReceived)
 		{
@@ -64,10 +65,10 @@ void display_show(BMS_struct *BMS)
 		{
 			NexXfloatSetValue(0, BMS->maxCellVoltage/100);
 			NexXfloatSetValue(1, BMS->minCellVoltage / 100);
-			NexXfloatSetValue(2, BMS->tractiveSystemVoltage);
+			NexXfloatSetValue(2, 81600);
 			NexXfloatSetValue(3, BMS->maxCellTemperature * 10);
 			NexVariableSetValue(2, BMS->AIR);
-			NexXfloatSetValue(4, ((BMS->current[1])) * 1000);
+			NexXfloatSetValue(4, ((BMS->current[2] + BMS->current[0])) * 1000);
 			NexNumberSetValue(2, BMS->error);
 		}
 		else if (actual_page == PAGE1)
@@ -151,5 +152,4 @@ void display_show(BMS_struct *BMS)
             NexXfloatSetValue(16, BMS->sensor[3]->GxV[4]*10);
 		}
 	}
-	timer_restart(&updateTimer);
 }
