@@ -179,7 +179,7 @@ int main(void)
   static uint32_t SoCTimer;
 
   BMS_Initial_Charge(BMS);
-  soc_save(100*1000, 108000*1000, BMS);
+  //soc_save(100*1000, 108000*1000, BMS);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -189,11 +189,6 @@ int main(void)
 	  BMS_ErrorTreatment(BMS);
 	  BMS_SPI_Check(BMS);
 
-//	      if (timer_wait_ms(canTimer, 100))
-//	      {
-//	        BMS_Datalloger(BMS);
-//	        timer_restart(&canTimer);
-//	      }
 
 	      if (timer_wait_ms(SoCTimer, 60000))
 	      {

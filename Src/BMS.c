@@ -37,7 +37,7 @@ void BMS_Init(BMS_struct *BMS) {
 	}
 
 	BMS->error = ERR_NO_ERROR;
-	BMS->mode  = BMS_MONITORING;
+	BMS->mode  = BMS_CHARGING;
 	BMS_SetSafetyLimits(BMS);
 
 	close_shutdown_circuit();
@@ -208,11 +208,11 @@ void BMS_Monitoring(BMS_struct* BMS) {
 }
 
 void BMS_ErrorTreatment(BMS_struct *BMS) {
-	if(timer_wait_ms(errorTimer, 500)){
+	if(timer_wait_ms(errorTimer, 200)){
 		retries[OVER_VOLTAGE]    += BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE] ? 1 : -1;
 		retries[UNDER_VOLTAGE]    += BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE] ? 1 : -1;
 		retries[OVER_TEMPERATURE] += BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE] ? 1 : -1;
-		if(BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE] || BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE] || BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE]){
+		if((BMS->maxCellVoltage > safety_limits[OVER_VOLTAGE]) || (BMS->minCellVoltage < safety_limits[UNDER_VOLTAGE]) || (BMS->maxCellTemperature > safety_limits[OVER_TEMPERATURE])){
 			timer_restart(&errorTimer);
 		}
 	}
