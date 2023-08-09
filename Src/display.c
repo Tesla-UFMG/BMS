@@ -65,7 +65,7 @@ void display_show(BMS_struct *BMS)
 		{
 			NexXfloatSetValue(0, BMS->maxCellVoltage/100);
 			NexXfloatSetValue(1, BMS->minCellVoltage / 100);
-			NexXfloatSetValue(2, 8160);
+			NexXfloatSetValue(2, BMS->lastMinCellVoltageDebug/100);
 			NexXfloatSetValue(3, BMS->maxCellTemperature * 10);
 			NexVariableSetValue(2, BMS->AIR);
 			NexXfloatSetValue(4, ((BMS->current[2] + BMS->current[0])) * 1000);
