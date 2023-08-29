@@ -227,12 +227,12 @@ void BMS_Datalloger(BMS_struct* BMS) {
 		CAN_Transmit(sensor->GxV[4], sensor->SOC, sensor->REF, sensor->DCC, can_id);
 		can_id++;
 	}
-	CAN_Transmit(BMS->maxCellTemperature, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, 50);
-	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, 51);
-	CAN_Transmit(16800, 50, 0, 0, 52);
-	CAN_Transmit(0, BMS->tractiveSystemVoltage/10, BMS->averageCellTemperature, BMS->maxCellTemperature, 53);
-	CAN_Transmit(BMS->minCellVoltage/100, 0, float2uint16(BMS->current[0]), float2uint16(BMS->current[1]), 54);
-	CAN_Transmit(float2uint16(BMS->current[2]), float2uint16(BMS->current[3]), 0, 0, 55);
+	CAN_Transmit(BMS->maxCellTemperature, BMS->minCellVoltage, BMS->deltaVoltage, BMS->maxCellTemperature, 226);
+	CAN_Transmit(BMS->mode, BMS->error, BMS->AIR, BMS->tractiveSystemVoltage, 227);
+	CAN_Transmit(50, 51, 52, 53, 228);
+	CAN_Transmit(0, BMS->tractiveSystemVoltage/10, BMS->averageCellTemperature, BMS->maxCellTemperature, 229);
+	CAN_Transmit(BMS->minCellVoltage/100, 0, float2uint16(BMS->current[0]), float2uint16(BMS->current[1]), 230);
+	CAN_Transmit(float2uint16(BMS->current[2]), float2uint16(BMS->current[3]), 0, 0, 231);
 }
 
 uint16_t float2uint16(float f) {

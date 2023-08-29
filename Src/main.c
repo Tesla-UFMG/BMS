@@ -160,8 +160,8 @@ int main(void)
     /* USER CODE END WHILE */
 	BMS_Monitoring(BMS);
 	BMS_ErrorTreatment(BMS);
-	//BMS_Datalloger(BMS);
-	//display_show(BMS);
+	BMS_Datalloger(BMS);
+	display_show(BMS);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -632,6 +632,10 @@ void Error_Handler(void)
 	/* User can add his own implementation to report the HAL error return state */
 	while(1)
 	{
+		charger_disable();
+		open_shutdown_circuit();
+		bms_indicator_light_turn(ON);
+		led_debug_turn(ON);
 	}
   /* USER CODE END Error_Handler_Debug */
 }
