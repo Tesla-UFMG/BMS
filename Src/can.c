@@ -69,7 +69,7 @@ void CAN_SendMessage(uint32_t id) {
 //	if (HAL_CAN_GetTxMailboxesFreeLevel(&hcan) > 0)
 		if (HAL_CAN_AddTxMessage(&hcan, &TxHeader, TxData, &TxMailbox)
 				!= HAL_OK) {
-			Error_Handler();
+		Error_Handler();
 		}
 	HAL_Delay(20);
 }
