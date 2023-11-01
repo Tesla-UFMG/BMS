@@ -175,28 +175,44 @@ void LTC_ReceiveMessage(LTC_sensor* sensor, LTC_config* config, uint16_t rx_data
 		break;
 
 	case LTC_COMMAND_RDCVA:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[0] = rx_data[0];
 		sensor->CxV[1] = rx_data[1];
 		sensor->CxV[2] = rx_data[2];
+		sensor->erroSum = 0;
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDCVB:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[3] = rx_data[0];
 		sensor->CxV[4] = rx_data[1];
 		sensor->CxV[5] = rx_data[2];
+		sensor->erroSum = 0;
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDCVC:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[6] = rx_data[0];
 		sensor->CxV[7] = rx_data[1];
 		sensor->CxV[8] = rx_data[2];
+		sensor->erroSum = 0;
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDCVD:
+		if (rx_data[3] == LTC_PEC2(rx_data,3)){
 		sensor->CxV[9]  = rx_data[0];
 		sensor->CxV[10] = rx_data[1];
 		sensor->CxV[11] = rx_data[2];
+		sensor->erroSum = 0;
 		break;
+		}
+		else sensor->erroSum += 1;
 
 	case LTC_COMMAND_RDAUXA:
 		sensor->GxV[0] = rx_data[0];

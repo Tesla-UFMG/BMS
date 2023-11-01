@@ -69,6 +69,7 @@ typedef struct LTC_sensor{
 	uint16_t V_MAX;
 	uint16_t V_MIN;
 	uint16_t V_DELTA;
+	uint16_t erroSum;
 }LTC_sensor;
 
 #define LTC_COMMAND_WRCFG 	0b00000000001	// Write Configuration Register Group
