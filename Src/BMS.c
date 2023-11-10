@@ -35,7 +35,7 @@ void BMS_Init(BMS_struct *BMS) {
 
 	BMS->error = ERR_NO_ERROR;
 	BMS->mode  = BMS_MONITORING;
-	//BMS->mode  = BMS_CHARGING;
+	//BMS->mode  = BMS_BALANCING;
 	BMS_SetSafetyLimits(BMS);
 
 	close_shutdown_circuit();
