@@ -27,6 +27,7 @@
 #include "constants.h"
 #include "display.h"
 #include "dwt_delay.h"
+#include "CAN.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

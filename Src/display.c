@@ -11,6 +11,9 @@ extern UART_HandleTypeDef huart3;
 extern uint8_t uart_user_message[256];	/* Buffer received for user access */
 extern bool error_flag[NUMBER_OF_ERRORS];
 
+
+uint8_t actual_page;
+
 //uint8_t flag_information_to_send = 0;
 //NextionPage_e previous_page = PAGE0;
 //NextionPage_e actual_page   = PAGE0;

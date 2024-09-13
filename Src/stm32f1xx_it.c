@@ -60,7 +60,7 @@
 /* USER CODE BEGIN 0 */
 extern UART_HandleTypeDef huart3;
 extern BMS_struct* BMS;
-uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];	/* Local DMA buffer for circular DMA */
+extern uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];	/* Local DMA buffer for circular DMA */
 uint8_t uart_message[DMA_RX_BUFFER_SIZE];
 /* USER CODE END 0 */
 
