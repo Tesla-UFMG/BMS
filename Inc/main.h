@@ -104,6 +104,7 @@ void Error_Handler(void);
 #define AIR_AUX_PLUS_GPIO_Port GPIOB
 #define ERROR_LED_Pin GPIO_PIN_7
 #define ERROR_LED_GPIO_Port GPIOB
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

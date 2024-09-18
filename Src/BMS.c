@@ -229,8 +229,8 @@ void BMS_ErrorTreatment(BMS_struct *BMS) {
 }
 
 void BMS_Datalloger(BMS_struct *BMS) {
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 12; j++)
+	for (int i = 0; i < NUMBER_OF_PACKS; i++) {
+		for (int j = 0; j < NUMBER_OF_CELLS; j++)
 			CAN_Send(CanID_SS_PCK1_TENS_CELL_1 + j + (20 * i),
 					BMS->sensor[i]->CxV[j]);
 		for (int j = 0; j < 5; j++)
